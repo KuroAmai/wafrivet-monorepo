@@ -26,7 +26,7 @@ export default function AuthLayout({ children }: { children: ReactNode }) {
         {/* Logo */}
         <div className="relative z-10 p-10">
           <Link href={process.env.NEXT_PUBLIC_MARKETING_URL || "https://www.wafrivet.com"}>
-            <Image src="/logo.svg" alt="Wafrivet" width={280} height={100} className="h-60 w-auto brightness-0 invert" priority />
+            <Image src="/logo.svg" alt="Wafrivet" width={280} height={100} className="h-20 w-auto brightness-0 invert" priority />
           </Link>
         </div>
 

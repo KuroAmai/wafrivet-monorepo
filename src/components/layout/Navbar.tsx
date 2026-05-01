@@ -17,8 +17,8 @@ export const Navbar = () => {
     <header className="sticky top-0 z-50 bg-transparent border-b border-black/[0.04]">
       <div className="container mx-auto px-4 md:px-6 h-20 md:h-24 flex items-center justify-between max-w-7xl">
         <Link to="/" className="flex items-center shrink-0">
-          <img src="/logo.svg" alt="Wafrivet" className="hidden md:block h-28 md:h-36 w-auto" />
-          <img src="/logo-mark.svg" alt="Wafrivet" className="md:hidden h-16 w-auto" />
+          <img src="/logo.svg" alt="Wafrivet" className="hidden md:block h-12 md:h-16 w-auto" />
+          <img src="/logo-mark.svg" alt="Wafrivet" className="md:hidden h-10 w-auto" />
         </Link>
 
         <nav className="font-quicksand hidden lg:flex items-center bg-primary rounded-full p-1.5 shadow-sm">
