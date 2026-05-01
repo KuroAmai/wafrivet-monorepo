@@ -10,12 +10,27 @@ import {
   SealWarning,
   PawPrint
 } from "@phosphor-icons/react";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 const ANIMALS = ["Cattle", "Poultry", "Pigs", "Goats", "Sheep"];
 
 export default function ShopHome() {
   const [search, setSearch] = useState("");
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+
+  useEffect(() => {
+    // Check for mock token to determine guest vs authenticated state
+    const hasToken = typeof document !== 'undefined' && document.cookie.includes("jwt=mock-token");
+    setIsLoggedIn(hasToken);
+  }, []);
+
+  const handleProtectedAction = (e: React.MouseEvent) => {
+    if (!isLoggedIn) {
+      e.preventDefault();
+      const loginUrl = "https://app.wafrivet.com/login?redirect=" + encodeURIComponent(window.location.href);
+      window.location.href = loginUrl;
+    }
+  };
 
   return (
     <div className="min-h-screen bg-[#F9FAFB] pb-20 font-sans">
@@ -37,29 +52,48 @@ export default function ShopHome() {
         </section>
 
         {/* ACTION STRIP: PERSONALIZED UPDATES */}
-        <section className="mb-12 flex gap-4 overflow-x-auto no-scrollbar pb-2">
-          {/* Order Tracking */}
-          <div className="flex-shrink-0 w-[300px] bg-white p-5 rounded-[28px] border border-gray-100 flex items-center gap-4 cursor-pointer">
-            <div className="w-12 h-12 bg-blue-50 rounded-2xl flex items-center justify-center text-blue-600">
-              <Package size={24} weight="duotone" />
+        {isLoggedIn ? (
+          <section className="mb-12 flex gap-4 overflow-x-auto no-scrollbar pb-2">
+            {/* Order Tracking */}
+            <div className="flex-shrink-0 w-[300px] bg-white p-5 rounded-[28px] border border-gray-100 flex items-center gap-4 cursor-pointer">
+              <div className="w-12 h-12 bg-blue-50 rounded-2xl flex items-center justify-center text-blue-600">
+                <Package size={24} weight="duotone" />
+              </div>
+              <div>
+                <h2 className="text-[14px] font-bold text-gray-900">Arriving at 2:30 PM</h2>
+                <p className="text-[12px] text-gray-400">Order #WF-9281</p>
+              </div>
             </div>
-            <div>
-              <h2 className="text-[14px] font-bold text-gray-900">Arriving at 2:30 PM</h2>
-              <p className="text-[12px] text-gray-400">Order #WF-9281</p>
-            </div>
-          </div>
 
-          {/* Diagnosis Recommendation */}
-          <div className="flex-shrink-0 w-[300px] bg-[#2D4D31] p-5 rounded-[28px] flex items-center gap-4 text-white cursor-pointer">
-            <div className="w-12 h-12 bg-white/10 rounded-2xl flex items-center justify-center">
-              <SealWarning size={24} weight="fill" />
+            {/* Diagnosis Recommendation */}
+            <div className="flex-shrink-0 w-[300px] bg-[#2D4D31] p-5 rounded-[28px] flex items-center gap-4 text-white cursor-pointer">
+              <div className="w-12 h-12 bg-white/10 rounded-2xl flex items-center justify-center">
+                <SealWarning size={24} weight="fill" />
+              </div>
+              <div>
+                <h2 className="text-[14px] font-bold">New Diagnosis Result</h2>
+                <p className="text-[12px] text-white/70">Terramycin for Cattle</p>
+              </div>
             </div>
-            <div>
-              <h2 className="text-[14px] font-bold">New Diagnosis Result</h2>
-              <p className="text-[12px] text-white/70">Terramycin for Cattle</p>
-            </div>
-          </div>
-        </section>
+          </section>
+        ) : (
+          <section className="mb-12">
+             <div className="bg-white p-6 rounded-[28px] border border-gray-100 flex items-center justify-between">
+                <div className="flex items-center gap-4">
+                   <div className="w-12 h-12 bg-[#2D4D31]/5 rounded-2xl flex items-center justify-center text-[#2D4D31]">
+                      <TrendUp size={24} weight="bold" />
+                   </div>
+                   <div>
+                      <h2 className="text-[15px] font-bold text-gray-900">Sign in for a personalized experience</h2>
+                      <p className="text-[13px] text-gray-500">Track orders and see recommendations for your animals</p>
+                   </div>
+                </div>
+                <button onClick={handleProtectedAction} className="bg-[#2D4D31] text-white px-6 py-3 rounded-xl font-bold text-[14px] hover:bg-[#243f28] transition-colors">
+                   Sign In
+                </button>
+             </div>
+          </section>
+        )}
 
         {/* SHOP BY ANIMAL */}
         <section className="mb-12">

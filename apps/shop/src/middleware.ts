@@ -3,13 +3,22 @@ import type { NextRequest } from "next/server";
 
 export function middleware(request: NextRequest) {
   const token = request.cookies.get("jwt")?.value || request.cookies.get("token")?.value;
-  const isDashboardPage = request.nextUrl.pathname.startsWith("/");
+  const { pathname } = request.nextUrl;
 
-  if (isDashboardPage && !token) {
+  // Protected paths that require authentication
+  const protectedPaths = ["/checkout", "/profile", "/orders"];
+  const isProtected = protectedPaths.some(path => pathname.startsWith(path));
+
+  if (isProtected && !token) {
     const loginUrl = process.env.NEXT_PUBLIC_APP_URL 
       ? `${process.env.NEXT_PUBLIC_APP_URL}/login` 
       : "https://app.wafrivet.com/login";
-    return NextResponse.redirect(new URL(loginUrl, request.url));
+    
+    // Append redirect param so user returns here after login
+    const url = new URL(loginUrl, request.url);
+    url.searchParams.set("redirect", request.url);
+    
+    return NextResponse.redirect(url);
   }
 
   return NextResponse.next();
