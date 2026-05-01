@@ -1,6 +1,6 @@
 "use client";
 
-import { Plus, Heart, MapPin, Snowflake, CreditCard } from "@phosphor-icons/react";
+import { Plus, Heart, MapPin, Snowflake } from "@phosphor-icons/react";
 import { motion } from "framer-motion";
 
 interface ProductCardProps {
@@ -11,11 +11,10 @@ interface ProductCardProps {
   image: string;
   distance: string;
   stock?: number;
-  bnplEligible?: boolean;
   coldChain?: boolean;
 }
 
-export function ProductCard({ name, price, category, image, distance, stock, bnplEligible, coldChain }: ProductCardProps) {
+export function ProductCard({ name, price, category, image, distance, stock, coldChain }: ProductCardProps) {
   const isLowStock = stock !== undefined && stock < 5;
 
   return (
@@ -38,11 +37,6 @@ export function ProductCard({ name, price, category, image, distance, stock, bnp
           {coldChain && (
             <span className="bg-blue-500/90 backdrop-blur-md text-white text-[10px] font-bold px-2 py-1 rounded-lg flex items-center gap-1 shadow-sm">
               <Snowflake size={12} weight="bold" /> COLD CHAIN
-            </span>
-          )}
-          {bnplEligible && (
-            <span className="bg-[#2D4D31]/90 backdrop-blur-md text-white text-[10px] font-bold px-2 py-1 rounded-lg flex items-center gap-1 shadow-sm">
-              <CreditCard size={12} weight="bold" /> BNPL
             </span>
           )}
         </div>
