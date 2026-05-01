@@ -65,9 +65,7 @@ export default function NotificationsPage() {
               notif.isUnread ? 'bg-blue-50/30' : ''
             }`}
           >
-            {notif.isUnread && (
-              <div className="absolute left-0 top-0 bottom-0 w-1 bg-blue-500 rounded-r-full" />
-            )}
+
             
             <div className={`w-12 h-12 ${notif.bg} ${notif.color} rounded-2xl flex items-center justify-center flex-shrink-0 transition-transform group-hover:scale-110`}>
               <notif.icon size={24} weight="bold" />

@@ -40,11 +40,7 @@ export default function SavedItemsPage() {
           <div key={item.id} className="bg-white p-5 rounded-[32px] border border-gray-100 shadow-sm flex flex-col sm:flex-row items-center gap-6 group hover:border-red-100 transition-all">
             <div className="w-24 h-24 rounded-2xl overflow-hidden bg-gray-50 flex-shrink-0 relative">
                <img src={item.image} alt={item.name} className="w-full h-full object-cover transition-transform group-hover:scale-110" />
-               <div className="absolute top-2 right-2">
-                  <div className="w-8 h-8 bg-white/90 backdrop-blur-md rounded-lg flex items-center justify-center text-red-500 shadow-sm">
-                     <Heart size={16} weight="fill" />
-                  </div>
-               </div>
+               {/* Removed heart from image as per user request */}
             </div>
             
             <div className="flex-1 text-center sm:text-left">
@@ -58,7 +54,10 @@ export default function SavedItemsPage() {
                 <ShoppingCart size={18} weight="bold" />
                 Add to Cart
               </button>
-              <button className="p-3 text-gray-300 hover:text-red-500 hover:bg-red-50 rounded-xl transition-all">
+              <button className="p-3 text-red-500 hover:bg-red-50 rounded-xl transition-all" title="Remove from wishlist">
+                <Heart size={20} weight="fill" />
+              </button>
+              <button className="p-3 text-gray-300 hover:text-red-500 hover:bg-red-50 rounded-xl transition-all" title="Delete">
                 <Trash size={20} weight="bold" />
               </button>
             </div>
