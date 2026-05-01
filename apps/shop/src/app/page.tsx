@@ -53,7 +53,7 @@ export default function ShopHome() {
 
         {/* ACTION STRIP: PERSONALIZED UPDATES */}
         {isLoggedIn ? (
-          <section className="mb-12 flex gap-4 overflow-x-auto no-scrollbar pb-2">
+          <section className="mb-12 flex gap-4 overflow-x-auto no-scrollbar py-2 px-2">
             {/* Order Tracking */}
             <div className="flex-shrink-0 w-[300px] bg-white p-5 rounded-[28px] border border-gray-100 flex items-center gap-4 cursor-pointer">
               <div className="w-12 h-12 bg-blue-50 rounded-2xl flex items-center justify-center text-blue-600">
@@ -97,7 +97,7 @@ export default function ShopHome() {
 
         {/* SHOP BY ANIMAL */}
         <section className="mb-12">
-          <div className="flex items-center gap-3 overflow-x-auto no-scrollbar">
+          <div className="flex items-center gap-3 overflow-x-auto no-scrollbar py-4 px-2">
             {ANIMALS.map((animal) => (
               <button key={animal} className="flex-shrink-0 flex items-center gap-2 px-6 py-3.5 bg-white border border-gray-100 rounded-2xl group shadow-sm transition-all">
                 <PawPrint size={18} className="text-gray-300 group-hover:text-[#2D4D31]" />
