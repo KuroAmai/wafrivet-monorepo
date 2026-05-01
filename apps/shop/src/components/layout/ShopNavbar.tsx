@@ -46,11 +46,11 @@ export function ShopNavbar() {
               {isLoggedIn && <span className="absolute top-2.5 right-2.5 w-2 h-2 bg-red-500 rounded-full border-2 border-[#F9FAFB]"></span>}
             </button>
             
-            <Link href={isLoggedIn ? "/cart" : "https://app.wafrivet.com/login"} className="group flex items-center gap-2 p-1.5 md:p-2 bg-[#2D4D31] hover:bg-[#243f28] rounded-2xl transition-all md:pr-4">
-              <div className="w-9 h-9 md:w-10 md:h-10 bg-white/10 rounded-xl flex items-center justify-center text-white relative">
-                <ShoppingCart size={20} md:size={22} weight="bold" />
+            <Link href={isLoggedIn ? "/cart" : "https://app.wafrivet.com/login"} className="group flex items-center gap-2 p-2 bg-transparent md:bg-[#2D4D31] hover:bg-gray-100 md:hover:bg-[#243f28] rounded-2xl transition-all md:pr-4">
+              <div className="w-10 h-10 bg-white md:bg-white/10 rounded-xl flex items-center justify-center text-[#2D4D31] md:text-white relative border border-gray-100 md:border-none">
+                <ShoppingCart size={22} weight="bold" />
                 {isLoggedIn && (
-                  <span className="absolute -top-1.5 -right-1.5 bg-white text-[#2D4D31] text-[10px] font-black w-5 h-5 flex items-center justify-center rounded-full border-2 border-[#2D4D31]">
+                  <span className="absolute -top-1.5 -right-1.5 bg-[#2D4D31] md:bg-white text-white md:text-[#2D4D31] text-[10px] font-black w-5 h-5 flex items-center justify-center rounded-full border-2 border-white md:border-[#2D4D31]">
                     3
                   </span>
                 )}
