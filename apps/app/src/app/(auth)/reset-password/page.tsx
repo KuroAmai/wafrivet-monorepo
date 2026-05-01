@@ -48,7 +48,6 @@ export default function ResetPasswordPage() {
             {...register("password")}
             label="New Password" 
             type="password"
-            variant="bordered"
             errorMessage={errors.password?.message as string}
             isInvalid={!!errors.password}
           />
@@ -56,7 +55,6 @@ export default function ResetPasswordPage() {
             {...register("confirmPassword")}
             label="Confirm Password" 
             type="password"
-            variant="bordered"
             errorMessage={errors.confirmPassword?.message as string}
             isInvalid={!!errors.confirmPassword}
           />

@@ -22,7 +22,7 @@ export default function AuthLayout({ children }: { children: ReactNode }) {
 
         {/* Logo */}
         <div className="relative z-10 p-10">
-          <Link href="http://localhost:5173">
+          <Link href={process.env.NEXT_PUBLIC_MARKETING_URL || "https://www.wafrivet.com"}>
             <Image src="/logo.svg" alt="Wafrivet" width={280} height={100} className="h-60 w-auto brightness-0 invert" priority />
           </Link>
         </div>
@@ -49,7 +49,7 @@ export default function AuthLayout({ children }: { children: ReactNode }) {
       <div className="flex-1 flex flex-col min-h-screen bg-white overflow-y-auto">
         {/* Mobile logo */}
         <div className="lg:hidden px-6 pt-8 pb-0">
-          <Link href="http://localhost:5173">
+          <Link href={process.env.NEXT_PUBLIC_MARKETING_URL || "https://www.wafrivet.com"}>
             <Image src="/logo.svg" alt="Wafrivet" width={130} height={44} className="h-10 w-auto" />
           </Link>
         </div>

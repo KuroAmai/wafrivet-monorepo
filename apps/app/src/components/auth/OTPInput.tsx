@@ -54,7 +54,7 @@ export function OTPInput() {
     setIsVerifying(true);
     await new Promise(r => setTimeout(r, 1200));
     // Mock success — redirect by role
-    window.location.href = "http://localhost:3002";
+    window.location.href = process.env.NEXT_PUBLIC_APP_URL || "https://app.wafrivet.com/dashboard";
   };
 
   const code = digits.join("");
