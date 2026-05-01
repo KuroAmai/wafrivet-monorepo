@@ -1,17 +1,19 @@
 import { getServerAuth } from "@wafrivet/auth";
 import Link from "next/link";
 import { ArrowRight, Plant, Pill, Truck } from "@phosphor-icons/react";
-import { redirect } from "next/navigation";
+
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
 
 export default async function DashboardPage() {
-  const auth = await getServerAuth();
-  
-  if (!auth.authenticated) {
-    redirect("/login");
+  let auth;
+  try {
+    auth = await getServerAuth();
+  } catch (e) {
+    auth = { authenticated: false };
   }
-
-  // Provide a fallback in case role is somehow missing
-  const role = auth.role || "farmer";
+  
+  const role = (auth.authenticated && auth.role) ? (auth.role as any) : "farmer";
 
   const getRoleBadge = (role: string) => {
     const badges: Record<string, { label: string, bg: string, text: string }> = {
@@ -26,10 +28,11 @@ export default async function DashboardPage() {
 
   return (
     <div className="max-w-5xl mx-auto space-y-8">
-      {/* Header Section */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">Welcome back, {(auth.user as { name?: string })?.name || "Emeka"}</h1>
+          <h1 className="text-2xl font-bold text-gray-900">
+            Welcome back, {auth.authenticated && auth.user ? (auth.user as { name?: string }).name || "Emeka" : "Emeka"}
+          </h1>
           <div className="mt-2">{getRoleBadge(role)}</div>
         </div>
         <div className="text-right">
@@ -38,7 +41,6 @@ export default async function DashboardPage() {
         </div>
       </div>
 
-      {/* Quick Links Section */}
       <div>
         <h2 className="text-lg font-semibold text-gray-900 mb-4">Quick Links</h2>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">

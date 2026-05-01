@@ -1,12 +1,18 @@
 import { getServerAuth } from "@wafrivet/auth";
-import { redirect } from "next/navigation";
 import { Sidebar } from "@/components/dashboard/Sidebar";
 import { TopBar } from "@/components/dashboard/TopBar";
 
-export default async function DashboardLayout({ children }: { children: React.ReactNode }) {
-  const auth = await getServerAuth();
-  if (!auth.authenticated) redirect("/login");
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
 
+export default async function DashboardLayout({ children }: { children: React.ReactNode }) {
+  let auth;
+  try {
+    auth = await getServerAuth();
+  } catch (e) {
+    auth = { authenticated: false };
+  }
+  
   return (
     <div className="flex h-screen overflow-hidden bg-gray-50">
       <Sidebar />
