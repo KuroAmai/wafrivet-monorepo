@@ -95,7 +95,7 @@ export const Navbar = () => {
         </nav>
 
         <div className="hidden lg:flex items-center gap-3">
-          <a href="https://app.wafrivet.com/login"className="text-[15px] font-medium text-[#111811] hover:text-[#2D4D31] transition-colors">
+          <a href="https://app.wafrivet.com/login" className="text-[15px] font-medium text-[#111811] hover:text-[#2D4D31] transition-colors">
             Login
           </a>
           <Link
@@ -145,7 +145,7 @@ export const Navbar = () => {
                 <Link to="/riders" className="py-3 px-2 rounded-lg hover:bg-muted text-[15px] font-medium">
                   Riders & logistics
                 </Link>
-                <a href={import.meta.env?.VITE_APP_URL || process.env.NEXT_PUBLIC_APP_URL || "https://app.wafrivet.com/login"} className="mt-2 py-3 px-2 rounded-lg hover:bg-muted text-[15px] font-medium text-[#111811]">
+                <a href="https://app.wafrivet.com/login" className="mt-2 py-3 px-2 rounded-lg hover:bg-muted text-[15px] font-medium text-[#111811]">
                   Login
                 </a>
                 <Link to="/#pricing" className="mt-2 py-3 px-4 rounded-full bg-primary text-primary-foreground text-center text-[15px] font-semibold">
