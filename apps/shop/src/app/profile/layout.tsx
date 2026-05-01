@@ -32,17 +32,24 @@ export default function ProfileLayout({
   const navItems = [
     { 
       icon: User, 
-      label: "Personal Info", 
-      href: "/profile/personal-info",
+      label: "Account Overview", 
+      href: "/profile",
       color: "text-blue-500", 
       bg: "bg-blue-50" 
+    },
+    { 
+      icon: SealCheck, 
+      label: "Personal Info", 
+      href: "/profile/personal-info",
+      color: "text-emerald-500", 
+      bg: "bg-emerald-50" 
     },
     { 
       icon: MapPin, 
       label: "My Addresses", 
       href: "/profile/addresses",
-      color: "text-[#2D4D31]", 
-      bg: "bg-[#2D4D31]/5" 
+      color: "text-orange-500", 
+      bg: "bg-orange-50" 
     },
     { 
       icon: CreditCard, 
@@ -62,8 +69,8 @@ export default function ProfileLayout({
       icon: Bell, 
       label: "Notifications", 
       href: "/profile/notifications",
-      color: "text-orange-500", 
-      bg: "bg-orange-50" 
+      color: "text-amber-500", 
+      bg: "bg-amber-50" 
     },
   ];
 
