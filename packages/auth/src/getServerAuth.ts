@@ -5,11 +5,25 @@ export type ServerAuthResult =
   | { authenticated: true; role?: string; user?: unknown };
 
 export async function getServerAuth(): Promise<ServerAuthResult> {
-  const cookieStore = await cookies();
-  const jwt = cookieStore.get("jwt")?.value || cookieStore.get("token")?.value;
+  try {
+    const cookieStore = await cookies();
+    const jwt = cookieStore.get("jwt")?.value || cookieStore.get("token")?.value;
 
-  if (!jwt) return { authenticated: false };
+    if (!jwt) return { authenticated: false };
 
-  return { authenticated: true };
+    // During mocking/demo, we allow the mock-token
+    if (jwt === "mock-token") {
+       return { 
+         authenticated: true, 
+         role: "farmer", 
+         user: { name: "Emeka Okafor", location: "Lagos Island" } 
+       };
+    }
+
+    return { authenticated: true };
+  } catch (e) {
+    // Build time safety
+    return { authenticated: false };
+  }
 }
 

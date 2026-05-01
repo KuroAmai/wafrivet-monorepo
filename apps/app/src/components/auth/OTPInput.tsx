@@ -53,7 +53,10 @@ export function OTPInput() {
   const handleVerify = async (code: string) => {
     setIsVerifying(true);
     await new Promise(r => setTimeout(r, 1200));
-    // Mock success — redirect to Shop (as per new requirements)
+    // Mock success — set a dummy cookie and redirect to Shop
+    document.cookie = "jwt=mock-token; path=/; domain=.wafrivet.com; max-age=3600";
+    document.cookie = "jwt=mock-token; path=/; max-age=3600"; // Fallback for local dev
+    
     const shopUrl = process.env.NEXT_PUBLIC_SHOP_URL || "https://shop.wafrivet.com";
     window.location.href = shopUrl;
   };
