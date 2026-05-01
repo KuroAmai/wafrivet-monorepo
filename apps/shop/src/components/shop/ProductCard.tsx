@@ -22,14 +22,14 @@ export function ProductCard({ name, price, category, image, distance, stock, col
       initial={{ opacity: 0, y: 10 }}
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true }}
-      className="group bg-white rounded-[28px] border border-gray-100 p-2.5 hover:border-[#2D4D31]/10 hover:shadow-xl hover:shadow-[#2D4D31]/5 transition-all duration-300"
+      className="group bg-white rounded-[28px] border border-gray-100 p-2.5 hover:border-gray-200 transition-all duration-300"
     >
       {/* Image Section */}
       <div className="relative aspect-[1/1] rounded-[22px] bg-gray-50 overflow-hidden mb-3">
         <img 
           src={image} 
           alt={name} 
-          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+          className="w-full h-full object-cover transition-transform duration-500"
         />
         
         {/* Context Badges */}

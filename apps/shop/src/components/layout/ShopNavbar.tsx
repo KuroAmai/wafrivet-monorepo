@@ -40,7 +40,7 @@ export function ShopNavbar() {
               <img 
                 src="https://api.dicebear.com/7.x/avataaars/svg?seed=Emeka&backgroundColor=b6e3f4" 
                 alt="Profile" 
-                className="w-12 h-12 rounded-2xl border-2 border-white shadow-sm hover:scale-105 transition-transform" 
+                className="w-12 h-12 rounded-2xl border-2 border-white shadow-sm transition-transform" 
               />
             </Link>
           </div>

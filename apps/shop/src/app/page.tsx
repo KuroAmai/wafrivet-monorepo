@@ -39,7 +39,7 @@ export default function ShopHome() {
         {/* ACTION STRIP: PERSONALIZED UPDATES */}
         <section className="mb-12 flex gap-4 overflow-x-auto no-scrollbar pb-2">
           {/* Order Tracking */}
-          <div className="flex-shrink-0 w-[300px] bg-white p-5 rounded-[28px] border border-gray-100 flex items-center gap-4 hover:shadow-md transition-shadow cursor-pointer">
+          <div className="flex-shrink-0 w-[300px] bg-white p-5 rounded-[28px] border border-gray-100 flex items-center gap-4 cursor-pointer">
             <div className="w-12 h-12 bg-blue-50 rounded-2xl flex items-center justify-center text-blue-600">
               <Package size={24} weight="duotone" />
             </div>
@@ -50,7 +50,7 @@ export default function ShopHome() {
           </div>
 
           {/* Diagnosis Recommendation */}
-          <div className="flex-shrink-0 w-[300px] bg-[#2D4D31] p-5 rounded-[28px] flex items-center gap-4 text-white hover:opacity-95 transition-opacity cursor-pointer">
+          <div className="flex-shrink-0 w-[300px] bg-[#2D4D31] p-5 rounded-[28px] flex items-center gap-4 text-white cursor-pointer">
             <div className="w-12 h-12 bg-white/10 rounded-2xl flex items-center justify-center">
               <SealWarning size={24} weight="fill" />
             </div>
@@ -65,7 +65,7 @@ export default function ShopHome() {
         <section className="mb-12">
           <div className="flex items-center gap-3 overflow-x-auto no-scrollbar">
             {ANIMALS.map((animal) => (
-              <button key={animal} className="flex-shrink-0 flex items-center gap-2 px-6 py-3.5 bg-white border border-gray-100 rounded-2xl hover:border-[#2D4D31] hover:text-[#2D4D31] transition-all group shadow-sm">
+              <button key={animal} className="flex-shrink-0 flex items-center gap-2 px-6 py-3.5 bg-white border border-gray-100 rounded-2xl group shadow-sm transition-all">
                 <PawPrint size={18} className="text-gray-300 group-hover:text-[#2D4D31]" />
                 <span className="font-bold text-[14px] text-gray-600 group-hover:text-[#2D4D31]">{animal}</span>
               </button>

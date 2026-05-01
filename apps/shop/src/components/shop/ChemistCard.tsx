@@ -12,9 +12,9 @@ interface ChemistCardProps {
 
 export function ChemistCard({ name, distance, rating, isOpen, image }: ChemistCardProps) {
   return (
-    <div className="flex-shrink-0 w-[240px] bg-white rounded-3xl border border-gray-100 p-3 hover:border-[#2D4D31]/10 transition-all group cursor-pointer">
+    <div className="flex-shrink-0 w-[240px] bg-white rounded-3xl border border-gray-100 p-3 transition-all group cursor-pointer">
       <div className="relative h-28 rounded-2xl overflow-hidden mb-3">
-        <img src={image} alt={name} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
+        <img src={image} alt={name} className="w-full h-full object-cover transition-transform duration-500" />
         <div className="absolute top-2 right-2 flex items-center gap-1 bg-white/90 backdrop-blur-md px-2 py-1 rounded-lg shadow-sm">
           <Star size={12} weight="fill" className="text-yellow-400" />
           <span className="text-[11px] font-bold text-gray-900">{rating}</span>
