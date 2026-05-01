@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Input, Button } from "@heroui/react";
+
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
@@ -67,13 +67,21 @@ export default function ResetPasswordPage() {
             </div>
             {errors.confirmPassword && <p className="text-[12px] text-red-500 pl-1">{errors.confirmPassword.message as string}</p>}
           </div>
-          <Button 
+          <button 
             type="submit" 
-            className="w-full bg-[#2D4D31] text-white font-medium"
-            isLoading={isSubmitting}
+            disabled={isSubmitting}
+            className="w-full h-[52px] flex items-center justify-center gap-2 bg-[#2D4D31] text-white font-semibold text-[15px] rounded-xl hover:bg-[#243f28] transition-all mt-4 active:scale-[0.98] disabled:opacity-60"
           >
-            Reset Password
-          </Button>
+            {isSubmitting ? (
+              <>
+                <svg className="animate-spin h-4 w-4" viewBox="0 0 24 24" fill="none">
+                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z" />
+                </svg>
+                Resetting...
+              </>
+            ) : "Reset Password"}
+          </button>
         </form>
       )}
     </div>
