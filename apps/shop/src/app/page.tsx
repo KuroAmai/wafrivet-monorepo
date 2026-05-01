@@ -7,7 +7,8 @@ import { TopBar } from "@/components/chemist/TopBar";
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
 
-export default async function ShopHome({ searchParams }: { searchParams: { role?: string } }) {
+export default async function ShopHome(props: { searchParams: Promise<{ role?: string }> }) {
+  const searchParams = await props.searchParams;
   let auth;
   try {
     auth = await getServerAuth();
