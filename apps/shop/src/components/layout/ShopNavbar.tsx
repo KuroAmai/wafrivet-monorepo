@@ -5,22 +5,17 @@ import { ShoppingCart, Bell, MapPin, MagnifyingGlass } from "@phosphor-icons/rea
 
 export function ShopNavbar() {
   return (
-    <header className="bg-transparent">
+    <header className="bg-white border-b border-gray-50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6">
-        <div className="flex items-center justify-between h-24">
+        <div className="flex items-center justify-between h-16">
           {/* Logo & Info */}
-          <div className="flex items-center gap-6">
+          <div className="flex items-center gap-4">
             <Link href="/" className="flex items-center shrink-0">
-              <img src="/logo.svg" alt="Wafrivet" className="h-14 w-auto" />
+              <img src="/logo.svg" alt="Wafrivet" className="h-10 w-auto" />
             </Link>
-            <div className="hidden sm:flex flex-col">
-              <h1 className="text-[16px] font-bold text-gray-900 leading-tight">
-                Good morning, Emeka.
-              </h1>
-              <div className="flex items-center gap-1 text-[12px] text-gray-400 font-medium mt-0.5">
-                <MapPin size={12} weight="fill" className="text-[#2D4D31]" />
-                <span>Lagos Island · 12 chemists nearby</span>
-              </div>
+            <div className="hidden sm:flex items-center gap-2 border-l border-gray-100 pl-4">
+              <MapPin size={14} weight="fill" className="text-[#2D4D31]" />
+              <span className="text-[12px] text-gray-500 font-bold">Lagos Island</span>
             </div>
           </div>
 
