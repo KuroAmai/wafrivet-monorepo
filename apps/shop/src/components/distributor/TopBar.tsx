@@ -1,0 +1,18 @@
+import { Bell } from "@phosphor-icons/react";
+
+export function TopBar() {
+  return (
+    <header className="h-16 bg-white border-b border-gray-200 flex items-center justify-end px-8">
+      <div className="flex items-center gap-4">
+        <button className="relative p-2 text-gray-500 hover:text-gray-900 transition-colors">
+          <Bell size={22} />
+        </button>
+        <div className="flex items-center gap-2">
+          <div className="w-8 h-8 rounded-full bg-indigo-100 text-indigo-700 flex items-center justify-center font-semibold text-[13px]">
+            DB
+          </div>
+        </div>
+      </div>
+    </header>
+  );
+}
