@@ -143,7 +143,7 @@ export default function ChemistProfilePage() {
 
              <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
                 {products.map((product) => (
-                  <ProductCard key={product.id} {...product} />
+                  <ProductCard key={product.id} {...product} hideDistance />
                 ))}
              </div>
 

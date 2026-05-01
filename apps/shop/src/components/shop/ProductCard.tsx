@@ -13,6 +13,7 @@ interface ProductCardProps {
   distance: string;
   stock: number;
   coldChain?: boolean;
+  hideDistance?: boolean;
 }
 
 export function ProductCard({ 
@@ -23,7 +24,8 @@ export function ProductCard({
   image, 
   distance, 
   stock, 
-  coldChain 
+  coldChain,
+  hideDistance = false
 }: ProductCardProps) {
   const isLowStock = stock <= 5;
 
@@ -61,15 +63,23 @@ export function ProductCard({
             </button>
 
             {/* Distance Info Overlay */}
-            <div className="absolute bottom-3 left-3 right-3 bg-white/90 backdrop-blur-md p-2.5 rounded-2xl flex items-center justify-between shadow-sm border border-white/20">
-               <div className="flex items-center gap-1.5 text-[11px] font-bold text-gray-900">
-                  <MapPin size={14} weight="fill" className="text-[#2D4D31]" />
-                  {distance}
-               </div>
-               {isLowStock && (
-                  <span className="text-[10px] font-black text-red-500 uppercase tracking-tighter">{stock} Left</span>
-               )}
-            </div>
+            {!hideDistance && (
+              <div className="absolute bottom-3 left-3 right-3 bg-white/90 backdrop-blur-md p-2.5 rounded-2xl flex items-center justify-between shadow-sm border border-white/20">
+                 <div className="flex items-center gap-1.5 text-[11px] font-bold text-gray-900">
+                    <MapPin size={14} weight="fill" className="text-[#2D4D31]" />
+                    {distance}
+                 </div>
+                 {isLowStock && (
+                    <span className="text-[10px] font-black text-red-500 uppercase tracking-tighter">{stock} Left</span>
+                 )}
+              </div>
+            )}
+
+            {hideDistance && isLowStock && (
+              <div className="absolute bottom-3 right-3 bg-white/90 backdrop-blur-md px-2 py-1 rounded-lg border border-white/20 shadow-sm">
+                 <span className="text-[10px] font-black text-red-500 uppercase tracking-tighter">{stock} Left</span>
+              </div>
+            )}
           </div>
         </Link>
 
