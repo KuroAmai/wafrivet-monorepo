@@ -17,8 +17,8 @@ const ROLES: {
   id: UserRole;
   title: string;
   description: string;
-  Icon: React.ComponentType<{ size?: number; className?: string }>;
-  IconActive: React.ComponentType<{ size?: number; className?: string }>;
+  Icon: React.ComponentType<{ size?: number | string; className?: string }>;
+  IconActive: React.ComponentType<{ size?: number | string; className?: string }>;
 }[] = [
   {
     id: "farmer",

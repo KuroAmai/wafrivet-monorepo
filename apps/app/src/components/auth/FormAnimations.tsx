@@ -16,7 +16,7 @@ export function PageTransition({ children }: { children: ReactNode }) {
         exit={{ opacity: 0, y: -10 }}
         transition={{ duration: 0.3, ease: [0.25, 0.1, 0.25, 1] }}
       >
-        {children}
+        {children as any}
       </motion.div>
     </AnimatePresence>
   );
@@ -41,7 +41,7 @@ export function StepTransition({
         exit={{ opacity: 0, x: direction * -32 }}
         transition={{ duration: 0.28, ease: [0.25, 0.1, 0.25, 1] }}
       >
-        {children}
+        {children as any}
       </motion.div>
     </AnimatePresence>
   );
