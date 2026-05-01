@@ -89,11 +89,7 @@ export default function ShopHome() {
         {/* PRODUCT GRID */}
         <section>
           <div className="flex flex-col items-center justify-center mb-12 px-2 text-center">
-            <h2 className="text-[22px] font-black text-gray-900 mb-2 tracking-tight">Recommended for you</h2>
-            <div className="flex items-center gap-2 text-[14px] font-bold text-[#2D4D31]/40 uppercase tracking-widest">
-               <TrendUp size={18} />
-               Trending Now
-            </div>
+            <h2 className="text-[22px] font-black text-gray-900 tracking-tight">Recommended for you</h2>
           </div>
           
           <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-4 sm:gap-8">
