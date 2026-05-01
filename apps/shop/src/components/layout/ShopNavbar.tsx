@@ -21,11 +21,6 @@ export function ShopNavbar() {
 
           {/* Actions */}
           <div className="flex items-center gap-3">
-             <div className="hidden md:flex items-center bg-gray-100 rounded-2xl px-4 py-2.5 w-64 group focus-within:w-80 focus-within:bg-white focus-within:ring-4 focus-within:ring-[#2D4D31]/5 transition-all">
-                <MagnifyingGlass size={18} className="text-gray-400 group-focus-within:text-[#2D4D31]" />
-                <input type="text" placeholder="Search..." className="ml-2 bg-transparent outline-none text-[14px] w-full" />
-             </div>
-
             <button className="p-2.5 text-gray-500 hover:bg-gray-100 rounded-2xl transition-colors relative">
               <Bell size={24} />
               <span className="absolute top-2.5 right-2.5 w-2 h-2 bg-red-500 rounded-full border-2 border-[#F9FAFB]"></span>

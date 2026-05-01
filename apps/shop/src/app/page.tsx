@@ -23,66 +23,24 @@ export default function ShopHome() {
       
       <main className="max-w-7xl mx-auto px-4 sm:px-6">
         
-        {/* CLEAN HERO */}
-        <section className="py-12 flex flex-col items-center text-center">
-          <div className="w-full max-w-2xl relative group">
-            <div className="absolute inset-y-0 left-6 flex items-center pointer-events-none">
-              <MagnifyingGlass size={24} className="text-gray-400 group-focus-within:text-[#2D4D31] transition-colors" />
-            </div>
+        {/* CENTRALIZED HERO SEARCH */}
+        <section className="py-20 flex flex-col items-center text-center">
+          <div className="w-full max-w-2xl relative">
             <input 
               type="text"
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               placeholder="Search for vaccines, equipment..."
-              className="w-full h-16 pl-14 pr-6 bg-white rounded-2xl text-[16px] font-medium outline-none focus:ring-4 focus:ring-[#2D4D31]/5 transition-all shadow-sm border border-gray-100"
+              className="w-full h-20 text-center bg-white rounded-3xl text-[20px] font-medium outline-none focus:ring-4 focus:ring-[#2D4D31]/5 transition-all shadow-sm border border-gray-100 placeholder:text-gray-300"
             />
           </div>
         </section>
 
-        {/* ACTION CENTER (COMBINED) */}
-        <section className="mb-10 flex gap-4 overflow-x-auto no-scrollbar">
-          {/* Tracking Card */}
-          <div className="flex-shrink-0 w-[320px] bg-white p-5 rounded-3xl border border-gray-100 flex items-center gap-4">
-            <div className="w-12 h-12 bg-blue-50 rounded-2xl flex items-center justify-center text-blue-600">
-              <Package size={24} weight="duotone" />
-            </div>
-            <div>
-              <h2 className="text-[14px] font-bold text-gray-900">Order arriving 2:30 PM</h2>
-              <p className="text-[12px] text-gray-500">Tap to track delivery</p>
-            </div>
-          </div>
-
-          {/* Recommendation Card */}
-          <div className="flex-shrink-0 w-[320px] bg-[#2D4D31] p-5 rounded-3xl flex items-center gap-4 text-white">
-            <div className="w-12 h-12 bg-white/10 rounded-2xl flex items-center justify-center">
-              <SealWarning size={24} weight="fill" />
-            </div>
-            <div>
-              <h2 className="text-[14px] font-bold">New diagnosis recommendation</h2>
-              <p className="text-[12px] text-white/70">View Terramycin for Cattle</p>
-            </div>
-          </div>
-        </section>
-
-        {/* LOCAL & SPECIES STRIP */}
-        <section className="mb-10">
-          <div className="flex items-center gap-2 overflow-x-auto no-scrollbar">
-            {ANIMALS.map((animal) => (
-              <button key={animal} className="flex-shrink-0 px-5 py-2.5 bg-white border border-gray-100 rounded-xl text-[13px] font-bold text-gray-600 hover:border-[#2D4D31] hover:text-[#2D4D31] transition-all">
-                {animal}
-              </button>
-            ))}
-            <div className="h-6 w-px bg-gray-200 mx-2"></div>
-            <button className="flex-shrink-0 px-5 py-2.5 bg-gray-900 text-white rounded-xl text-[13px] font-bold">
-              Chemists Near You
-            </button>
-          </div>
-        </section>
 
         {/* PRODUCT GRID */}
         <section>
-          <div className="flex items-center justify-between mb-6 px-2">
-            <h2 className="text-[18px] font-bold text-gray-900">Recommended for you</h2>
+          <div className="flex flex-col items-center justify-center mb-10 px-2 text-center">
+            <h2 className="text-[18px] font-bold text-gray-900 mb-2">Recommended for you</h2>
             <TrendUp size={20} className="text-[#2D4D31]" />
           </div>
           

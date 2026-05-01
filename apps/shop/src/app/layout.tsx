@@ -1,6 +1,12 @@
 import type { Metadata } from "next";
 import { getServerAuth } from "@wafrivet/auth";
+import { Quicksand } from "next/font/google";
 import "./globals.css";
+
+const quicksand = Quicksand({
+  subsets: ["latin"],
+  variable: "--font-quicksand",
+});
 
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
@@ -23,8 +29,8 @@ export default async function RootLayout({
   }
 
   return (
-    <html lang="en" className="h-full antialiased">
-      <body className="min-h-full flex flex-col bg-[#F9FAFB]">
+    <html lang="en" className={`h-full antialiased ${quicksand.variable}`}>
+      <body className={`${quicksand.className} min-h-full flex flex-col bg-[#F9FAFB]`}>
         {children}
       </body>
     </html>
