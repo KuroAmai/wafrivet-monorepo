@@ -24,7 +24,9 @@ export default async function RootLayout({
 
   return (
     <html lang="en" className="h-full antialiased">
-      <body className="min-h-full flex flex-col">{children}</body>
+      <body className="min-h-full flex flex-col bg-[#F9FAFB]">
+        {children}
+      </body>
     </html>
   );
 }
