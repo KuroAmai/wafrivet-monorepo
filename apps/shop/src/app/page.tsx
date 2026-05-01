@@ -46,7 +46,7 @@ export default function ShopHome() {
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               placeholder="Search for vaccines..."
-              className="w-full h-16 md:h-20 text-center bg-white rounded-2xl md:rounded-[32px] text-[16px] md:text-[20px] font-medium outline-none focus:ring-8 focus:ring-[#2D4D31]/5 transition-all shadow-xl shadow-gray-200/40 border-none placeholder:text-gray-300"
+              className="w-full h-16 md:h-20 text-center bg-white rounded-2xl md:rounded-[32px] text-[16px] md:text-[20px] font-medium outline-none focus:ring-8 focus:ring-[#2D4D31]/5 transition-all border border-gray-100 text-gray-900 placeholder:text-gray-300"
             />
           </div>
         </section>
@@ -99,7 +99,7 @@ export default function ShopHome() {
         <section className="mb-12">
           <div className="flex items-center gap-3 overflow-x-auto no-scrollbar py-4 px-2">
             {ANIMALS.map((animal) => (
-              <button key={animal} className="flex-shrink-0 flex items-center gap-2 px-6 py-3.5 bg-white border border-gray-100 rounded-2xl group shadow-sm transition-all">
+              <button key={animal} className="flex-shrink-0 flex items-center gap-2 px-6 py-3.5 bg-white border border-gray-100 rounded-2xl group transition-all">
                 <PawPrint size={18} className="text-gray-300 group-hover:text-[#2D4D31]" />
                 <span className="font-bold text-[14px] text-gray-600 group-hover:text-[#2D4D31]">{animal}</span>
               </button>

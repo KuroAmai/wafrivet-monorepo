@@ -46,7 +46,7 @@ export function ShopNavbar() {
               {isLoggedIn && <span className="absolute top-2.5 right-2.5 w-2 h-2 bg-red-500 rounded-full border-2 border-[#F9FAFB]"></span>}
             </button>
             
-            <Link href={isLoggedIn ? "/cart" : "https://app.wafrivet.com/login"} className="group flex items-center gap-2 p-1.5 md:p-2 bg-[#2D4D31] hover:bg-[#243f28] rounded-2xl transition-all md:pr-4 shadow-lg shadow-[#2D4D31]/20">
+            <Link href={isLoggedIn ? "/cart" : "https://app.wafrivet.com/login"} className="group flex items-center gap-2 p-1.5 md:p-2 bg-[#2D4D31] hover:bg-[#243f28] rounded-2xl transition-all md:pr-4">
               <div className="w-9 h-9 md:w-10 md:h-10 bg-white/10 rounded-xl flex items-center justify-center text-white relative">
                 <ShoppingCart size={20} md:size={22} weight="bold" />
                 {isLoggedIn && (
@@ -58,11 +58,11 @@ export function ShopNavbar() {
               <span className="hidden md:block text-white font-bold text-[14px]">{isLoggedIn ? "₦42,500" : "Cart"}</span>
             </Link>
 
-            <Link href={isLoggedIn ? "/profile" : "https://app.wafrivet.com/login"} className="ml-1 flex items-center gap-3 bg-white p-1.5 md:pr-4 rounded-[20px] border border-gray-100 shadow-sm">
+            <Link href={isLoggedIn ? "/profile" : "https://app.wafrivet.com/login"} className="ml-1 flex items-center gap-3 bg-white p-1.5 md:pr-4 rounded-[20px] border border-gray-100">
               <img 
                 src={`https://api.dicebear.com/7.x/avataaars/svg?seed=${userName}&backgroundColor=b6e3f4`} 
                 alt="Profile" 
-                className="w-9 h-9 md:w-10 md:h-10 rounded-xl border-2 border-white shadow-sm" 
+                className="w-9 h-9 md:w-10 md:h-10 rounded-xl border-2 border-white" 
               />
               <div className="hidden md:flex flex-col">
                 <span className="text-[10px] text-gray-400 font-bold uppercase tracking-wider">Account</span>

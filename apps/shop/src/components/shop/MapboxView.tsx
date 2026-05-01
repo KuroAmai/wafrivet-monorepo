@@ -3,7 +3,7 @@
 import { useState, useMemo } from "react";
 import Map, { Marker, Popup, NavigationControl, FullscreenControl } from "react-map-gl/mapbox";
 import "mapbox-gl/dist/mapbox-gl.css";
-import { MapPin, Star, X } from "@phosphor-icons/react";
+import { MapPin, Star, X, WarningCircle } from "@phosphor-icons/react";
 
 // Mock Data for Chemists
 const CHEMISTS = [
@@ -12,7 +12,7 @@ const CHEMISTS = [
   { id: 3, name: "FarmSafe Pharma", lat: 6.4620, lng: 3.4350, rating: 4.5, address: "8 Ikoyi Way, Lagos" },
 ];
 
-const MAPBOX_TOKEN = process.env.NEXT_PUBLIC_MAPBOX_TOKEN; // Use environment variable for security
+const MAPBOX_TOKEN = process.env.NEXT_PUBLIC_MAPBOX_TOKEN;
 
 export function MapboxView() {
   const [popupInfo, setPopupInfo] = useState<any>(null);
@@ -36,10 +36,10 @@ export function MapboxView() {
           }}
         >
           <div className="cursor-pointer group flex flex-col items-center">
-             <div className="bg-white px-2 py-1 rounded-lg shadow-lg border border-gray-100 text-[10px] font-bold mb-1 opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">
+             <div className="bg-white px-2 py-1 rounded-lg border border-gray-100 text-[10px] font-bold mb-1 opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap text-gray-900">
                 {chemist.name}
              </div>
-             <div className="w-10 h-10 bg-[#2D4D31] rounded-2xl flex items-center justify-center text-white border-4 border-white shadow-xl transition-transform hover:scale-110">
+             <div className="w-10 h-10 bg-[#2D4D31] rounded-2xl flex items-center justify-center text-white border-4 border-white transition-transform hover:scale-110">
                 <MapPin size={20} weight="fill" />
              </div>
           </div>
@@ -48,8 +48,20 @@ export function MapboxView() {
     []
   );
 
+  if (!MAPBOX_TOKEN) {
+    return (
+      <div className="w-full h-full rounded-[40px] bg-gray-50 border border-gray-100 flex flex-col items-center justify-center p-8 text-center">
+        <WarningCircle size={48} className="text-gray-300 mb-4" />
+        <h3 className="text-[18px] font-bold text-gray-900 mb-2">Mapbox Token Missing</h3>
+        <p className="text-[14px] text-gray-500 max-w-xs">
+          Please add <code>NEXT_PUBLIC_MAPBOX_TOKEN</code> to your environment variables to enable the map feature.
+        </p>
+      </div>
+    );
+  }
+
   return (
-    <div className="w-full h-full rounded-[40px] overflow-hidden border border-gray-100 shadow-2xl relative">
+    <div className="w-full h-full rounded-[40px] overflow-hidden border border-gray-100 relative bg-gray-100">
       <Map
         {...viewState}
         onMove={evt => setViewState(evt.viewState)}
@@ -90,7 +102,7 @@ export function MapboxView() {
       </Map>
 
       {/* Floating Info Card */}
-      <div className="absolute bottom-6 left-6 right-6 bg-white/80 backdrop-blur-md p-4 rounded-3xl border border-white/20 shadow-xl flex items-center justify-between">
+      <div className="absolute bottom-6 left-6 right-6 bg-white/80 backdrop-blur-md p-4 rounded-3xl border border-white/20 flex items-center justify-between">
          <div className="flex items-center gap-3">
             <div className="w-10 h-10 bg-[#2D4D31] rounded-xl flex items-center justify-center text-white">
                <MapPin size={22} weight="fill" />
@@ -100,7 +112,7 @@ export function MapboxView() {
                <p className="text-[11px] text-gray-500">12 chemists verified in this area</p>
             </div>
          </div>
-         <button className="bg-white px-4 py-2 rounded-xl text-[12px] font-bold border border-gray-100 shadow-sm">
+         <button className="bg-white px-4 py-2 rounded-xl text-[12px] font-bold border border-gray-100">
             Recenter
          </button>
       </div>
