@@ -95,7 +95,7 @@ export const Navbar = () => {
         </nav>
 
         <div className="hidden lg:flex items-center gap-3">
-          <a href="https://app.wafrivet.com/login" className="text-[15px] font-medium text-[#111811] hover:text-[#2D4D31] transition-colors" />
+          <a href="https://app.wafrivet.com/login" className="text-[15px] font-medium text-[#111811] hover:text-[#2D4D31] transition-colors">
             Login
           </a>
           <Link
