@@ -1,5 +1,6 @@
 "use client";
 
+import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { X, Bell, Package, SealWarning, Info, CaretRight } from "@phosphor-icons/react";
 
@@ -9,7 +10,16 @@ interface NotificationDrawerProps {
 }
 
 export function NotificationDrawer({ isOpen, onClose }: NotificationDrawerProps) {
-  const notifications = [
+  // In a real app, this would come from a context or hook
+  const [role, setRole] = useState("customer");
+
+  useEffect(() => {
+    const isChemist = typeof document !== 'undefined' && 
+      (document.cookie.includes("role=chemist") || localStorage.getItem("userRole") === "chemist" || window.location.search.includes("role=chemist"));
+    if (isChemist) setRole("chemist");
+  }, [isOpen]);
+
+  const customerNotifications = [
     { 
       id: 1, 
       title: "Order Arriving Soon", 
@@ -41,6 +51,41 @@ export function NotificationDrawer({ isOpen, onClose }: NotificationDrawerProps)
       bg: "bg-[#2D4D31]/5" 
     },
   ];
+
+  const chemistNotifications = [
+    { 
+      id: 1, 
+      title: "New Incoming Order", 
+      message: "John Doe placed an order for Oxytetracycline 20%. Action required.", 
+      time: "2m ago", 
+      type: "order", 
+      icon: Package, 
+      color: "text-[#2D4D31]", 
+      bg: "bg-[#2D4D31]/5" 
+    },
+    { 
+      id: 2, 
+      title: "Critical Stock Alert", 
+      message: "Ivermectin 1% has fallen below your minimum stock level (3 units left).", 
+      time: "1h ago", 
+      type: "alert", 
+      icon: SealWarning, 
+      color: "text-red-500", 
+      bg: "bg-red-50" 
+    },
+    { 
+      id: 3, 
+      title: "Payout Processed", 
+      message: "Your weekly earnings of ₦142,000 have been sent to your bank account.", 
+      time: "5h ago", 
+      type: "info", 
+      icon: Info, 
+      color: "text-purple-500", 
+      bg: "bg-purple-50" 
+    },
+  ];
+
+  const notifications = role === "chemist" ? chemistNotifications : customerNotifications;
 
   return (
     <AnimatePresence>

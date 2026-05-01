@@ -1,4 +1,3 @@
-import Link from "next/link";
 import { 
   SquaresFour, 
   Package, 
@@ -7,58 +6,112 @@ import {
   ChartPieSlice,
   Gear,
   Question,
-  SignOut
+  SignOut,
+  CaretRight
 } from "@phosphor-icons/react";
+import { usePathname } from "next/navigation";
+import Link from "next/link";
 
 export function Sidebar() {
+  const pathname = usePathname();
+
+  const navItems = [
+    { icon: SquaresFour, label: "Overview", href: "/", color: "text-blue-500", bg: "bg-blue-50" },
+    { icon: Package, label: "Inventory", href: "/inventory", color: "text-emerald-500", bg: "bg-emerald-50" },
+    { icon: ShoppingCart, label: "Orders", href: "/orders", color: "text-orange-500", bg: "bg-orange-50" },
+    { icon: TrendUp, label: "Earnings", href: "/earnings", color: "text-purple-500", bg: "bg-purple-50" },
+    { icon: ChartPieSlice, label: "Insights", href: "/insights", color: "text-red-500", bg: "bg-red-50" },
+  ];
+
   return (
-    <aside className="w-[280px] bg-white border-r border-gray-100 flex flex-col h-full shadow-[4px_0_24px_rgba(0,0,0,0.02)] relative z-20">
-      <div className="h-20 flex items-center px-8 border-b border-gray-50">
-        <Link href="/" className="flex items-center gap-3">
-          <img src="/logo-mark.svg" alt="Wafrivet" className="h-8 w-auto" />
-          <div className="flex flex-col">
-            <span className="font-black text-[16px] text-gray-900 leading-none tracking-tight">WAFRIVET</span>
-            <span className="text-[10px] font-bold text-[#2D4D31] uppercase tracking-widest mt-1">Shop Admin</span>
+    <aside className="w-full flex flex-col gap-6">
+      {/* Profile Summary Card (Farmer Profile Style) */}
+      <div className="bg-white p-8 rounded-[40px] border border-gray-100 shadow-sm flex flex-col items-center text-center transition-all hover:border-[#2D4D31]/20">
+        <div className="relative mb-6">
+          <img 
+            src={`https://api.dicebear.com/7.x/shapes/svg?seed=LagosBranch&backgroundColor=b6e3f4`} 
+            className="w-24 h-24 rounded-[32px] border-4 border-white shadow-xl shadow-gray-200/50" 
+            alt="Branch" 
+          />
+          <div className="absolute -bottom-1 -right-1 w-8 h-8 bg-[#2D4D31] rounded-xl flex items-center justify-center text-white border-2 border-white">
+            <SquaresFour size={16} weight="fill" />
           </div>
-        </Link>
+        </div>
+        <h1 className="text-[20px] font-black text-gray-900 tracking-tight mb-1">Lagos Island</h1>
+        <p className="text-[12px] text-gray-400 font-bold uppercase tracking-widest mb-6">Branch Admin</p>
+        
+        <div className="grid grid-cols-2 gap-4 w-full pt-6 border-t border-gray-50">
+          <div className="text-center">
+            <p className="text-[16px] font-black text-gray-900">24</p>
+            <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Orders</p>
+          </div>
+          <div className="text-center border-l border-gray-50">
+            <p className="text-[16px] font-black text-gray-900">4.9</p>
+            <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Rating</p>
+          </div>
+        </div>
       </div>
       
-      <div className="flex-1 overflow-y-auto py-8 px-4 no-scrollbar">
-        <div className="text-[10px] font-black text-gray-300 mb-6 px-4 uppercase tracking-[0.2em]">Main Menu</div>
-        <nav className="space-y-2">
-          <Link href="/" className="flex items-center gap-3 px-4 py-3.5 bg-[#2D4D31]/5 text-[#2D4D31] rounded-2xl font-bold text-[14px] transition-all">
-            <SquaresFour size={22} weight="fill" /> Overview
-          </Link>
-          <Link href="/inventory" className="flex items-center gap-3 px-4 py-3.5 text-gray-400 hover:bg-gray-50 hover:text-gray-900 rounded-2xl font-bold text-[14px] transition-all group">
-            <Package size={22} className="text-gray-300 group-hover:text-[#2D4D31]" /> Inventory
-          </Link>
-          <Link href="/orders" className="flex items-center gap-3 px-4 py-3.5 text-gray-400 hover:bg-gray-50 hover:text-gray-900 rounded-2xl font-bold text-[14px] transition-all group">
-            <ShoppingCart size={22} className="text-gray-300 group-hover:text-[#2D4D31]" /> Orders
-          </Link>
-          <Link href="/earnings" className="flex items-center gap-3 px-4 py-3.5 text-gray-400 hover:bg-gray-50 hover:text-gray-900 rounded-2xl font-bold text-[14px] transition-all group">
-            <TrendUp size={22} className="text-gray-300 group-hover:text-[#2D4D31]" /> Earnings
-          </Link>
-          <Link href="/insights" className="flex items-center gap-3 px-4 py-3.5 text-gray-400 hover:bg-gray-50 hover:text-gray-900 rounded-2xl font-bold text-[14px] transition-all group">
-            <ChartPieSlice size={22} className="text-gray-300 group-hover:text-[#2D4D31]" /> Insights
-          </Link>
-        </nav>
+      <div className="space-y-6 flex-1">
+        {/* Navigation */}
+        <div className="bg-white rounded-[40px] border border-gray-100 shadow-sm overflow-hidden">
+          {navItems.map((item, i) => {
+            const isActive = pathname === item.href;
+            return (
+              <Link 
+                key={i} 
+                href={item.href}
+                className={`w-full flex items-center justify-between p-5 transition-all border-b border-gray-50 last:border-0 group ${
+                  isActive ? 'bg-gray-50' : 'hover:bg-gray-50/50'
+                }`}
+              >
+                 <div className="flex items-center gap-4">
+                    <div className={`w-10 h-10 ${item.bg} ${item.color} rounded-xl flex items-center justify-center transition-transform group-hover:scale-110`}>
+                       <item.icon size={20} weight={isActive ? "fill" : "bold"} />
+                    </div>
+                    <span className={`font-bold transition-colors ${
+                      isActive ? 'text-gray-900' : 'text-gray-600 group-hover:text-gray-900'
+                    }`}>
+                      {item.label}
+                    </span>
+                 </div>
+                 <CaretRight 
+                   size={18} 
+                   weight="bold" 
+                   className={`transition-all ${
+                     isActive ? 'text-gray-900 translate-x-1' : 'text-gray-300 group-hover:text-gray-900 group-hover:translate-x-1'
+                   }`} 
+                 />
+              </Link>
+            );
+          })}
+        </div>
 
-        <div className="mt-12 pt-8 border-t border-gray-50">
-          <div className="text-[10px] font-black text-gray-300 mb-6 px-4 uppercase tracking-[0.2em]">System</div>
-          <nav className="space-y-2">
-            <Link href="/settings" className="flex items-center gap-3 px-4 py-3.5 text-gray-400 hover:bg-gray-50 hover:text-gray-900 rounded-2xl font-bold text-[14px] transition-all group">
-              <Gear size={22} className="text-gray-300 group-hover:text-[#2D4D31]" /> Settings
-            </Link>
-            <Link href="/support" className="flex items-center gap-3 px-4 py-3.5 text-gray-400 hover:bg-gray-50 hover:text-gray-900 rounded-2xl font-bold text-[14px] transition-all group">
-              <Question size={22} className="text-gray-300 group-hover:text-[#2D4D31]" /> Support
-            </Link>
-          </nav>
+        <div className="bg-white rounded-[40px] border border-gray-100 shadow-sm overflow-hidden">
+          <Link href="/settings" className="w-full flex items-center justify-between p-5 hover:bg-gray-50 transition-all border-b border-gray-50 group">
+            <div className="flex items-center gap-4">
+              <div className="w-10 h-10 bg-gray-50 text-gray-400 rounded-xl flex items-center justify-center group-hover:text-gray-900">
+                <Gear size={20} weight="bold" />
+              </div>
+              <span className="font-bold text-gray-600 group-hover:text-gray-900">Settings</span>
+            </div>
+            <CaretRight size={18} weight="bold" className="text-gray-300 group-hover:text-gray-900 group-hover:translate-x-1 transition-all" />
+          </Link>
+          <Link href="/support" className="w-full flex items-center justify-between p-5 hover:bg-gray-50 transition-all group">
+            <div className="flex items-center gap-4">
+              <div className="w-10 h-10 bg-gray-50 text-gray-400 rounded-xl flex items-center justify-center group-hover:text-gray-900">
+                <Question size={20} weight="bold" />
+              </div>
+              <span className="font-bold text-gray-600 group-hover:text-gray-900">Support</span>
+            </div>
+            <CaretRight size={18} weight="bold" className="text-gray-300 group-hover:text-gray-900 group-hover:translate-x-1 transition-all" />
+          </Link>
         </div>
       </div>
 
-      <div className="p-4 mt-auto">
-        <button className="w-full flex items-center gap-3 px-4 py-4 text-red-500 bg-red-50/50 hover:bg-red-50 rounded-2xl font-bold text-[14px] transition-all">
-          <SignOut size={22} weight="bold" /> Sign Out
+      <div className="mt-auto pt-6">
+        <button className="w-full flex items-center justify-center gap-3 p-6 bg-red-50 text-red-600 rounded-[32px] font-black text-[15px] hover:bg-red-100 transition-all active:scale-[0.98]">
+          <SignOut size={20} weight="bold" /> Sign Out
         </button>
       </div>
     </aside>

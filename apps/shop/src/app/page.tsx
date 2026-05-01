@@ -4,14 +4,13 @@ import { useState, useEffect } from "react";
 import { MarketplaceView } from "@/components/shop/MarketplaceView";
 import { ChemistDashboardView } from "@/components/chemist/ChemistDashboardView";
 import { Sidebar } from "@/components/chemist/Sidebar";
-import { TopBar } from "@/components/chemist/TopBar";
+import { ShopNavbar } from "@/components/layout/ShopNavbar";
 
 export default function ShopHome() {
   const [userRole, setUserRole] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    // Check search params first
     const params = new URLSearchParams(window.location.search);
     const roleParam = params.get("role");
     
@@ -21,7 +20,6 @@ export default function ShopHome() {
       return;
     }
 
-    // Otherwise check for mock token/user role in cookies or mock auth state
     const isChemist = document.cookie.includes("role=chemist") || localStorage.getItem("userRole") === "chemist";
     setUserRole(isChemist ? "chemist" : "customer");
     setIsLoading(false);
@@ -31,14 +29,18 @@ export default function ShopHome() {
 
   if (userRole === "chemist") {
     return (
-      <div className="flex h-screen overflow-hidden bg-[#F9FAFB]">
-        <Sidebar />
-        <div className="flex-1 flex flex-col h-full overflow-hidden">
-          <TopBar />
-          <main className="flex-1 overflow-y-auto p-4 md:p-8 no-scrollbar">
-            <ChemistDashboardView />
-          </main>
-        </div>
+      <div className="min-h-screen bg-[#F9FAFB]">
+        <ShopNavbar />
+        <main className="max-w-7xl mx-auto px-4 md:px-6 pt-10 pb-20">
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-10">
+            <div className="lg:col-span-3">
+              <Sidebar />
+            </div>
+            <div className="lg:col-span-9">
+              <ChemistDashboardView />
+            </div>
+          </div>
+        </main>
       </div>
     );
   }
