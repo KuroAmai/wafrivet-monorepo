@@ -44,7 +44,7 @@ export default function ProfilePage() {
              <div className="bg-white p-8 rounded-[40px] border border-gray-100 shadow-sm flex flex-col items-center text-center">
                 <div className="relative mb-6">
                    <img 
-                     src={`https://api.dicebear.com/7.x/avataaars/svg?seed=${userName}&backgroundColor=b6e3f4`} 
+                     src={`https://api.dicebear.com/7.x/avataaars/svg?seed=Mustapha&backgroundColor=b6e3f4`} 
                      className="w-32 h-32 rounded-[40px] border-4 border-white shadow-xl shadow-gray-200/50" 
                      alt="Profile" 
                    />
