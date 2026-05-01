@@ -44,20 +44,29 @@ export default function ResetPasswordPage() {
         </div>
       ) : (
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-          <Input 
-            {...register("password")}
-            label="New Password" 
-            type="password"
-            errorMessage={errors.password?.message as string}
-            isInvalid={!!errors.password}
-          />
-          <Input 
-            {...register("confirmPassword")}
-            label="Confirm Password" 
-            type="password"
-            errorMessage={errors.confirmPassword?.message as string}
-            isInvalid={!!errors.confirmPassword}
-          />
+          <div className="space-y-1.5">
+            <label className="block text-[13px] font-medium text-gray-600">New Password</label>
+            <div className={`flex items-center border rounded-xl overflow-hidden transition-all ${errors.password ? "border-red-400 bg-red-50" : "border-gray-200 bg-gray-50 focus-within:border-[#2D4D31] focus-within:bg-white"}`}>
+              <input
+                {...register("password")}
+                type="password"
+                className="flex-1 px-4 py-3.5 bg-transparent text-[15px] text-gray-900 outline-none"
+              />
+            </div>
+            {errors.password && <p className="text-[12px] text-red-500 pl-1">{errors.password.message as string}</p>}
+          </div>
+
+          <div className="space-y-1.5">
+            <label className="block text-[13px] font-medium text-gray-600">Confirm Password</label>
+            <div className={`flex items-center border rounded-xl overflow-hidden transition-all ${errors.confirmPassword ? "border-red-400 bg-red-50" : "border-gray-200 bg-gray-50 focus-within:border-[#2D4D31] focus-within:bg-white"}`}>
+              <input
+                {...register("confirmPassword")}
+                type="password"
+                className="flex-1 px-4 py-3.5 bg-transparent text-[15px] text-gray-900 outline-none"
+              />
+            </div>
+            {errors.confirmPassword && <p className="text-[12px] text-red-500 pl-1">{errors.confirmPassword.message as string}</p>}
+          </div>
           <Button 
             type="submit" 
             className="w-full bg-[#2D4D31] text-white font-medium"
