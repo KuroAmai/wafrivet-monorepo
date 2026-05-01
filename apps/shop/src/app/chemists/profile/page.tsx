@@ -59,9 +59,10 @@ export default function ChemistProfilePage() {
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           
           {/* Left: Chemist Bio Card */}
-          <div className="lg:col-span-1 space-y-6">
-             <div className="bg-white p-8 rounded-[40px] border border-gray-100 shadow-xl shadow-gray-200/20">
-                <div className="flex flex-col items-center text-center">
+          <div className="lg:col-span-1">
+             <div className="lg:sticky lg:top-28 space-y-6">
+                <div className="bg-white p-8 rounded-[40px] border border-gray-100 shadow-xl shadow-gray-200/20">
+                   <div className="flex flex-col items-center text-center">
                    <div className="relative mb-6">
                       <img 
                         src="https://images.unsplash.com/photo-1584308666744-24d5c474f2ae?auto=format&fit=crop&q=80&w=200" 
@@ -116,15 +117,15 @@ export default function ChemistProfilePage() {
                 </div>
              </div>
 
-             {/* Stats Cards */}
-             <div className="grid grid-cols-3 gap-3">
-                {chemist.stats.map((stat) => (
-                  <div key={stat.label} className="bg-white p-4 rounded-[28px] border border-gray-100 text-center shadow-sm">
-                     <stat.icon size={20} className="text-[#2D4D31] mx-auto mb-2" weight="duotone" />
-                     <p className="text-[16px] font-black text-gray-900 leading-none mb-1">{stat.value}</p>
-                     <p className="text-[9px] font-black text-gray-400 uppercase tracking-wider">{stat.label}</p>
-                  </div>
-                ))}
+                <div className="grid grid-cols-3 gap-3">
+                   {chemist.stats.map((stat) => (
+                     <div key={stat.label} className="bg-white p-4 rounded-[28px] border border-gray-100 text-center shadow-sm">
+                        <stat.icon size={20} className="text-[#2D4D31] mx-auto mb-2" weight="duotone" />
+                        <p className="text-[16px] font-black text-gray-900 leading-none mb-1">{stat.value}</p>
+                        <p className="text-[11px] font-black text-gray-400 uppercase tracking-wider">{stat.label}</p>
+                     </div>
+                   ))}
+                </div>
              </div>
           </div>
 
