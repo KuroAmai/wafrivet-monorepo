@@ -53,7 +53,7 @@ export default function AuthLayout({ children }: { children: ReactNode }) {
         {/* Mobile logo */}
         <div className="lg:hidden px-6 pt-8 pb-0">
           <Link href={process.env.NEXT_PUBLIC_MARKETING_URL || "https://www.wafrivet.com"}>
-            <Image src="/logo.svg" alt="Wafrivet" width={130} height={44} className="h-10 w-auto" />
+            <Image src="/logo-mark.svg" alt="Wafrivet" width={130} height={44} className="h-10 w-auto" />
           </Link>
         </div>
 
