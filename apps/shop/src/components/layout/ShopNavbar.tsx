@@ -4,11 +4,13 @@ import Link from "next/link";
 import { ShoppingCart, Bell, MapPin, CaretDown } from "@phosphor-icons/react";
 import { useState, useEffect } from "react";
 import { CartDrawer } from "@/components/shop/CartDrawer";
+import { NotificationDrawer } from "@/components/shop/NotificationDrawer";
 
 export function ShopNavbar() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [userName, setUserName] = useState("Guest");
   const [isCartOpen, setIsCartOpen] = useState(false);
+  const [isNotificationOpen, setIsNotificationOpen] = useState(false);
 
   useEffect(() => {
     // Simple check for our mock token
@@ -45,7 +47,10 @@ export function ShopNavbar() {
 
             {/* Actions */}
             <div className="flex items-center gap-3">
-              <button className="p-2.5 text-gray-500 hover:bg-gray-100 rounded-2xl transition-colors relative">
+              <button 
+                onClick={() => setIsNotificationOpen(true)}
+                className="p-2.5 text-gray-500 hover:bg-gray-100 rounded-2xl transition-colors relative"
+              >
                 <Bell size={24} />
                 {isLoggedIn && <span className="absolute top-2.5 right-2.5 w-2 h-2 bg-red-500 rounded-full border-2 border-[#F9FAFB]"></span>}
               </button>
@@ -81,6 +86,7 @@ export function ShopNavbar() {
         </div>
       </header>
       <CartDrawer isOpen={isCartOpen} onClose={() => setIsCartOpen(false)} />
+      <NotificationDrawer isOpen={isNotificationOpen} onClose={() => setIsNotificationOpen(false)} />
     </>
   );
 }
