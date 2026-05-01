@@ -4,8 +4,6 @@ import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
-import { RoleSelector } from "./RoleSelector";
-import { UserRole } from "@wafrivet/auth";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { Eye, EyeSlash, ArrowRight } from "@phosphor-icons/react";
@@ -13,9 +11,6 @@ import { Eye, EyeSlash, ArrowRight } from "@phosphor-icons/react";
 const signupSchema = z.object({
   fullName: z.string().min(2, "Full name is required"),
   phone: z.string().min(10, "Enter a valid phone number"),
-  role: z.enum(["farmer", "vet", "chemist", "distributor"], {
-    errorMap: () => ({ message: "Please select a role" }),
-  }),
   password: z.string().min(8, "Password must be at least 8 characters"),
 });
 
@@ -60,8 +55,6 @@ export function SignupForm() {
   const {
     register,
     handleSubmit,
-    setValue,
-    watch,
     formState: { errors, isSubmitting },
   } = useForm<SignupFormData>({
     resolver: zodResolver(signupSchema),
@@ -71,8 +64,6 @@ export function SignupForm() {
       password: "",
     },
   });
-
-  const selectedRole = watch("role");
 
   const onSubmit = async (data: SignupFormData) => {
     // API call mock
@@ -104,15 +95,6 @@ export function SignupForm() {
           registration={register("phone")}
           placeholder="+234 800 000 0000"
         />
-
-        <div className="space-y-1.5">
-          <label className="block text-[13px] font-medium text-gray-600">Select your role</label>
-          <RoleSelector 
-            selectedRole={selectedRole as UserRole} 
-            onSelect={(role) => setValue("role", role as "farmer" | "vet" | "chemist" | "distributor", { shouldValidate: true })} 
-          />
-          {errors.role && <p className="text-[12px] text-red-500 pl-1">{errors.role.message}</p>}
-        </div>
 
         <Field
           label="Create Password"
