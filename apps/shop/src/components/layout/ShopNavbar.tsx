@@ -7,11 +7,11 @@ export function ShopNavbar() {
   return (
     <header className="bg-white border-b border-gray-50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6">
-        <div className="flex items-center justify-between h-16">
+        <div className="flex items-center justify-between h-28">
           {/* Logo & Info */}
-          <div className="flex items-center gap-4">
+          <div className="flex items-center gap-6">
             <Link href="/" className="flex items-center shrink-0">
-              <img src="/logo.svg" alt="Wafrivet" className="h-10 w-auto" />
+              <img src="/logo.svg" alt="Wafrivet" className="h-20 w-auto" />
             </Link>
             <div className="hidden sm:flex items-center gap-2 border-l border-gray-100 pl-4">
               <MapPin size={14} weight="fill" className="text-[#2D4D31]" />
