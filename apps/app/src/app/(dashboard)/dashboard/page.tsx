@@ -24,7 +24,7 @@ export default async function DashboardPage() {
       {/* Header Section */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">Welcome back, {auth.user?.name || "Emeka"}</h1>
+          <h1 className="text-2xl font-bold text-gray-900">Welcome back, {(auth.user as { name?: string })?.name || "Emeka"}</h1>
           <div className="mt-2">{getRoleBadge(role)}</div>
         </div>
         <div className="text-right">
