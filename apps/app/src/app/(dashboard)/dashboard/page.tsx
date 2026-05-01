@@ -1,10 +1,15 @@
 import { getServerAuth } from "@wafrivet/auth";
 import Link from "next/link";
 import { ArrowRight, Plant, Pill, Truck } from "@phosphor-icons/react";
+import { redirect } from "next/navigation";
 
 export default async function DashboardPage() {
   const auth = await getServerAuth();
   
+  if (!auth.authenticated) {
+    redirect("/login");
+  }
+
   // Provide a fallback in case role is somehow missing
   const role = auth.role || "farmer";
 

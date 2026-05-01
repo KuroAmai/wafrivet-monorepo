@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, useRef } from "react";
-
+import { Button } from "@heroui/react";
 import { useRouter } from "next/navigation";
 import { ArrowRight } from "lucide-react";
 
@@ -86,25 +86,17 @@ export function OTPInput() {
         ))}
       </div>
 
-      <button
-        onClick={() => isComplete && handleVerify(code)}
-        disabled={!isComplete || isVerifying}
+      <Button
+        onPress={() => isComplete && handleVerify(code)}
+        isDisabled={!isComplete || isVerifying}
         className="w-full h-[52px] flex items-center justify-center gap-2 bg-[#2D4D31] text-white font-semibold text-[15px] rounded-xl hover:bg-[#243f28] transition-all disabled:opacity-40"
       >
-        {isVerifying ? (
-          <>
-            <svg className="animate-spin h-4 w-4" viewBox="0 0 24 24" fill="none">
-              <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-              <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z" />
-            </svg>
-            Verifying…
-          </>
-        ) : (
+        {isVerifying ? "Verifying…" : (
           <>
             Verify code <ArrowRight size={17} className="ml-1" />
           </>
         )}
-      </button>
+      </Button>
 
       <div className="mt-6 text-center">
         {countdown > 0 ? (

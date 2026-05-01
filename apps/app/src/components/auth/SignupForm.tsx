@@ -109,7 +109,7 @@ export function SignupForm() {
           <label className="block text-[13px] font-medium text-gray-600">Select your role</label>
           <RoleSelector 
             selectedRole={selectedRole as UserRole} 
-            onSelect={(role) => setValue("role", role, { shouldValidate: true })} 
+            onSelect={(role) => setValue("role", role as "farmer" | "vet" | "chemist" | "distributor", { shouldValidate: true })} 
           />
           {errors.role && <p className="text-[12px] text-red-500 pl-1">{errors.role.message}</p>}
         </div>
