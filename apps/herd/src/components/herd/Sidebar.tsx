@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { House, List, Crosshair, Plus, Activity } from "@phosphor-icons/react";
+import { House, List, Crosshair, Plus, ChartLineUp } from "@phosphor-icons/react";
 
 export function Sidebar() {
   return (
@@ -20,7 +20,7 @@ export function Sidebar() {
             <Crosshair size={20} /> AI Diagnosis
           </Link>
           <Link href="/monitor" className="flex items-center gap-3 px-3 py-2.5 text-white/70 hover:bg-white/5 hover:text-white rounded-lg font-medium text-[14px] transition-colors">
-            <Activity size={20} /> Monitoring
+            <ChartLineUp size={20} /> Monitoring
           </Link>
         </nav>
       </div>

@@ -1,8 +1,17 @@
 import { getServerAuth } from "@wafrivet/auth";
 
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
+
 export default async function HerdDashboardPage() {
-  const auth = await getServerAuth();
-  const role = auth.role || "farmer";
+  let auth;
+  try {
+    auth = await getServerAuth();
+  } catch (e) {
+    auth = { authenticated: false };
+  }
+  
+  const role = (auth as any).role || "farmer";
 
   return (
     <div className="space-y-6">

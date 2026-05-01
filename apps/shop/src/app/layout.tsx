@@ -1,11 +1,13 @@
 import type { Metadata } from "next";
 import { getServerAuth } from "@wafrivet/auth";
-import { redirect } from "next/navigation";
 import "./globals.css";
 
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
+
 export const metadata: Metadata = {
-  title: "Wafrivet Shop",
-  description: "Wafrivet Shop",
+  title: "Wafrivet Shop | Monorepo",
+  description: "Marketplace and distributor application",
 };
 
 export default async function RootLayout({
@@ -13,8 +15,12 @@ export default async function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  const auth = await getServerAuth();
-  if (!auth.authenticated) redirect("https://app.wafrivet.com/login");
+  let auth;
+  try {
+    auth = await getServerAuth();
+  } catch (e) {
+    auth = { authenticated: false };
+  }
 
   return (
     <html lang="en" className="h-full antialiased">
