@@ -12,10 +12,12 @@ export function ShopNavbar() {
 
   useEffect(() => {
     // Simple check for our mock token
-    const hasToken = document.cookie.includes("jwt=mock-token");
-    if (hasToken) {
-      setIsLoggedIn(true);
-      setUserName("Emeka");
+    if (typeof document !== 'undefined') {
+      const hasToken = document.cookie.includes("jwt=mock-token");
+      if (hasToken) {
+        setIsLoggedIn(true);
+        setUserName("Mustapha");
+      }
     }
   }, []);
 

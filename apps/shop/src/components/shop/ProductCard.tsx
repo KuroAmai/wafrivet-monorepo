@@ -1,7 +1,7 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { Plus, ThermometerCold, MapPin } from "@phosphor-icons/react";
+import { Plus, ThermometerCold, MapPin, Heart } from "@phosphor-icons/react";
 import Link from "next/link";
 
 interface ProductCardProps {
@@ -25,6 +25,8 @@ export function ProductCard({
   stock, 
   coldChain 
 }: ProductCardProps) {
+  const isLowStock = stock <= 5;
+
   return (
     <motion.div 
       initial={{ opacity: 0, y: 10 }}
@@ -32,57 +34,65 @@ export function ProductCard({
       viewport={{ once: true }}
       className="group"
     >
-      <Link href={`/product/${id}`} className="flex flex-col bg-white rounded-[32px] overflow-hidden border border-gray-100 hover:border-[#2D4D31]/10 transition-all shadow-sm h-full">
-        {/* Image Container */}
-        <div className="relative aspect-square bg-[#F9FAFB] p-6 flex items-center justify-center overflow-hidden">
-          <img 
-            src={image} 
-            alt={name}
-            className="w-full h-full object-contain mix-blend-multiply group-hover:scale-110 transition-transform duration-500"
-          />
-          
-          {coldChain && (
-            <div className="absolute top-4 left-4 bg-blue-50/80 backdrop-blur-md p-2 rounded-xl text-blue-600 border border-blue-100">
-              <ThermometerCold size={16} weight="bold" />
+      <div className="relative flex flex-col bg-white rounded-[32px] overflow-hidden border border-gray-100 transition-all hover:shadow-lg hover:shadow-gray-100/50">
+        <Link href={`/product/${id}`}>
+          {/* Image Section */}
+          <div className="relative aspect-square bg-gray-50 overflow-hidden">
+            <img 
+              src={image} 
+              alt={name} 
+              className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+            />
+            
+            {/* Badges Overlay */}
+            <div className="absolute top-3 left-3 flex flex-col gap-2">
+              {coldChain && (
+                <div className="bg-blue-500/90 backdrop-blur-md text-white text-[10px] font-black px-2 py-1 rounded-lg flex items-center gap-1 shadow-sm uppercase tracking-wider">
+                  <ThermometerCold size={14} weight="bold" /> Cold Chain
+                </div>
+              )}
             </div>
-          )}
 
-          {stock <= 5 && (
-            <div className="absolute top-4 right-4 bg-orange-50/80 backdrop-blur-md px-2 py-1 rounded-lg border border-orange-100">
-              <span className="text-[10px] font-black text-orange-600 uppercase tracking-wider">Only {stock} left</span>
-            </div>
-          )}
-        </div>
-
-        {/* Content */}
-        <div className="p-5 flex flex-col flex-1">
-          <div className="flex items-center justify-between mb-2">
-            <span className="text-[11px] font-black text-gray-400 uppercase tracking-widest">{category}</span>
-            <div className="flex items-center gap-1">
-              <MapPin size={12} className="text-[#2D4D31]" weight="fill" />
-              <span className="text-[11px] font-bold text-gray-900">{distance}</span>
-            </div>
-          </div>
-          
-          <h3 className="font-bold text-gray-900 text-[15px] leading-snug mb-3 group-hover:text-[#2D4D31] transition-colors">{name}</h3>
-          
-          <div className="mt-auto flex items-center justify-between">
-            <div className="flex flex-col">
-              <span className="text-[18px] font-black text-[#2D4D31]">₦{price}</span>
-              <span className="text-[10px] text-gray-400 font-bold uppercase tracking-tighter">per unit</span>
-            </div>
             <button 
-              onClick={(e) => {
-                e.preventDefault();
-                // Add to cart logic would go here
-              }}
-              className="w-10 h-10 bg-gray-50 rounded-xl flex items-center justify-center text-gray-400 hover:bg-[#2D4D31] hover:text-white transition-all border border-gray-100"
+              onClick={(e) => { e.preventDefault(); e.stopPropagation(); }}
+              className="absolute top-3 right-3 p-2 bg-white/90 backdrop-blur-md rounded-xl text-gray-400 hover:text-red-500 transition-colors shadow-sm"
             >
-              <Plus size={20} weight="bold" />
+              <Heart size={18} />
             </button>
+
+            {/* Distance Info Overlay */}
+            <div className="absolute bottom-3 left-3 right-3 bg-white/90 backdrop-blur-md p-2.5 rounded-2xl flex items-center justify-between shadow-sm border border-white/20">
+               <div className="flex items-center gap-1.5 text-[11px] font-bold text-gray-900">
+                  <MapPin size={14} weight="fill" className="text-[#2D4D31]" />
+                  {distance}
+               </div>
+               {isLowStock && (
+                  <span className="text-[10px] font-black text-red-500 uppercase tracking-tighter">{stock} Left</span>
+               )}
+            </div>
           </div>
+        </Link>
+
+        {/* Details Section */}
+        <div className="p-5">
+           <p className="text-[11px] font-black text-[#2D4D31]/40 uppercase tracking-[0.1em] mb-1">{category}</p>
+           <Link href={`/product/${id}`}>
+              <h3 className="font-bold text-gray-900 text-[15px] mb-4 leading-tight line-clamp-2 min-h-[40px] group-hover:text-[#2D4D31] transition-colors">{name}</h3>
+           </Link>
+           
+           <div className="flex items-center justify-between">
+              <div className="flex flex-col">
+                 <span className="text-[18px] font-black text-gray-900 tracking-tight">₦{price}</span>
+              </div>
+              <button 
+                onClick={(e) => { e.preventDefault(); e.stopPropagation(); }}
+                className="w-10 h-10 bg-[#2D4D31] text-white rounded-xl flex items-center justify-center hover:bg-[#243f28] transition-all shadow-lg shadow-[#2D4D31]/10 active:scale-95"
+              >
+                <Plus size={22} weight="bold" />
+              </button>
+           </div>
         </div>
-      </Link>
+      </div>
     </motion.div>
   );
 }

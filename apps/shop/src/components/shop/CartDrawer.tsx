@@ -2,6 +2,7 @@
 
 import { motion, AnimatePresence } from "framer-motion";
 import { X, ShoppingCart, Minus, Plus, Trash, ArrowRight, MapPin } from "@phosphor-icons/react";
+import Link from "next/link";
 
 interface CartDrawerProps {
   isOpen: boolean;
