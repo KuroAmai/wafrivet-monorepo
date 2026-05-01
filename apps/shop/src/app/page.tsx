@@ -39,21 +39,21 @@ export default function ShopHome() {
       <main className="max-w-7xl mx-auto px-4 sm:px-6">
         
         {/* CENTRALIZED HERO SEARCH */}
-        <section className="py-10 md:py-24 flex flex-col items-center text-center">
-          <div className="w-full max-w-2xl relative px-2">
+        <section className="py-8 md:py-24 flex flex-col items-center text-center px-4">
+          <div className="w-full max-w-2xl relative">
             <input 
               type="text"
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              placeholder="Search for vaccines..."
-              className="w-full h-16 md:h-20 text-center bg-white rounded-2xl md:rounded-[32px] text-[16px] md:text-[20px] font-medium outline-none focus:ring-8 focus:ring-[#2D4D31]/5 transition-all border border-gray-100 text-gray-900 placeholder:text-gray-300"
+              placeholder="Search..."
+              className="w-full h-14 md:h-20 text-center bg-white rounded-xl md:rounded-[32px] text-[15px] md:text-[20px] font-medium outline-none focus:ring-4 focus:ring-[#2D4D31]/5 transition-all border border-gray-100 text-gray-900 placeholder:text-gray-300"
             />
           </div>
         </section>
 
         {/* ACTION STRIP: PERSONALIZED UPDATES */}
         {isLoggedIn ? (
-          <section className="mb-12 flex gap-4 overflow-x-auto no-scrollbar py-2 px-2">
+          <section className="mb-10 flex gap-4 overflow-x-auto no-scrollbar py-2 px-2">
             {/* Order Tracking */}
             <div className="flex-shrink-0 w-[300px] bg-white p-5 rounded-[28px] border border-gray-100 flex items-center gap-4 cursor-pointer">
               <div className="w-12 h-12 bg-blue-50 rounded-2xl flex items-center justify-center text-blue-600">
@@ -77,18 +77,18 @@ export default function ShopHome() {
             </div>
           </section>
         ) : (
-          <section className="mb-12">
-             <div className="bg-white p-6 rounded-[28px] border border-gray-100 flex flex-col md:flex-row items-center justify-between gap-4 text-center md:text-left">
-                <div className="flex flex-col md:flex-row items-center gap-4">
-                   <div className="w-12 h-12 bg-[#2D4D31]/5 rounded-2xl flex items-center justify-center text-[#2D4D31]">
+          <section className="mb-10 px-2">
+             <div className="bg-white p-5 md:p-8 rounded-[24px] md:rounded-[32px] border border-gray-100 flex flex-col sm:flex-row items-center gap-6 text-center sm:text-left">
+                <div className="flex flex-col sm:flex-row items-center gap-4 flex-1">
+                   <div className="w-12 h-12 bg-[#2D4D31]/5 rounded-xl flex items-center justify-center text-[#2D4D31] shrink-0">
                       <TrendUp size={24} weight="bold" />
                    </div>
-                   <div>
-                      <h2 className="text-[15px] font-bold text-gray-900">Sign in for a personalized experience</h2>
-                      <p className="text-[13px] text-gray-500">Track orders and see recommendations for your animals</p>
+                   <div className="flex flex-col">
+                      <h2 className="text-[16px] md:text-[18px] font-bold text-gray-900 leading-tight">Sign in for a personalized experience</h2>
+                      <p className="text-[13px] text-gray-500 mt-1">Track orders and see recommendations for your animals</p>
                    </div>
                 </div>
-                <button onClick={handleProtectedAction} className="w-full md:w-auto bg-[#2D4D31] text-white px-8 py-3.5 rounded-xl font-bold text-[14px] hover:bg-[#243f28] transition-colors">
+                <button onClick={handleProtectedAction} className="w-full sm:w-auto bg-[#2D4D31] text-white px-8 py-3.5 rounded-xl font-bold text-[14px] hover:bg-[#243f28] transition-colors shrink-0">
                    Sign In
                 </button>
              </div>
