@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Link from "next/link";
 import { cn } from "@/lib/utils";
 import { 
   Users, 
@@ -67,26 +68,26 @@ const SIGNUPS_DATA = [
 ];
 
 const ACTIVITY_FEED = [
-  { time: "2 mins ago", type: "order", icon: ShoppingCart, text: "New order placed", subtext: "Emeka Obi → Pharmacy Plus", value: "₦8,500", color: "text-blue-500", bg: "bg-blue-50" },
-  { time: "5 mins ago", type: "animal", icon: Cow, text: "Animal registered", subtext: "WAF-2026-00312 · Cattle", value: "Lagos", color: "text-emerald-500", bg: "bg-emerald-50" },
-  { time: "8 mins ago", type: "diagnosis", icon: Robot, text: "Diagnosis session", subtext: "Camera · Moderate Severity", value: "Oxytetracycline", color: "text-purple-500", bg: "bg-purple-50" },
-  { time: "12 mins ago", type: "bnpl", icon: Receipt, text: "BNPL agreement created", subtext: "₦12,000", value: "Due May 16", color: "text-orange-500", bg: "bg-orange-50" },
-  { time: "15 mins ago", type: "delivery", icon: CheckCircle, text: "Order delivered", subtext: "#ORD-0091", value: "Logged to herd", color: "text-emerald-500", bg: "bg-emerald-50" },
-  { time: "18 mins ago", type: "ussd", icon: PhoneCall, text: "USSD session", subtext: "Pay order reference", value: "Completed", color: "text-gray-500", bg: "bg-gray-50" },
-  { time: "22 mins ago", type: "alert", icon: Warning, text: "Stockout alert", subtext: "Ivermectin · Pharmacy King", value: "3 days left", color: "text-red-500", bg: "bg-red-50" },
-  { time: "30 mins ago", type: "order", icon: ShoppingCart, text: "Order confirmed", subtext: "Musa Ibrahim → Lekki Pharma", value: "₦4,200", color: "text-blue-500", bg: "bg-blue-50" },
-  { time: "45 mins ago", type: "user", icon: Users, text: "New vet verified", subtext: "Dr. Adebayo · Oyo State", value: "Verified", color: "text-purple-500", bg: "bg-purple-50" },
-  { time: "1 hr ago", type: "finance", icon: Money, text: "Settlement processed", subtext: "Pharmacy Plus", value: "₦450k", color: "text-[#2D4D31]", bg: "bg-[#2D4D31]/5" },
-  { time: "1.5 hrs ago", type: "ussd", icon: PhoneCall, text: "USSD Session", subtext: "Animal Registration", value: "Success", color: "text-gray-500", bg: "bg-gray-50" },
-  { time: "2 hrs ago", type: "alert", icon: Warning, text: "Critical Health Alert", subtext: "High Fever · Kaduna", value: "Escalated", color: "text-red-500", bg: "bg-red-50" },
-  { time: "3 hrs ago", type: "order", icon: ShoppingCart, text: "Bulk Order", subtext: "Distributor X → 12 Chemists", value: "₦1.2M", color: "text-blue-500", bg: "bg-blue-50" },
-  { time: "4 hrs ago", type: "user", icon: Users, text: "New Farmer Signup", subtext: "John Dagogo · Rivers", value: "Awaiting Ver.", color: "text-purple-500", bg: "bg-purple-50" },
-  { time: "5 hrs ago", type: "finance", icon: Receipt, text: "Loan Repayment", subtext: "Emeka Obi", value: "₦14,500", color: "text-emerald-500", bg: "bg-emerald-50" },
-  { time: "6 hrs ago", type: "delivery", icon: CheckCircle, text: "Shipment Arrived", subtext: "Cold Chain Verified", value: "Lagos Hub", color: "text-[#2D4D31]", bg: "bg-[#2D4D31]/5" },
-  { time: "7 hrs ago", type: "diagnosis", icon: Robot, text: "AI Diagnosis", subtext: "Poultry · Low Severity", value: "Nutrition", color: "text-purple-500", bg: "bg-purple-50" },
-  { time: "8 hrs ago", type: "order", icon: ShoppingCart, text: "Cancelled Order", subtext: "#ORD-9921", value: "Refunded", color: "text-red-500", bg: "bg-red-50" },
-  { time: "9 hrs ago", type: "ussd", icon: PhoneCall, text: "USSD Session", subtext: "Check Balance", value: "Success", color: "text-gray-500", bg: "bg-gray-50" },
-  { time: "10 hrs ago", type: "user", icon: Users, text: "Profile Updated", subtext: "Sarah Ahmed", value: "Success", color: "text-blue-500", bg: "bg-blue-50" },
+  { id: "act_1001", time: "2 mins ago", type: "order", icon: ShoppingCart, text: "New order placed", subtext: "Emeka Obi → Pharmacy Plus", value: "₦8,500", color: "text-blue-500", bg: "bg-blue-50" },
+  { id: "act_1002", time: "5 mins ago", type: "animal", icon: Cow, text: "Animal registered", subtext: "WAF-2026-00312 · Cattle", value: "Lagos", color: "text-emerald-500", bg: "bg-emerald-50" },
+  { id: "act_1003", time: "8 mins ago", type: "diagnosis", icon: Robot, text: "Diagnosis session", subtext: "Camera · Moderate Severity", value: "Oxytetracycline", color: "text-purple-500", bg: "bg-purple-50" },
+  { id: "act_1004", time: "12 mins ago", type: "bnpl", icon: Receipt, text: "BNPL agreement created", subtext: "₦12,000", value: "Due May 16", color: "text-orange-500", bg: "bg-orange-50" },
+  { id: "act_1005", time: "15 mins ago", type: "delivery", icon: CheckCircle, text: "Order delivered", subtext: "#ORD-0091", value: "Logged to herd", color: "text-emerald-500", bg: "bg-emerald-50" },
+  { id: "act_1006", time: "18 mins ago", type: "ussd", icon: PhoneCall, text: "USSD session", subtext: "Pay order reference", value: "Completed", color: "text-gray-500", bg: "bg-gray-50" },
+  { id: "act_1007", time: "22 mins ago", type: "alert", icon: Warning, text: "Stockout alert", subtext: "Ivermectin · Pharmacy King", value: "3 days left", color: "text-red-500", bg: "bg-red-50" },
+  { id: "act_1008", time: "30 mins ago", type: "order", icon: ShoppingCart, text: "Order confirmed", subtext: "Musa Ibrahim → Lekki Pharma", value: "₦4,200", color: "text-blue-500", bg: "bg-blue-50" },
+  { id: "act_1009", time: "45 mins ago", type: "user", icon: Users, text: "New vet verified", subtext: "Dr. Adebayo · Oyo State", value: "Verified", color: "text-purple-500", bg: "bg-purple-50" },
+  { id: "act_1010", time: "1 hr ago", type: "finance", icon: Money, text: "Settlement processed", subtext: "Pharmacy Plus", value: "₦450k", color: "text-[#2D4D31]", bg: "bg-[#2D4D31]/5" },
+  { id: "act_1011", time: "1.5 hrs ago", type: "ussd", icon: PhoneCall, text: "USSD Session", subtext: "Animal Registration", value: "Success", color: "text-gray-500", bg: "bg-gray-50" },
+  { id: "act_1012", time: "2 hrs ago", type: "alert", icon: Warning, text: "Critical Health Alert", subtext: "High Fever · Kaduna", value: "Escalated", color: "text-red-500", bg: "bg-red-50" },
+  { id: "act_1013", time: "3 hrs ago", type: "order", icon: ShoppingCart, text: "Bulk Order", subtext: "Distributor X → 12 Chemists", value: "₦1.2M", color: "text-blue-500", bg: "bg-blue-50" },
+  { id: "act_1014", time: "4 hrs ago", type: "user", icon: Users, text: "New Farmer Signup", subtext: "John Dagogo · Rivers", value: "Awaiting Ver.", color: "text-purple-500", bg: "bg-purple-50" },
+  { id: "act_1015", time: "5 hrs ago", type: "finance", icon: Receipt, text: "Loan Repayment", subtext: "Emeka Obi", value: "₦14,500", color: "text-emerald-500", bg: "bg-emerald-50" },
+  { id: "act_1016", time: "6 hrs ago", type: "delivery", icon: CheckCircle, text: "Shipment Arrived", subtext: "Cold Chain Verified", value: "Lagos Hub", color: "text-[#2D4D31]", bg: "bg-[#2D4D31]/5" },
+  { id: "act_1017", time: "7 hrs ago", type: "diagnosis", icon: Robot, text: "AI Diagnosis", subtext: "Poultry · Low Severity", value: "Nutrition", color: "text-purple-500", bg: "bg-purple-50" },
+  { id: "act_1018", time: "8 hrs ago", type: "order", icon: ShoppingCart, text: "Cancelled Order", subtext: "#ORD-9921", value: "Refunded", color: "text-red-500", bg: "bg-red-50" },
+  { id: "act_1019", time: "9 hrs ago", type: "ussd", icon: PhoneCall, text: "USSD Session", subtext: "Check Balance", value: "Success", color: "text-gray-500", bg: "bg-gray-50" },
+  { id: "act_1020", time: "10 hrs ago", type: "user", icon: Users, text: "Profile Updated", subtext: "Sarah Ahmed", value: "Success", color: "text-blue-500", bg: "bg-blue-50" },
 ];
 
 export default function AdminDashboard() {
@@ -213,16 +214,15 @@ export default function AdminDashboard() {
         <div className="lg:col-span-7 bg-white rounded-[40px] border border-gray-100 shadow-sm overflow-hidden">
           <div className="p-10 border-b border-gray-50 flex items-center justify-between">
             <h3 className="text-[20px] font-black text-gray-900 tracking-tight">Live Activity Feed</h3>
-            <button className="text-[11px] font-black text-[#2D4D31] uppercase tracking-[0.2em] flex items-center gap-2">
+            <Link href="/admin/platform/audit" className="text-[11px] font-black text-[#2D4D31] uppercase tracking-[0.2em] flex items-center gap-2 hover:underline">
               View Audit Log <CaretRight size={14} weight="bold" />
-            </button>
+            </Link>
           </div>
           <div className="divide-y divide-gray-50">
             {currentItems.map((item, i) => (
-              <div key={i} className="p-8 flex items-center justify-between hover:bg-gray-50/50 transition-colors group">
+              <Link key={i} href={`/admin/activity/${item.id}`} className="p-8 flex items-center justify-between hover:bg-gray-50/50 transition-colors group">
                 <div className="flex items-center gap-5">
-                  <span className="text-[10px] font-black text-gray-400 w-16 uppercase tracking-wider">{item.time}</span>
-                  <div className={`w-10 h-10 ${item.bg} ${item.color} rounded-xl flex items-center justify-center`}>
+                  <div className={`w-10 h-10 ${item.bg} ${item.color} rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform`}>
                     <item.icon size={20} weight="duotone" />
                   </div>
                   <div className="flex flex-col">
@@ -231,11 +231,11 @@ export default function AdminDashboard() {
                   </div>
                 </div>
                 <div className="flex items-center gap-4">
-                  <button className="w-8 h-8 rounded-lg flex items-center justify-center text-gray-300 hover:text-[#2D4D31] hover:bg-white transition-all">
+                  <div className="w-8 h-8 rounded-lg flex items-center justify-center text-gray-300 group-hover:text-[#2D4D31] group-hover:bg-white transition-all">
                     <ArrowRight size={16} weight="bold" />
-                  </button>
+                  </div>
                 </div>
-              </div>
+              </Link>
             ))}
           </div>
 
@@ -286,17 +286,20 @@ export default function AdminDashboard() {
             <h3 className="text-[18px] font-black text-gray-900 tracking-tight mb-8">BNPL Overdue</h3>
             <div className="space-y-6">
               {[
-                { name: "John Dagogo", amount: "₦14,500", days: "4 days" },
-                { name: "Musa Ibrahim", amount: "₦8,200", days: "2 days" },
+                { id: "BNPL-101", name: "John Dagogo", amount: "₦14,500" },
+                { id: "BNPL-102", name: "Musa Ibrahim", amount: "₦8,200" },
               ].map((alert, i) => (
                 <div key={i} className="flex items-center justify-between p-6 bg-red-50 rounded-[32px] border border-red-100">
                   <div className="flex flex-col">
                     <span className="text-[15px] font-bold text-gray-900">{alert.name}</span>
-                    <span className="text-[12px] font-bold text-red-500 uppercase tracking-widest mt-1">{alert.days} overdue · {alert.amount}</span>
+                    <span className="text-[10px] font-black text-red-400 uppercase tracking-widest mt-0.5">{alert.amount} Overdue</span>
                   </div>
-                  <button className="bg-white text-red-500 px-6 py-3 rounded-2xl text-[11px] font-black uppercase tracking-widest shadow-sm hover:bg-red-50 transition-colors">
+                  <Link 
+                    href={`/admin/finance/bnpl/${alert.id}`}
+                    className="bg-white text-red-500 px-6 py-3 rounded-2xl text-[11px] font-black uppercase tracking-widest shadow-sm hover:bg-red-50 transition-colors"
+                  >
                     View
-                  </button>
+                  </Link>
                 </div>
               ))}
             </div>
@@ -307,17 +310,20 @@ export default function AdminDashboard() {
             <h3 className="text-[18px] font-black text-gray-900 tracking-tight mb-8">Unverified Chemists</h3>
             <div className="space-y-6">
               {[
-                { name: "Lekki Pharma", loc: "Lagos", date: "May 12" },
-                { name: "City Agro", loc: "Kano", date: "May 11" },
+                { id: "CHM-881", name: "Lekki Pharma", loc: "Lagos" },
+                { id: "CHM-882", name: "City Agro", loc: "Kano" },
               ].map((alert, i) => (
                 <div key={i} className="flex items-center justify-between p-6 bg-gray-50 rounded-[32px] border border-gray-100">
                   <div className="flex flex-col">
                     <span className="text-[15px] font-bold text-gray-900">{alert.name}</span>
-                    <span className="text-[12px] font-bold text-gray-400 uppercase tracking-widest mt-1">{alert.loc} · Applied {alert.date}</span>
+                    <span className="text-[10px] font-black text-gray-400 uppercase tracking-widest mt-0.5">{alert.loc} · Pending</span>
                   </div>
-                  <button className="bg-[#2D4D31] text-white px-6 py-3 rounded-2xl text-[11px] font-black uppercase tracking-widest shadow-sm hover:opacity-90 transition-colors">
+                  <Link 
+                    href={`/admin/marketplace/verification/${alert.id}`}
+                    className="bg-[#2D4D31] text-white px-6 py-3 rounded-2xl text-[11px] font-black uppercase tracking-widest shadow-sm hover:opacity-90 transition-colors"
+                  >
                     Verify
-                  </button>
+                  </Link>
                 </div>
               ))}
             </div>
@@ -328,16 +334,19 @@ export default function AdminDashboard() {
             <h3 className="text-[18px] font-black text-gray-900 tracking-tight mb-8">Critical Vitals</h3>
             <div className="space-y-6">
               {[
-                { id: "WAF-992", issue: "High Fever", time: "28 hrs" },
+                { id: "WAF-992", issue: "High Fever" },
               ].map((alert, i) => (
                 <div key={i} className="flex items-center justify-between p-6 bg-orange-50 rounded-[32px] border border-orange-100">
                   <div className="flex flex-col">
                     <span className="text-[15px] font-bold text-gray-900">{alert.id}</span>
-                    <span className="text-[12px] font-bold text-orange-500 uppercase tracking-widest mt-1">{alert.issue} · {alert.time} unresolved</span>
+                    <span className="text-[10px] font-black text-orange-400 uppercase tracking-widest mt-0.5">{alert.issue} Alert</span>
                   </div>
-                  <button className="bg-white text-orange-500 px-6 py-3 rounded-2xl text-[11px] font-black uppercase tracking-widest shadow-sm hover:bg-orange-50 transition-colors">
+                  <Link 
+                    href={`/admin/livestock/vitals/${alert.id}`}
+                    className="bg-white text-orange-500 px-6 py-3 rounded-2xl text-[11px] font-black uppercase tracking-widest shadow-sm hover:bg-orange-50 transition-colors"
+                  >
                     Escalate
-                  </button>
+                  </Link>
                 </div>
               ))}
             </div>

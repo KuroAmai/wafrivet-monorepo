@@ -102,6 +102,8 @@ export default function InsightsPage() {
             </div>
          </div>
 
+         
+
          {/* Top Products */}
          <div className="bg-white rounded-[40px] border border-gray-100 shadow-sm p-8">
             <h3 className="text-[18px] font-black text-gray-900 tracking-tight mb-8">Best Selling Products</h3>
