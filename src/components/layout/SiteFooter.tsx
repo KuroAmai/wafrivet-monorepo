@@ -23,7 +23,7 @@ export const SiteFooter = () => {
 
           <div className="flex justify-center">
             <Link to="/" className="inline-flex items-center" aria-label="Home">
-              <img src="/logo.svg" alt="" aria-hidden className="h-24 md:h-28 w-auto opacity-100" />
+              <img src="/logo.svg" alt="" aria-hidden className="h-5 md:h-6 w-auto opacity-100" />
             </Link>
           </div>
 
