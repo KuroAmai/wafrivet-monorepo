@@ -219,7 +219,7 @@ export default function AdminDashboard() {
           </div>
           <div className="divide-y divide-gray-50">
             {currentItems.map((item, i) => (
-              <div key={i} className="p-6 flex items-center justify-between hover:bg-gray-50/50 transition-colors group">
+              <div key={i} className="p-8 flex items-center justify-between hover:bg-gray-50/50 transition-colors group">
                 <div className="flex items-center gap-5">
                   <span className="text-[10px] font-black text-gray-400 w-16 uppercase tracking-wider">{item.time}</span>
                   <div className={`w-10 h-10 ${item.bg} ${item.color} rounded-xl flex items-center justify-center`}>
@@ -231,7 +231,6 @@ export default function AdminDashboard() {
                   </div>
                 </div>
                 <div className="flex items-center gap-4">
-                  <span className="text-[12px] font-black text-gray-900 bg-gray-100 px-3 py-1 rounded-lg">{item.value}</span>
                   <button className="w-8 h-8 rounded-lg flex items-center justify-center text-gray-300 hover:text-[#2D4D31] hover:bg-white transition-all">
                     <ArrowRight size={16} weight="bold" />
                   </button>

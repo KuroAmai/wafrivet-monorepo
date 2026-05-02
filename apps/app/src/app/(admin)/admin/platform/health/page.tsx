@@ -19,7 +19,7 @@ import {
   X,
   ArrowsClockwise,
   DownloadSimple,
-  Activity,
+  ChartLine,
   Lightning,
   ShieldPlus
 } from "@phosphor-icons/react";
@@ -33,7 +33,7 @@ const SERVICES_DATA = [
   { name: "Treasury & Payments", status: "Operational", latency: "42ms", uptime: "99.98%", load: "15%", icon: CreditCard, color: "emerald" },
   { name: "SMS Relay (Twilio)", status: "Operational", latency: "120ms", uptime: "99.90%", load: "5%", icon: ChatCircleText, color: "emerald" },
   { name: "USSD Access Node", status: "Operational", latency: "85ms", uptime: "99.99%", load: "18%", icon: DeviceMobile, color: "emerald" },
-  { name: "Asset Forecast Engine", status: "Operational", latency: "210ms", uptime: "99.92%", load: "62%", icon: Activity, color: "emerald" },
+  { name: "Asset Forecast Engine", status: "Operational", latency: "210ms", uptime: "99.92%", load: "62%", icon: ChartLine, color: "emerald" },
 ];
 
 const INCIDENTS_DATA = [
