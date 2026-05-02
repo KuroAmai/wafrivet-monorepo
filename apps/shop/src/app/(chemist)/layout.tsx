@@ -1,6 +1,6 @@
 import { getServerAuth } from "@wafrivet/auth";
 import { Sidebar } from "@/components/chemist/Sidebar";
-import { ShopNavbar } from "@/components/layout/ShopNavbar";
+import { ChemistNavbar } from "@/components/chemist/ChemistNavbar";
 
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
@@ -15,7 +15,7 @@ export default async function ChemistLayout({ children }: { children: React.Reac
 
   return (
     <div className="min-h-screen bg-[#F9FAFB]">
-      <ShopNavbar />
+      <ChemistNavbar />
       <main className="max-w-7xl mx-auto px-4 md:px-6 pt-10 pb-20">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-10">
           <div className="lg:col-span-3">
