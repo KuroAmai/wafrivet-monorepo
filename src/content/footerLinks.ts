@@ -29,6 +29,9 @@ export const footerLinkGroups = {
     { label: "Referral & Creator Program", to: "/referral" },
     { label: "Rider & Logistics Partners", to: "/riders" },
   ],
+  investors: [
+    { label: "Investor Relations", to: "/investors" },
+  ],
   legal: [
     { label: "Terms", to: "/terms" },
     { label: "Privacy", to: "/privacy" },

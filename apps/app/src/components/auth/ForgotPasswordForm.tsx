@@ -5,7 +5,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import Link from "next/link";
-import { ArrowLeft, ArrowRight } from "@phosphor-icons/react";
+import { ArrowLeft, ArrowRight, EnvelopeSimple } from "@phosphor-icons/react";
 
 const schema = z.object({
   emailOrPhone: z.string().min(1, "Email or phone is required"),
@@ -22,18 +22,23 @@ export function ForgotPasswordForm() {
 
   if (isSent) {
     return (
-      <div>
+      <div className="text-center">
+        <div className="flex justify-center mb-6">
+          <div className="w-16 h-16 bg-green-50 rounded-full flex items-center justify-center text-[#2D4D31]">
+            <EnvelopeSimple size={36} weight="fill" />
+          </div>
+        </div>
         <div className="mb-8">
           <h1 className="text-[30px] font-semibold text-gray-900 tracking-tight leading-tight">Check your messages</h1>
-          <p className="text-[15px] text-gray-500 mt-1.5">
+          <p className="text-[15px] text-gray-500 mt-1.5 px-4">
             We've sent a reset link to your contact. It expires in 15 minutes.
           </p>
         </div>
-        <div className="p-4 rounded-xl border border-[#2D4D31]/20 bg-[#f0f4f0] text-[14px] text-[#2D4D31] mb-6">
-          Didn't receive it? Check your spam folder or try a different contact method.
+        <div className="p-4 rounded-xl border border-[#2D4D31]/20 bg-[#f7faf7] text-[13px] text-[#2D4D31] mb-8 text-left">
+          <strong>Didn't receive it?</strong> Check your spam folder or try a different contact method.
         </div>
         <Link href="/login" className="w-full h-[52px] bg-[#2D4D31] text-white font-semibold text-[15px] rounded-xl hover:bg-[#243f28] transition-all flex items-center justify-center gap-2">
-          Back to sign in <ArrowRight size={17} />
+          Back to sign in <ArrowRight size={17} weight="bold" />
         </Link>
       </div>
     );
