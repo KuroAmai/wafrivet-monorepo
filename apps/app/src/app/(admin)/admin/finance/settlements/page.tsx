@@ -67,9 +67,9 @@ export default function SettlementsPage() {
         ))}
       </div>
 
-      {/* Filters Bar */}
-      <div className="flex flex-wrap items-center justify-between gap-6">
-        <div className="flex items-center gap-3 bg-white px-5 py-3 rounded-2xl border border-gray-100 focus-within:border-[#2D4D31]/20 transition-all shadow-sm w-[400px]">
+      {/* Unified Filters Bar */}
+      <div className="bg-white p-4 rounded-[32px] border border-gray-100 shadow-sm flex flex-wrap items-center gap-4">
+        <div className="flex-1 min-w-[300px] flex items-center gap-3 bg-gray-50 px-5 py-3 rounded-2xl border border-gray-50 focus-within:border-[#2D4D31]/20 focus-within:bg-white transition-all shadow-none">
           <MagnifyingGlass size={18} className="text-gray-400" />
           <input 
             type="text" 
@@ -79,23 +79,28 @@ export default function SettlementsPage() {
             onChange={(e) => setSearchQuery(e.target.value)}
           />
         </div>
-
+        
         <div className="flex items-center gap-2">
-          {["All Types", "Chemist", "Distributor"].map((type) => (
-            <button 
-              key={type}
-              onClick={() => setSelectedType(type)}
-              className={cn(
-                "px-5 py-2.5 rounded-xl text-[11px] font-black uppercase tracking-widest transition-all border",
-                selectedType === type 
-                  ? "bg-[#2D4D31] text-white border-[#2D4D31] shadow-lg shadow-[#2D4D31]/10" 
-                  : "bg-white text-gray-400 border-gray-100 hover:border-gray-200"
-              )}
-            >
-              {type}
-            </button>
-          ))}
+          <select 
+            className="px-5 py-3 bg-white border border-gray-100 rounded-2xl text-[13px] font-bold text-gray-600 hover:border-[#2D4D31]/20 hover:bg-gray-50 transition-all outline-none appearance-none cursor-pointer"
+            value={selectedType}
+            onChange={(e) => setSelectedType(e.target.value)}
+          >
+            {["All Types", "Chemist", "Distributor"].map(type => (
+              <option key={type} value={type}>{type}</option>
+            ))}
+          </select>
         </div>
+
+        <button 
+          onClick={() => {
+            setSearchQuery("");
+            setSelectedType("All Types");
+          }}
+          className="p-3 bg-gray-50 text-gray-400 hover:text-red-500 rounded-xl transition-all"
+        >
+          <X size={20} weight="bold" />
+        </button>
       </div>
 
       {/* Table Section */}

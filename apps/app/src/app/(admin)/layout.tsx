@@ -34,7 +34,7 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
   return (
     <div className="min-h-screen bg-[#F9FAFB] flex">
       {/* Sidebar - Full Height Pillar */}
-      <aside className="w-[320px] h-screen sticky top-0 bg-[#F9FAFB] overflow-y-auto scrollbar-hide px-6 py-10 shrink-0 hidden lg:block">
+      <aside className="w-[320px] h-screen sticky top-0 bg-[#F9FAFB] overflow-y-auto no-scrollbar px-6 py-10 shrink-0 hidden lg:block" style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}>
         <AdminSidebar />
       </aside>
 

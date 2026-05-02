@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import { 
   TrendUp, 
   TrendDown, 
@@ -10,24 +11,37 @@ import {
   Microscope,
   ArrowRight,
   ChartLineUp,
-  DownloadSimple
+  DownloadSimple,
+  MagnifyingGlass,
+  X
 } from "@phosphor-icons/react";
 import { cn } from "@/lib/utils";
 
 const FORECAST_DATA = [
-  { region: "Lekki North", demand: "↑ 42%", product: "Oxytetracycline", reason: "Rainfall Spike", type: "Weather", accuracy: "94%", color: "text-emerald-500", bg: "bg-emerald-50" },
-  { region: "Kano Central", demand: "↑ 18%", product: "Multivitamins", reason: "Heat Stress", type: "Weather", accuracy: "89%", color: "text-emerald-500", bg: "bg-emerald-50" },
-  { region: "Ibadan South", demand: "↓ 12%", product: "Broiler Starter", reason: "Supply Glut", type: "Market", accuracy: "82%", color: "text-red-500", bg: "bg-red-50" },
-  { region: "Kaduna East", demand: "↑ 65%", product: "PPR Vaccine", reason: "Outbreak Warning", type: "Disease", accuracy: "97%", color: "text-emerald-500", bg: "bg-emerald-50" },
+  { id: "FC-102", region: "Lekki North", demand: "+42%", product: "Oxytetracycline", reason: "Rainfall Spike", type: "Weather", accuracy: "94%", trend: "Bullish" },
+  { id: "FC-103", region: "Kano Central", demand: "+18%", product: "Multivitamins", reason: "Heat Stress", type: "Weather", accuracy: "89%", trend: "Stable" },
+  { id: "FC-104", region: "Ibadan South", demand: "-12%", product: "Broiler Starter", reason: "Supply Glut", type: "Market", accuracy: "82%", trend: "Bearish" },
+  { id: "FC-105", region: "Kaduna East", demand: "+65%", product: "PPR Vaccine", reason: "Outbreak Warning", type: "Disease", accuracy: "97%", trend: "Critical" },
 ];
 
 export default function DemandForecastsPage() {
+  const [searchQuery, setSearchQuery] = useState("");
+  const [selectedType, setSelectedType] = useState("All Sources");
+
+  const filteredForecasts = FORECAST_DATA.filter(item => {
+    const matchesSearch = 
+      item.region.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      item.product.toLowerCase().includes(searchQuery.toLowerCase());
+    const matchesType = selectedType === "All Sources" || item.type === selectedType;
+    return matchesSearch && matchesType;
+  });
+
   return (
-    <div className="space-y-8">
+    <div className="space-y-10">
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-[32px] font-black text-gray-900 tracking-tight leading-none mb-3">Demand Forecasting</h1>
+          <h1 className="text-[32px] font-black text-gray-900 tracking-tight leading-none mb-3">Demand Intelligence</h1>
           <p className="text-[11px] text-gray-400 font-bold uppercase tracking-[0.2em]">Predictive analytics for inventory and supply chain optimization</p>
         </div>
         <button className="bg-white text-gray-900 border border-gray-100 px-6 py-2.5 rounded-2xl text-[13px] font-black uppercase tracking-wider hover:bg-gray-50 transition-all flex items-center gap-2 shadow-sm">
@@ -36,79 +50,144 @@ export default function DemandForecastsPage() {
       </div>
 
       {/* Stats Bar */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <div className="bg-[#2D4D31] p-8 rounded-[32px] shadow-lg shadow-[#2D4D31]/20 flex items-center justify-between overflow-hidden relative group">
-          <div className="absolute -right-4 -bottom-4 text-white/5 group-hover:scale-110 transition-transform">
-             <ChartLineUp size={140} weight="fill" />
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+        {[
+          { label: "Global Demand Index", value: "+14.2%", sub: "Aggregated growth", color: "emerald" },
+          { label: "Highest Risk Region", value: "Kaduna", sub: "Critical stockout risk", color: "red" },
+          { label: "Avg Model Accuracy", value: "91.4%", sub: "Confidence score", color: "blue" },
+          { label: "Detected Outbreaks", value: "02", sub: "Active alerts", color: "orange" },
+        ].map((stat, i) => (
+          <div key={i} className="bg-white p-6 rounded-[40px] border border-gray-100 shadow-sm flex flex-col items-center text-center group hover:border-[#2D4D31]/20 transition-all">
+            <span className="text-[9px] font-black text-gray-400 uppercase tracking-widest mb-2">{stat.label}</span>
+            <div className={cn(
+              "text-[24px] font-black leading-none group-hover:scale-105 transition-transform",
+              stat.color === "emerald" ? "text-emerald-500" :
+              stat.color === "red" ? "text-red-500" :
+              stat.color === "blue" ? "text-blue-500" : "text-orange-500"
+            )}>{stat.value}</div>
+            <p className="text-[11px] font-bold text-gray-400 mt-2">{stat.sub}</p>
           </div>
-          <div>
-            <span className="text-[10px] font-black text-white/60 uppercase tracking-widest block mb-2">Global Demand Index</span>
-            <div className="flex items-center gap-4">
-              <div className="text-[42px] font-black text-white leading-none tracking-tight">↑ 14.2%</div>
-              <span className="text-[12px] font-bold text-emerald-400 bg-white/10 px-3 py-1 rounded-lg uppercase tracking-widest">Bullish</span>
-            </div>
-            <p className="text-[12px] font-bold text-white/80 mt-6 flex items-center gap-2">
-              Driven by vaccination cycles in Northern Nigeria <ArrowRight size={14} weight="bold" />
-            </p>
-          </div>
-        </div>
-
-        <div className="bg-white p-8 rounded-[32px] border border-gray-100 shadow-sm flex items-center justify-between">
-          <div>
-            <span className="text-[10px] font-black text-gray-400 uppercase tracking-widest block mb-2">Highest Demand State</span>
-            <div className="text-[32px] font-black text-gray-900 leading-none tracking-tight">Kaduna</div>
-            <p className="text-[11px] font-bold text-red-500 mt-4 flex items-center gap-2">
-              <Warning size={14} weight="fill" /> High risk of regional stockouts
-            </p>
-          </div>
-          <div className="w-16 h-16 bg-red-50 text-red-500 rounded-3xl flex items-center justify-center">
-             <MapPin size={32} weight="duotone" />
-          </div>
-        </div>
+        ))}
       </div>
 
-      {/* Regions List */}
-      <div className="space-y-6">
-        <h3 className="text-[12px] font-black text-gray-400 uppercase tracking-widest px-2">Regional Insights</h3>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          {FORECAST_DATA.map((item, i) => (
-            <div key={i} className="bg-white p-8 rounded-[40px] border border-gray-100 shadow-sm hover:shadow-md transition-all group">
-              <div className="flex items-center justify-between mb-8">
-                <div className="flex items-center gap-4">
-                  <div className="w-12 h-12 bg-gray-50 rounded-2xl flex items-center justify-center text-gray-400 group-hover:text-[#2D4D31] group-hover:bg-white transition-all shadow-none group-hover:shadow-sm">
-                    <MapPin size={24} weight="duotone" />
-                  </div>
-                  <div>
-                    <h4 className="text-[18px] font-black text-gray-900 tracking-tight leading-none mb-1">{item.region}</h4>
-                    <span className="text-[11px] font-black text-emerald-500 uppercase tracking-widest">Accuracy: {item.accuracy}</span>
-                  </div>
-                </div>
-                <div className={cn("flex items-center gap-2 px-4 py-2 rounded-xl text-[14px] font-black", item.bg, item.color)}>
-                  {item.demand.startsWith('↑') ? <TrendUp size={16} weight="bold" /> : <TrendDown size={16} weight="bold" />}
-                  {item.demand}
-                </div>
-              </div>
+      {/* Unified Filters Bar */}
+      <div className="bg-white p-4 rounded-[32px] border border-gray-100 shadow-sm flex flex-wrap items-center gap-4">
+        <div className="flex-1 min-w-[300px] flex items-center gap-3 bg-gray-50 px-5 py-3 rounded-2xl border border-gray-50 focus-within:border-[#2D4D31]/20 focus-within:bg-white transition-all shadow-none">
+          <MagnifyingGlass size={18} className="text-gray-400" />
+          <input 
+            type="text" 
+            placeholder="Search region or trending product..." 
+            className="bg-transparent border-none outline-none text-[14px] font-medium text-gray-900 placeholder:text-gray-400 w-full"
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+          />
+        </div>
+        
+        <div className="flex items-center gap-2">
+          <select 
+            className="px-5 py-3 bg-white border border-gray-100 rounded-2xl text-[13px] font-bold text-gray-600 hover:border-[#2D4D31]/20 hover:bg-gray-50 transition-all outline-none appearance-none cursor-pointer"
+            value={selectedType}
+            onChange={(e) => setSelectedType(e.target.value)}
+          >
+            {["All Sources", "Weather", "Disease", "Market"].map(type => (
+              <option key={type} value={type}>{type}</option>
+            ))}
+          </select>
+        </div>
 
-              <div className="space-y-6">
-                <div className="flex items-center justify-between p-4 bg-gray-50 rounded-2xl border border-gray-50">
-                  <span className="text-[12px] font-bold text-gray-400 uppercase tracking-widest">Trending Product</span>
-                  <span className="text-[14px] font-black text-gray-900">{item.product}</span>
-                </div>
+        <button 
+          onClick={() => {
+            setSearchQuery("");
+            setSelectedType("All Sources");
+          }}
+          className="p-3 bg-gray-50 text-gray-400 hover:text-red-500 rounded-xl transition-all"
+        >
+          <X size={20} weight="bold" />
+        </button>
+      </div>
 
-                <div className="flex gap-4">
-                  <div className="w-10 h-10 rounded-xl bg-blue-50 text-blue-500 flex items-center justify-center shrink-0">
-                    {item.type === "Weather" ? <CloudRain size={20} weight="bold" /> : 
-                     item.type === "Disease" ? <Microscope size={20} weight="bold" /> :
-                     <ChartLineUp size={20} weight="bold" />}
-                  </div>
-                  <div>
-                    <span className="text-[10px] font-black text-gray-400 uppercase tracking-widest block mb-1">Reasoning</span>
-                    <p className="text-[13px] font-medium text-gray-600 leading-tight">{item.reason}</p>
-                  </div>
-                </div>
-              </div>
-            </div>
-          ))}
+      {/* Table Section */}
+      <div className="bg-white rounded-[40px] border border-gray-100 shadow-sm overflow-hidden flex flex-col">
+        <div className="overflow-x-auto no-scrollbar" style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}>
+          <table className="w-full text-left border-collapse">
+            <thead>
+              <tr className="bg-gray-50/50 border-b border-gray-50">
+                <th className="px-5 py-4 text-[10px] font-black text-gray-400 uppercase tracking-widest whitespace-nowrap">Model ID</th>
+                <th className="px-5 py-4 text-[10px] font-black text-gray-400 uppercase tracking-widest whitespace-nowrap">Regional Intelligence</th>
+                <th className="px-5 py-4 text-[10px] font-black text-gray-400 uppercase tracking-widest whitespace-nowrap">Predictive Target</th>
+                <th className="px-5 py-4 text-[10px] font-black text-gray-400 uppercase tracking-widest whitespace-nowrap">Causal Analysis</th>
+                <th className="px-5 py-4 text-[10px] font-black text-gray-400 uppercase tracking-widest text-right whitespace-nowrap">Confidence</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-gray-50">
+              {filteredForecasts.map((item) => (
+                <tr key={item.id} className="group hover:bg-gray-50/30 transition-all">
+                  <td className="px-5 py-5">
+                    <span className="text-[14px] font-black text-gray-900 tracking-tight whitespace-nowrap">{item.id}</span>
+                  </td>
+                  <td className="px-5 py-5">
+                    <div className="flex flex-col min-w-0">
+                      <div className="flex items-center gap-2 mb-0.5">
+                        <MapPin size={12} weight="bold" className="text-gray-400" />
+                        <span className="text-[13px] font-bold text-gray-900 truncate whitespace-nowrap">{item.region}</span>
+                      </div>
+                      <span className={cn(
+                        "text-[9px] font-black uppercase tracking-widest ml-5",
+                        item.trend === "Bullish" || item.trend === "Critical" ? "text-emerald-500" :
+                        item.trend === "Bearish" ? "text-red-500" : "text-blue-500"
+                      )}>{item.trend} Outlook</span>
+                    </div>
+                  </td>
+                  <td className="px-5 py-5">
+                    <div className="flex flex-col">
+                      <span className="text-[14px] font-black text-gray-900 leading-none mb-1 whitespace-nowrap">{item.product}</span>
+                      <div className="flex items-center gap-2">
+                        {item.demand.startsWith('+') ? <TrendUp size={10} className="text-emerald-500" /> : <TrendDown size={10} className="text-red-500" />}
+                        <span className={cn(
+                          "text-[10px] font-black uppercase tracking-widest",
+                          item.demand.startsWith('+') ? "text-emerald-500" : "text-red-500"
+                        )}>{item.demand} Demand Shift</span>
+                      </div>
+                    </div>
+                  </td>
+                  <td className="px-5 py-5">
+                    <div className="flex items-center gap-3">
+                      <div className="w-8 h-8 rounded-lg bg-gray-50 flex items-center justify-center text-gray-400 group-hover:bg-white transition-all border border-transparent group-hover:border-gray-100">
+                        {item.type === "Weather" ? <CloudRain size={16} weight="bold" /> : 
+                         item.type === "Disease" ? <Microscope size={16} weight="bold" /> :
+                         <ChartLineUp size={16} weight="bold" />}
+                      </div>
+                      <div className="flex flex-col">
+                        <span className="text-[12px] font-medium text-gray-600 truncate whitespace-nowrap">{item.reason}</span>
+                        <span className="text-[9px] font-black text-gray-400 uppercase tracking-widest">{item.type} Vector</span>
+                      </div>
+                    </div>
+                  </td>
+                  <td className="px-5 py-5 text-right">
+                    <div className="flex flex-col items-end">
+                      <span className="text-[14px] font-black text-gray-900">{item.accuracy}</span>
+                      <span className="text-[9px] font-black text-emerald-500 uppercase tracking-widest">Model Match</span>
+                    </div>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+
+        {/* Pagination */}
+        <div className="p-6 border-t border-gray-50 flex items-center justify-between bg-gray-50/10">
+          <span className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Showing {filteredForecasts.length} of {FORECAST_DATA.length} models</span>
+          <div className="flex items-center gap-2">
+            {[1, 2, 3].map((page, i) => (
+              <button key={i} className={cn(
+                "w-9 h-9 rounded-xl flex items-center justify-center text-[13px] font-black transition-all",
+                page === 1 ? "bg-[#2D4D31] text-white shadow-lg shadow-[#2D4D31]/20" : "text-gray-400 hover:bg-gray-50"
+              )}>
+                {page}
+              </button>
+            ))}
+          </div>
         </div>
       </div>
     </div>

@@ -76,26 +76,9 @@ export default function BNPLAgreementsPage() {
         ))}
       </div>
 
-      {/* Controls Bar */}
-      <div className="flex flex-wrap items-center justify-between gap-6">
-        {/* Tabs */}
-        <div className="flex items-center gap-2 bg-gray-50 p-1.5 rounded-2xl border border-gray-100">
-          {["all", "active", "overdue", "repaid"].map((tab) => (
-            <button 
-              key={tab}
-              onClick={() => setActiveTab(tab as any)}
-              className={cn(
-                "px-6 py-2.5 rounded-xl text-[12px] font-black uppercase tracking-wider transition-all",
-                activeTab === tab ? "bg-white text-[#2D4D31] shadow-sm" : "text-gray-400 hover:text-gray-600"
-              )}
-            >
-              {tab}
-            </button>
-          ))}
-        </div>
-
-        {/* Search */}
-        <div className="flex-1 min-w-[300px] flex items-center gap-3 bg-white px-5 py-3 rounded-2xl border border-gray-100 focus-within:border-[#2D4D31]/20 transition-all shadow-sm">
+      {/* Unified Filters Bar */}
+      <div className="bg-white p-4 rounded-[32px] border border-gray-100 shadow-sm flex flex-wrap items-center gap-4">
+        <div className="flex-1 min-w-[300px] flex items-center gap-3 bg-gray-50 px-5 py-3 rounded-2xl border border-gray-50 focus-within:border-[#2D4D31]/20 focus-within:bg-white transition-all shadow-none">
           <MagnifyingGlass size={18} className="text-gray-400" />
           <input 
             type="text" 
@@ -104,12 +87,29 @@ export default function BNPLAgreementsPage() {
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
           />
-          {searchQuery && (
-            <button onClick={() => setSearchQuery("")} className="text-gray-400 hover:text-red-500">
-              <X size={16} weight="bold" />
-            </button>
-          )}
         </div>
+        
+        <div className="flex items-center gap-2">
+          <select 
+            className="px-5 py-3 bg-white border border-gray-100 rounded-2xl text-[13px] font-bold text-gray-600 hover:border-[#2D4D31]/20 hover:bg-gray-50 transition-all outline-none appearance-none cursor-pointer"
+            value={activeTab}
+            onChange={(e) => setActiveTab(e.target.value as any)}
+          >
+            {["All", "Active", "Overdue", "Repaid"].map(tab => (
+              <option key={tab} value={tab.toLowerCase()}>{tab} Agreements</option>
+            ))}
+          </select>
+        </div>
+
+        <button 
+          onClick={() => {
+            setSearchQuery("");
+            setActiveTab("all");
+          }}
+          className="p-3 bg-gray-50 text-gray-400 hover:text-red-500 rounded-xl transition-all"
+        >
+          <X size={20} weight="bold" />
+        </button>
       </div>
 
       {/* Table Section */}

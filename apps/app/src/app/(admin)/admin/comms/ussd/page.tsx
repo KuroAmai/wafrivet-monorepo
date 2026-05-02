@@ -1,8 +1,8 @@
 "use client";
 
+import { useState } from "react";
 import { 
   MagnifyingGlass, 
-  Funnel, 
   CaretDown,
   DownloadSimple,
   DeviceMobile,
@@ -12,7 +12,8 @@ import {
   CheckCircle,
   Clock,
   DotsThreeVertical,
-  ArrowRight
+  ArrowRight,
+  X
 } from "@phosphor-icons/react";
 import { cn } from "@/lib/utils";
 
@@ -25,8 +26,22 @@ const USSD_DATA = [
 ];
 
 export default function USSDSessionsPage() {
+  const [searchQuery, setSearchQuery] = useState("");
+  const [selectedOutcome, setSelectedOutcome] = useState("All Sessions");
+
+  const filteredSessions = USSD_DATA.filter(session => {
+    const matchesSearch = 
+      session.phone.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      session.user.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      session.input.toLowerCase().includes(searchQuery.toLowerCase());
+    const matchesOutcome = selectedOutcome === "All Sessions" || 
+      (selectedOutcome === "Successful" && (session.outcome.includes("Success") || session.outcome.includes("Created"))) ||
+      (selectedOutcome === "Incomplete" && (session.outcome.includes("Abandoned") || session.outcome.includes("Query") || session.outcome.includes("Diagnosis")));
+    return matchesSearch && matchesOutcome;
+  });
+
   return (
-    <div className="space-y-8">
+    <div className="space-y-10">
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
@@ -39,92 +54,137 @@ export default function USSDSessionsPage() {
       </div>
 
       {/* Stats Bar */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <div className="bg-white p-8 rounded-[32px] border border-gray-100 shadow-sm flex items-center justify-between">
-          <div>
-            <span className="text-[10px] font-black text-gray-400 uppercase tracking-widest block mb-2">Total USSD Hits</span>
-            <div className="text-[32px] font-black text-gray-900 leading-none">12,842</div>
-            <p className="text-[11px] font-bold text-blue-500 mt-2">↑ 8% from yesterday</p>
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+        {[
+          { label: "Total Sessions", value: "12,842", sub: "↑ 8.4% growth", color: "blue" },
+          { label: "Conversion Rate", value: "3.2%", sub: "USSD to Order", color: "emerald" },
+          { label: "Avg Duration", value: "48.2s", sub: "User session time", color: "gray" },
+          { label: "Active Nodes", value: "14/15", sub: "Gateway health", color: "emerald" },
+        ].map((stat, i) => (
+          <div key={i} className="bg-white p-6 rounded-[40px] border border-gray-100 shadow-sm flex flex-col items-center text-center group hover:border-[#2D4D31]/20 transition-all">
+            <span className="text-[9px] font-black text-gray-400 uppercase tracking-widest mb-2">{stat.label}</span>
+            <div className={cn(
+              "text-[24px] font-black leading-none group-hover:scale-105 transition-transform",
+              stat.color === "blue" ? "text-blue-500" :
+              stat.color === "emerald" ? "text-emerald-500" : "text-gray-900"
+            )}>{stat.value}</div>
+            <p className="text-[11px] font-bold text-gray-400 mt-2">{stat.sub}</p>
           </div>
-          <div className="w-14 h-14 bg-blue-50 text-blue-500 rounded-2xl flex items-center justify-center">
-            <DeviceMobile size={32} weight="duotone" />
-          </div>
+        ))}
+      </div>
+
+      {/* Unified Filters Bar */}
+      <div className="bg-white p-4 rounded-[32px] border border-gray-100 shadow-sm flex flex-wrap items-center gap-4">
+        <div className="flex-1 min-w-[300px] flex items-center gap-3 bg-gray-50 px-5 py-3 rounded-2xl border border-gray-50 focus-within:border-[#2D4D31]/20 focus-within:bg-white transition-all shadow-none">
+          <MagnifyingGlass size={18} className="text-gray-400" />
+          <input 
+            type="text" 
+            placeholder="Search by phone, user or code..." 
+            className="bg-transparent border-none outline-none text-[14px] font-medium text-gray-900 placeholder:text-gray-400 w-full"
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+          />
+        </div>
+        
+        <div className="flex items-center gap-2">
+          <select 
+            className="px-5 py-3 bg-white border border-gray-100 rounded-2xl text-[13px] font-bold text-gray-600 hover:border-[#2D4D31]/20 hover:bg-gray-50 transition-all outline-none appearance-none cursor-pointer"
+            value={selectedOutcome}
+            onChange={(e) => setSelectedOutcome(e.target.value)}
+          >
+            {["All Sessions", "Successful", "Incomplete"].map(outcome => (
+              <option key={outcome} value={outcome}>{outcome}</option>
+            ))}
+          </select>
         </div>
 
-        <div className="bg-white p-8 rounded-[32px] border border-gray-100 shadow-sm flex items-center justify-between">
-          <div>
-            <span className="text-[10px] font-black text-gray-400 uppercase tracking-widest block mb-2">Orders via USSD</span>
-            <div className="text-[32px] font-black text-[#2D4D31] leading-none">428</div>
-            <p className="text-[11px] font-bold text-emerald-500 mt-2">₦2.4M GMV contribution</p>
-          </div>
-          <div className="w-14 h-14 bg-[#2D4D31]/5 text-[#2D4D31] rounded-2xl flex items-center justify-center">
-            <ShoppingCart size={32} weight="duotone" />
-          </div>
-        </div>
-
-        <div className="bg-white p-8 rounded-[32px] border border-gray-100 shadow-sm flex items-center justify-between">
-          <div>
-            <span className="text-[10px] font-black text-gray-400 uppercase tracking-widest block mb-2">Avg Session Duration</span>
-            <div className="text-[32px] font-black text-gray-900 leading-none">48s</div>
-            <p className="text-[11px] font-bold text-gray-400 mt-2">Within UX benchmarks</p>
-          </div>
-          <div className="w-14 h-14 bg-gray-50 text-gray-400 rounded-2xl flex items-center justify-center">
-            <Clock size={32} weight="duotone" />
-          </div>
-        </div>
+        <button 
+          onClick={() => {
+            setSearchQuery("");
+            setSelectedOutcome("All Sessions");
+          }}
+          className="p-3 bg-gray-50 text-gray-400 hover:text-red-500 rounded-xl transition-all"
+        >
+          <X size={20} weight="bold" />
+        </button>
       </div>
 
       {/* Table Section */}
-      <div className="bg-white rounded-[40px] border border-gray-100 shadow-sm overflow-hidden">
-        <div className="overflow-x-auto">
+      <div className="bg-white rounded-[40px] border border-gray-100 shadow-sm overflow-hidden flex flex-col">
+        <div className="overflow-x-auto no-scrollbar" style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}>
           <table className="w-full text-left border-collapse">
             <thead>
-              <tr className="border-b border-gray-50 bg-gray-50/30">
-                <th className="px-8 py-5 text-[11px] font-black text-gray-400 uppercase tracking-widest">Session ID</th>
-                <th className="px-8 py-5 text-[11px] font-black text-gray-400 uppercase tracking-widest">Phone / User</th>
-                <th className="px-8 py-5 text-[11px] font-black text-gray-400 uppercase tracking-widest">Input Log</th>
-                <th className="px-8 py-5 text-[11px] font-black text-gray-400 uppercase tracking-widest">Outcome</th>
-                <th className="px-8 py-5 text-[11px] font-black text-gray-400 uppercase tracking-widest">Duration</th>
-                <th className="px-8 py-5 text-[11px] font-black text-gray-400 uppercase tracking-widest text-right">Date</th>
+              <tr className="bg-gray-50/50 border-b border-gray-50">
+                <th className="px-5 py-4 text-[10px] font-black text-gray-400 uppercase tracking-widest whitespace-nowrap">Session Identity</th>
+                <th className="px-5 py-4 text-[10px] font-black text-gray-400 uppercase tracking-widest whitespace-nowrap">Access Node</th>
+                <th className="px-5 py-4 text-[10px] font-black text-gray-400 uppercase tracking-widest whitespace-nowrap">Command Log</th>
+                <th className="px-5 py-4 text-[10px] font-black text-gray-400 uppercase tracking-widest whitespace-nowrap">Outcome Status</th>
+                <th className="px-5 py-4 text-[10px] font-black text-gray-400 uppercase tracking-widest text-right whitespace-nowrap">Timestamp</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-50">
-              {USSD_DATA.map((session, i) => (
-                <tr key={i} className="hover:bg-gray-50/50 transition-colors group">
-                  <td className="px-8 py-5">
-                    <span className="text-[14px] font-black text-gray-900 tracking-tight">{session.id}</span>
-                  </td>
-                  <td className="px-8 py-5">
+              {filteredSessions.map((session) => (
+                <tr key={session.id} className="group hover:bg-gray-50/30 transition-all">
+                  <td className="px-5 py-5">
                     <div className="flex flex-col">
-                      <span className="text-[14px] font-bold text-gray-900">{session.phone}</span>
-                      <div className="flex items-center gap-1.5 mt-0.5">
-                        <User size={12} weight="bold" className="text-gray-400" />
+                      <span className="text-[14px] font-black text-gray-900 tracking-tight leading-none mb-1">{session.id}</span>
+                      <span className="text-[10px] font-black text-gray-400 uppercase tracking-widest">{session.duration} Session</span>
+                    </div>
+                  </td>
+                  <td className="px-5 py-5">
+                    <div className="flex flex-col">
+                      <span className="text-[14px] font-bold text-gray-900 leading-none mb-1">{session.phone}</span>
+                      <div className="flex items-center gap-1.5">
+                        <User size={10} className="text-gray-400" />
                         <span className={cn(
-                          "text-[11px] font-black uppercase tracking-widest",
-                          session.user === "Unknown" ? "text-gray-400" : "text-[#2D4D31]"
+                          "text-[9px] font-black uppercase tracking-widest",
+                          session.user === "Unknown" ? "text-gray-400 italic" : "text-[#2D4D31]"
                         )}>{session.user}</span>
                       </div>
                     </div>
                   </td>
-                  <td className="px-8 py-5">
-                    <code className="text-[12px] bg-gray-50 px-2.5 py-1 rounded-lg border border-gray-100 font-bold text-gray-600">{session.input}</code>
+                  <td className="px-5 py-5">
+                    <code className="text-[11px] font-black text-gray-600 bg-gray-50 px-2.5 py-1 rounded-lg border border-gray-100 font-mono">
+                      {session.input}
+                    </code>
                   </td>
-                  <td className="px-8 py-5">
+                  <td className="px-5 py-5">
                     <span className={cn(
-                      "px-3 py-1 rounded-lg text-[10px] font-black uppercase tracking-wider border",
-                      session.outcome.includes('Order') || session.outcome.includes('Success') ? "bg-emerald-50 text-emerald-500 border-emerald-100" :
-                      session.outcome.includes('Abandoned') ? "bg-red-50 text-red-500 border-red-100" :
-                      "bg-blue-50 text-blue-500 border-blue-100"
+                      "px-2.5 py-1 rounded-lg text-[9px] font-black uppercase tracking-widest border",
+                      session.outcome.includes('Success') || session.outcome.includes('Created') 
+                        ? "bg-emerald-50 text-emerald-500 border-emerald-100" 
+                        : session.outcome.includes('Abandoned') 
+                        ? "bg-red-50 text-red-500 border-red-100" 
+                        : "bg-blue-50 text-blue-500 border-blue-100"
                     )}>
                       {session.outcome}
                     </span>
                   </td>
-                  <td className="px-8 py-5 text-[13px] font-bold text-gray-900">{session.duration}</td>
-                  <td className="px-8 py-5 text-right text-[13px] font-medium text-gray-400">{session.date}</td>
+                  <td className="px-5 py-5 text-right">
+                    <div className="flex flex-col items-end">
+                      <span className="text-[13px] font-bold text-gray-900">{session.date}</span>
+                      <span className="text-[9px] font-black text-gray-400 uppercase tracking-widest">Gateway Logged</span>
+                    </div>
+                  </td>
                 </tr>
               ))}
             </tbody>
           </table>
+        </div>
+
+        {/* Pagination */}
+        <div className="p-6 border-t border-gray-50 flex items-center justify-between bg-gray-50/10">
+          <span className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Showing {filteredSessions.length} of {USSD_DATA.length} logs</span>
+          <div className="flex items-center gap-2">
+            {[1, 2, 3].map((page, i) => (
+              <button key={i} className={cn(
+                "w-9 h-9 rounded-xl flex items-center justify-center text-[13px] font-black transition-all",
+                page === 1 ? "bg-[#2D4D31] text-white shadow-lg shadow-[#2D4D31]/20" : "text-gray-400 hover:bg-gray-50"
+              )}>
+                {page}
+              </button>
+            ))}
+          </div>
         </div>
       </div>
     </div>
