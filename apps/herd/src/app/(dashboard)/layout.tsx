@@ -12,7 +12,7 @@ export default function DashboardLayout({
 }) {
   const pathname = usePathname();
   // Hide TopBar and BottomNav for specific chat routes like /ai/[id]
-  const isChatDetail = pathname.startsWith('/ai/') && pathname !== '/ai';
+  const isChatDetail = pathname ? (pathname.startsWith('/ai/') && pathname !== '/ai') : false;
 
   return (
     <>
