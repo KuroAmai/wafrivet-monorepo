@@ -25,7 +25,7 @@ export function BottomNav() {
     <div className="fixed bottom-0 left-0 right-0 z-50 bg-white/80 backdrop-blur-xl border-t border-gray-100 px-6 pb-10 pt-4 flex items-center justify-between shadow-[0_-20px_50px_rgba(0,0,0,0.05)] rounded-t-[40px]">
       {NAV_ITEMS.map((item) => {
         const isActive = pathname === item.path;
-        const Icon = item.icon;
+        const Icon = item.icon as any;
         
         return (
           <Link
