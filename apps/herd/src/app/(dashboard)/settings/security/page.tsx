@@ -1,3 +1,5 @@
+"use client";
+
 import { CaretLeft, Fingerprint, ShieldCheck, Key, DeviceMobile, Devices, Warning, ToggleRight, ToggleLeft } from "@phosphor-icons/react";
 import Link from "next/link";
 import { useState } from "react";
