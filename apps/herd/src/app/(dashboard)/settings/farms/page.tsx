@@ -1,8 +1,5 @@
-"use client";
-
 import { CaretLeft, MapPin, Plus, ArrowsClockwise, DotsThreeVertical, ArrowSquareOut, MapTrifold } from "@phosphor-icons/react";
 import Link from "next/link";
-import { useState } from "react";
 import { cn } from "@/lib/utils";
 
 const FARMS = [

@@ -1,5 +1,3 @@
-"use client";
-
 import { CaretLeft, IdentificationCard, SealCheck, Plus, DownloadSimple, DotsThreeVertical, Warning } from "@phosphor-icons/react";
 import Link from "next/link";
 import { cn } from "@/lib/utils";

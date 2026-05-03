@@ -1,5 +1,3 @@
-"use client";
-
 import { CaretLeft, Globe, GithubLogo, TwitterLogo, ShieldCheck, Info, SealCheck, ShareNetwork, Star } from "@phosphor-icons/react";
 import Link from "next/link";
 import { cn } from "@/lib/utils";
