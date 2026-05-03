@@ -13,7 +13,14 @@ const CACHE_ITEMS = [
 ];
 
 export default function CachePage() {
+  const [mounted, setMounted] = useState(false);
   const [isClearing, setIsClearing] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  if (!mounted) return null;
 
   const clearCache = () => {
     setIsClearing(true);

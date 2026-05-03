@@ -2,24 +2,23 @@
 
 import { CaretLeft, Bell, BellRinging, Siren, ShieldCheck, Heartbeat, Chats, ToggleLeft, ToggleRight } from "@phosphor-icons/react";
 import Link from "next/link";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { cn } from "@/lib/utils";
 
-const NOTIF_SETTINGS = [
-  { title: "Critical Health Alerts", desc: "Immediate push for FMD or emergency symptoms", icon: Siren, color: "text-red-500", bg: "bg-red-50", enabled: true },
-  { title: "Daily Sync Report", desc: "Morning summary of herd performance", icon: ShieldCheck, color: "text-[#2D4D31]", bg: "bg-emerald-50", enabled: true },
-  { title: "AI Insights", desc: "Diagnostic suggestions and optimizations", icon: Heartbeat, color: "text-blue-500", bg: "bg-blue-50", enabled: false },
-  { title: "Administrative Comms", desc: "Messages from regional Wafrivet HQ", icon: Chats, color: "text-amber-500", bg: "bg-amber-50", enabled: true },
-];
-
 export default function NotificationsPage() {
-  const [settings, setSettings] = useState(NOTIF_SETTINGS);
+  const [mounted, setMounted] = useState(false);
+  const [settings, setSettings] = useState({
+    critical: true,
+    sync: true,
+    ai: false,
+    admin: true
+  });
 
-  const toggleSetting = (idx: number) => {
-    const newSettings = [...settings];
-    newSettings[idx].enabled = !newSettings[idx].enabled;
-    setSettings(newSettings);
-  };
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  if (!mounted) return null;
 
   return (
     <div className="min-h-screen bg-[#F9FAFB] pb-32 animate-in fade-in slide-in-from-right-4 duration-500">
@@ -45,32 +44,68 @@ export default function NotificationsPage() {
            </div>
         </div>
 
-        {/* Categories */}
+        {/* Categories - Explicitly Rendered */}
         <div className="space-y-4">
            <h3 className="px-4 text-[12px] font-black text-gray-300 uppercase tracking-[0.2em]">Notification Channels</h3>
            <div className="bg-white rounded-[40px] border border-gray-100 shadow-sm overflow-hidden divide-y divide-gray-50">
-              {settings.map((item, idx) => (
-                <div key={idx} className="p-6 flex items-center justify-between group">
-                   <div className="flex items-center gap-5">
-                      <div className={cn("w-12 h-12 rounded-2xl flex items-center justify-center transition-transform group-hover:scale-110", item.bg, item.color)}>
-                         <item.icon size={24} weight="bold" />
-                      </div>
-                      <div>
-                         <h4 className="text-[15px] font-black text-gray-900">{item.title}</h4>
-                         <p className="text-[12px] text-gray-400 font-medium">{item.desc}</p>
-                      </div>
-                   </div>
-                   <button 
-                     onClick={() => toggleSetting(idx)}
-                     className={cn(
-                       "transition-colors duration-300",
-                       item.enabled ? "text-[#2D4D31]" : "text-gray-200"
-                     )}
-                   >
-                      {item.enabled ? <ToggleRight size={44} weight="fill" /> : <ToggleLeft size={44} weight="fill" />}
-                   </button>
-                </div>
-              ))}
+              
+              {/* Critical Health */}
+              <div className="p-6 flex items-center justify-between group">
+                 <div className="flex items-center gap-5">
+                    <div className="w-12 h-12 rounded-2xl flex items-center justify-center transition-transform group-hover:scale-110 bg-red-50 text-red-500">
+                       <Siren size={24} weight="bold" />
+                    </div>
+                    <div>
+                       <h4 className="text-[15px] font-black text-gray-900">Critical Health Alerts</h4>
+                       <p className="text-[12px] text-gray-400 font-medium">Immediate push for FMD or emergency symptoms</p>
+                    </div>
+                 </div>
+                 <button 
+                   onClick={() => setSettings({...settings, critical: !settings.critical})}
+                   className={cn("transition-colors duration-300", settings.critical ? "text-[#2D4D31]" : "text-gray-200")}
+                 >
+                    {settings.critical ? <ToggleRight size={44} weight="fill" /> : <ToggleLeft size={44} weight="fill" />}
+                 </button>
+              </div>
+
+              {/* Sync Report */}
+              <div className="p-6 flex items-center justify-between group">
+                 <div className="flex items-center gap-5">
+                    <div className="w-12 h-12 rounded-2xl flex items-center justify-center transition-transform group-hover:scale-110 bg-emerald-50 text-[#2D4D31]">
+                       <ShieldCheck size={24} weight="bold" />
+                    </div>
+                    <div>
+                       <h4 className="text-[15px] font-black text-gray-900">Daily Sync Report</h4>
+                       <p className="text-[12px] text-gray-400 font-medium">Morning summary of herd performance</p>
+                    </div>
+                 </div>
+                 <button 
+                   onClick={() => setSettings({...settings, sync: !settings.sync})}
+                   className={cn("transition-colors duration-300", settings.sync ? "text-[#2D4D31]" : "text-gray-200")}
+                 >
+                    {settings.sync ? <ToggleRight size={44} weight="fill" /> : <ToggleLeft size={44} weight="fill" />}
+                 </button>
+              </div>
+
+              {/* AI Insights */}
+              <div className="p-6 flex items-center justify-between group">
+                 <div className="flex items-center gap-5">
+                    <div className="w-12 h-12 rounded-2xl flex items-center justify-center transition-transform group-hover:scale-110 bg-blue-50 text-blue-500">
+                       <Heartbeat size={24} weight="bold" />
+                    </div>
+                    <div>
+                       <h4 className="text-[15px] font-black text-gray-900">AI Insights</h4>
+                       <p className="text-[12px] text-gray-400 font-medium">Diagnostic suggestions and optimizations</p>
+                    </div>
+                 </div>
+                 <button 
+                   onClick={() => setSettings({...settings, ai: !settings.ai})}
+                   className={cn("transition-colors duration-300", settings.ai ? "text-[#2D4D31]" : "text-gray-200")}
+                 >
+                    {settings.ai ? <ToggleRight size={44} weight="fill" /> : <ToggleLeft size={44} weight="fill" />}
+                 </button>
+              </div>
+
            </div>
         </div>
 
@@ -84,16 +119,6 @@ export default function NotificationsPage() {
               <button className="text-gray-200">
                  <ToggleLeft size={44} weight="fill" />
               </button>
-           </div>
-           <div className="grid grid-cols-2 gap-4">
-              <div className="bg-white p-4 rounded-2xl border border-gray-100 text-center opacity-40">
-                 <p className="text-[10px] font-black text-gray-300 uppercase tracking-widest">Start</p>
-                 <p className="text-[14px] font-black text-gray-400">22:00</p>
-              </div>
-              <div className="bg-white p-4 rounded-2xl border border-gray-100 text-center opacity-40">
-                 <p className="text-[10px] font-black text-gray-300 uppercase tracking-widest">End</p>
-                 <p className="text-[14px] font-black text-gray-400">06:00</p>
-              </div>
            </div>
         </div>
       </div>

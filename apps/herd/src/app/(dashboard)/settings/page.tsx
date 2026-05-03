@@ -10,50 +10,28 @@ import {
   IdentificationBadge, 
   CloudArrowUp, 
   Info,
-  Clock,
   SealCheck,
-  CreditCard,
   Notebook,
   ArrowsClockwise
 } from "@phosphor-icons/react";
 import { cn } from "@/lib/utils";
-import { useState } from "react";
-
+import { useState, useEffect } from "react";
 import Link from "next/link";
-
-const MENU_GROUPS = [
-  {
-    title: "Personal",
-    items: [
-      { label: "Profile Information", icon: User, color: "text-blue-500", bg: "bg-blue-50", href: "/settings/profile" },
-      { label: "Medical Credentials", icon: IdentificationBadge, color: "text-emerald-500", bg: "bg-emerald-50", href: "/settings/credentials" },
-      { label: "Managed Farms", icon: MapPin, color: "text-orange-500", bg: "bg-orange-50", href: "/settings/farms" },
-    ]
-  },
-  {
-    title: "System",
-    items: [
-      { label: "Notifications", icon: Bell, color: "text-amber-500", bg: "bg-amber-50", href: "/settings/notifications" },
-      { label: "Security & Biometrics", icon: ShieldCheck, color: "text-purple-500", bg: "bg-purple-50", href: "/settings/security" },
-      { label: "Cloud Synchronization", icon: CloudArrowUp, color: "text-gray-500", bg: "bg-gray-50", detail: "Active", href: "/settings/sync" },
-    ]
-  },
-  {
-    title: "PWA Console",
-    items: [
-      { label: "Offline Cache", icon: Notebook, color: "text-gray-400", bg: "bg-gray-50", detail: "45MB Used", href: "/settings/cache" },
-      { label: "About Herd Console", icon: Info, color: "text-gray-400", bg: "bg-gray-50", detail: "v1.2.4", href: "/settings/about" },
-    ]
-  }
-];
 
 export default function AccountPage() {
   const [isSyncing, setIsSyncing] = useState(false);
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   const handleSync = () => {
     setIsSyncing(true);
     setTimeout(() => setIsSyncing(false), 2000);
   };
+
+  if (!mounted) return null;
 
   return (
     <div className="space-y-10 py-6 animate-in fade-in slide-in-from-bottom-4 duration-700 pb-32">
@@ -121,40 +99,109 @@ export default function AccountPage() {
          </button>
       </div>
 
-      {/* Menu Groups */}
+      {/* Menu Groups - Explicitly Rendered */}
       <div className="space-y-8">
-        {MENU_GROUPS.map((group, idx) => (
-          <div key={idx} className="space-y-4">
-            <h3 className="px-4 text-[12px] font-black text-gray-300 uppercase tracking-[0.2em]">{group.title}</h3>
-            <div className="bg-white rounded-[40px] border border-gray-100 shadow-sm overflow-hidden divide-y divide-gray-50">
-              {group.items.map((item, i) => (
-                <Link key={i} href={item.href} className="w-full flex items-center justify-between p-5 hover:bg-gray-50 transition-all group active:scale-[0.99]">
-                   <div className="flex items-center gap-4">
-                      <div className={cn("w-10 h-10 rounded-xl flex items-center justify-center transition-transform group-hover:scale-110", item.bg, item.color)}>
-                         <item.icon size={20} weight="bold" />
-                      </div>
-                      <div className="text-left">
-                         <p className="text-[15px] font-black text-gray-900 leading-none">{item.label}</p>
-                         {item.detail && <p className="text-[10px] font-bold text-gray-400 mt-1 uppercase tracking-widest">{item.detail}</p>}
-                      </div>
-                   </div>
-                   <CaretRight size={18} weight="bold" className="text-gray-200 group-hover:text-gray-900 group-hover:translate-x-1 transition-all" />
-                </Link>
-              ))}
-            </div>
-          </div>
-        ))}
-      </div>
+        {/* Personal Group */}
+        <div className="space-y-4">
+           <h3 className="px-4 text-[12px] font-black text-gray-300 uppercase tracking-[0.2em]">Personal</h3>
+           <div className="bg-white rounded-[40px] border border-gray-100 shadow-sm overflow-hidden divide-y divide-gray-50">
+              <Link href="/settings/profile" className="w-full flex items-center justify-between p-5 hover:bg-gray-50 transition-all group active:scale-[0.99]">
+                 <div className="flex items-center gap-4">
+                    <div className="w-10 h-10 rounded-xl flex items-center justify-center transition-transform group-hover:scale-110 bg-blue-50 text-blue-500">
+                       <User size={20} weight="bold" />
+                    </div>
+                    <p className="text-[15px] font-black text-gray-900 leading-none">Profile Information</p>
+                 </div>
+                 <CaretRight size={18} weight="bold" className="text-gray-200 group-hover:text-gray-900 group-hover:translate-x-1 transition-all" />
+              </Link>
+              <Link href="/settings/credentials" className="w-full flex items-center justify-between p-5 hover:bg-gray-50 transition-all group active:scale-[0.99]">
+                 <div className="flex items-center gap-4">
+                    <div className="w-10 h-10 rounded-xl flex items-center justify-center transition-transform group-hover:scale-110 bg-emerald-50 text-emerald-500">
+                       <IdentificationBadge size={20} weight="bold" />
+                    </div>
+                    <p className="text-[15px] font-black text-gray-900 leading-none">Medical Credentials</p>
+                 </div>
+                 <CaretRight size={18} weight="bold" className="text-gray-200 group-hover:text-gray-900 group-hover:translate-x-1 transition-all" />
+              </Link>
+              <Link href="/settings/farms" className="w-full flex items-center justify-between p-5 hover:bg-gray-50 transition-all group active:scale-[0.99]">
+                 <div className="flex items-center gap-4">
+                    <div className="w-10 h-10 rounded-xl flex items-center justify-center transition-transform group-hover:scale-110 bg-orange-50 text-orange-500">
+                       <MapPin size={20} weight="bold" />
+                    </div>
+                    <p className="text-[15px] font-black text-gray-900 leading-none">Managed Farms</p>
+                 </div>
+                 <CaretRight size={18} weight="bold" className="text-gray-200 group-hover:text-gray-900 group-hover:translate-x-1 transition-all" />
+              </Link>
+           </div>
+        </div>
 
-      {/* Trust Badge */}
-      <div className="p-8 bg-[#2D4D31]/5 rounded-[40px] border border-[#2D4D31]/10 text-center space-y-4">
-         <div className="w-12 h-12 bg-white rounded-2xl flex items-center justify-center text-[#2D4D31] mx-auto shadow-sm">
-            <ShieldCheck size={24} weight="bold" />
-         </div>
-         <h4 className="text-[16px] font-black text-gray-900">Enterprise Security Active</h4>
-         <p className="text-[12px] text-gray-500 leading-relaxed max-w-[80%] mx-auto">
-            Your connection to the Wafrivet Cloud is encrypted. All medical records are securely stored and synced.
-         </p>
+        {/* System Group */}
+        <div className="space-y-4">
+           <h3 className="px-4 text-[12px] font-black text-gray-300 uppercase tracking-[0.2em]">System</h3>
+           <div className="bg-white rounded-[40px] border border-gray-100 shadow-sm overflow-hidden divide-y divide-gray-50">
+              <Link href="/settings/notifications" className="w-full flex items-center justify-between p-5 hover:bg-gray-50 transition-all group active:scale-[0.99]">
+                 <div className="flex items-center gap-4">
+                    <div className="w-10 h-10 rounded-xl flex items-center justify-center transition-transform group-hover:scale-110 bg-amber-50 text-amber-500">
+                       <Bell size={20} weight="bold" />
+                    </div>
+                    <p className="text-[15px] font-black text-gray-900 leading-none">Notifications</p>
+                 </div>
+                 <CaretRight size={18} weight="bold" className="text-gray-200 group-hover:text-gray-900 group-hover:translate-x-1 transition-all" />
+              </Link>
+              <Link href="/settings/security" className="w-full flex items-center justify-between p-5 hover:bg-gray-50 transition-all group active:scale-[0.99]">
+                 <div className="flex items-center gap-4">
+                    <div className="w-10 h-10 rounded-xl flex items-center justify-center transition-transform group-hover:scale-110 bg-purple-50 text-purple-500">
+                       <ShieldCheck size={20} weight="bold" />
+                    </div>
+                    <p className="text-[15px] font-black text-gray-900 leading-none">Security & Biometrics</p>
+                 </div>
+                 <CaretRight size={18} weight="bold" className="text-gray-200 group-hover:text-gray-900 group-hover:translate-x-1 transition-all" />
+              </Link>
+              <Link href="/settings/sync" className="w-full flex items-center justify-between p-5 hover:bg-gray-50 transition-all group active:scale-[0.99]">
+                 <div className="flex items-center gap-4">
+                    <div className="w-10 h-10 rounded-xl flex items-center justify-center transition-transform group-hover:scale-110 bg-gray-50 text-gray-500">
+                       <CloudArrowUp size={20} weight="bold" />
+                    </div>
+                    <div className="text-left">
+                       <p className="text-[15px] font-black text-gray-900 leading-none">Cloud Synchronization</p>
+                       <p className="text-[10px] font-bold text-gray-400 mt-1 uppercase tracking-widest">Active</p>
+                    </div>
+                 </div>
+                 <CaretRight size={18} weight="bold" className="text-gray-200 group-hover:text-gray-900 group-hover:translate-x-1 transition-all" />
+              </Link>
+           </div>
+        </div>
+
+        {/* PWA Group */}
+        <div className="space-y-4">
+           <h3 className="px-4 text-[12px] font-black text-gray-300 uppercase tracking-[0.2em]">PWA Console</h3>
+           <div className="bg-white rounded-[40px] border border-gray-100 shadow-sm overflow-hidden divide-y divide-gray-50">
+              <Link href="/settings/cache" className="w-full flex items-center justify-between p-5 hover:bg-gray-50 transition-all group active:scale-[0.99]">
+                 <div className="flex items-center gap-4">
+                    <div className="w-10 h-10 rounded-xl flex items-center justify-center transition-transform group-hover:scale-110 bg-gray-50 text-gray-400">
+                       <Notebook size={20} weight="bold" />
+                    </div>
+                    <div className="text-left">
+                       <p className="text-[15px] font-black text-gray-900 leading-none">Offline Cache</p>
+                       <p className="text-[10px] font-bold text-gray-400 mt-1 uppercase tracking-widest">45MB Used</p>
+                    </div>
+                 </div>
+                 <CaretRight size={18} weight="bold" className="text-gray-200 group-hover:text-gray-900 group-hover:translate-x-1 transition-all" />
+              </Link>
+              <Link href="/settings/about" className="w-full flex items-center justify-between p-5 hover:bg-gray-50 transition-all group active:scale-[0.99]">
+                 <div className="flex items-center gap-4">
+                    <div className="w-10 h-10 rounded-xl flex items-center justify-center transition-transform group-hover:scale-110 bg-gray-50 text-gray-400">
+                       <Info size={20} weight="bold" />
+                    </div>
+                    <div className="text-left">
+                       <p className="text-[15px] font-black text-gray-900 leading-none">About Herd Console</p>
+                       <p className="text-[10px] font-bold text-gray-400 mt-1 uppercase tracking-widest">v1.2.4</p>
+                    </div>
+                 </div>
+                 <CaretRight size={18} weight="bold" className="text-gray-200 group-hover:text-gray-900 group-hover:translate-x-1 transition-all" />
+              </Link>
+           </div>
+        </div>
       </div>
 
       {/* Sign Out */}

@@ -2,44 +2,18 @@
 
 import { Sparkle, MagnifyingGlass, CaretRight, ChatCircleDots, Robot, Heartbeat, ChartLineUp, Brain } from "@phosphor-icons/react";
 import Link from "next/link";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { cn } from "@/lib/utils";
-
-const AI_THREADS = [
-  {
-    id: "herd-health",
-    title: "Herd Health Monitor",
-    lastMessage: "3 animals in Lekki show elevated temps. Recommend inspection.",
-    time: "2m ago",
-    unread: true,
-    icon: Heartbeat,
-    color: "text-red-500",
-    bg: "bg-red-50"
-  },
-  {
-    id: "production-analysis",
-    title: "Yield Intelligence",
-    lastMessage: "May 2026 forecast is ready. Milk yield projected +12%.",
-    time: "1h ago",
-    unread: false,
-    icon: ChartLineUp,
-    color: "text-emerald-500",
-    bg: "bg-emerald-50"
-  },
-  {
-    id: "general-assistant",
-    title: "Wafrivet Core AI",
-    lastMessage: "How can I help you today, Dr. Ademola?",
-    time: "Yesterday",
-    unread: false,
-    icon: Brain,
-    color: "text-blue-500",
-    bg: "bg-blue-50"
-  },
-];
 
 export default function AIListPage() {
   const [searchQuery, setSearchQuery] = useState("");
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  if (!mounted) return null;
 
   return (
     <div className="flex flex-col h-full animate-in fade-in slide-in-from-bottom-4 duration-700">
@@ -63,41 +37,74 @@ export default function AIListPage() {
         </div>
       </div>
 
-      {/* Conversations List */}
+      {/* Conversations List - Explicitly Rendering items to avoid serialization issues with icons */}
       <div className="space-y-1">
-        {AI_THREADS.map((thread) => (
+          {/* Thread 1: Herd Health */}
           <Link 
-            key={thread.id} 
-            href={`/ai/${thread.id}`}
+            href="/ai/herd-health"
             className="flex items-center gap-5 p-5 hover:bg-gray-50 transition-all group active:scale-[0.98] relative"
           >
-             <div className={cn("w-16 h-16 rounded-[24px] flex items-center justify-center shrink-0 transition-transform group-hover:scale-105", thread.bg, thread.color)}>
-                <thread.icon size={32} weight="bold" />
+             <div className="w-16 h-16 rounded-[24px] flex items-center justify-center shrink-0 transition-transform group-hover:scale-105 bg-red-50 text-red-500">
+                <Heartbeat size={32} weight="bold" />
              </div>
-
-             <div className="flex-1 min-w-0 border-b border-gray-50 pb-5 group-last:border-0">
+             <div className="flex-1 min-w-0 border-b border-gray-50 pb-5">
                 <div className="flex justify-between items-start mb-1">
-                   <h3 className="text-[17px] font-black text-gray-900 tracking-tight leading-tight truncate pr-4">{thread.title}</h3>
+                   <h3 className="text-[17px] font-black text-gray-900 tracking-tight leading-tight truncate pr-4">Herd Health Monitor</h3>
                    <div className="flex items-center gap-2">
-                      <span className={cn("text-[11px] font-bold uppercase tracking-widest", thread.unread ? "text-[#2D4D31]" : "text-gray-300")}>
-                        {thread.time}
-                      </span>
+                      <span className="text-[11px] font-bold uppercase tracking-widest text-[#2D4D31]">2m ago</span>
                       <CaretRight size={14} weight="bold" className="text-gray-200 group-hover:text-gray-900 transition-all" />
                    </div>
                 </div>
-                <p className={cn(
-                  "text-[14px] leading-snug line-clamp-2",
-                  thread.unread ? "text-gray-900 font-bold" : "text-gray-400 font-medium"
-                )}>
-                   {thread.lastMessage}
+                <p className="text-[14px] leading-snug line-clamp-2 text-gray-900 font-bold">
+                   3 animals in Lekki show elevated temps. Recommend inspection.
                 </p>
              </div>
-
-             {thread.unread && (
-               <div className="absolute left-2 w-2 h-2 bg-[#2D4D31] rounded-full shadow-lg shadow-[#2D4D31]/20" />
-             )}
+             <div className="absolute left-2 w-2 h-2 bg-[#2D4D31] rounded-full shadow-lg shadow-[#2D4D31]/20" />
           </Link>
-        ))}
+
+          {/* Thread 2: Yield Intelligence */}
+          <Link 
+            href="/ai/production-analysis"
+            className="flex items-center gap-5 p-5 hover:bg-gray-50 transition-all group active:scale-[0.98] relative"
+          >
+             <div className="w-16 h-16 rounded-[24px] flex items-center justify-center shrink-0 transition-transform group-hover:scale-105 bg-emerald-50 text-emerald-500">
+                <ChartLineUp size={32} weight="bold" />
+             </div>
+             <div className="flex-1 min-w-0 border-b border-gray-50 pb-5">
+                <div className="flex justify-between items-start mb-1">
+                   <h3 className="text-[17px] font-black text-gray-900 tracking-tight leading-tight truncate pr-4">Yield Intelligence</h3>
+                   <div className="flex items-center gap-2">
+                      <span className="text-[11px] font-bold uppercase tracking-widest text-gray-300">1h ago</span>
+                      <CaretRight size={14} weight="bold" className="text-gray-200 group-hover:text-gray-900 transition-all" />
+                   </div>
+                </div>
+                <p className="text-[14px] leading-snug line-clamp-2 text-gray-400 font-medium">
+                   May 2026 forecast is ready. Milk yield projected +12%.
+                </p>
+             </div>
+          </Link>
+
+          {/* Thread 3: Core AI */}
+          <Link 
+            href="/ai/general-assistant"
+            className="flex items-center gap-5 p-5 hover:bg-gray-50 transition-all group active:scale-[0.98] relative"
+          >
+             <div className="w-16 h-16 rounded-[24px] flex items-center justify-center shrink-0 transition-transform group-hover:scale-105 bg-blue-50 text-blue-500">
+                <Brain size={32} weight="bold" />
+             </div>
+             <div className="flex-1 min-w-0 border-b border-gray-50 pb-5 group-last:border-0">
+                <div className="flex justify-between items-start mb-1">
+                   <h3 className="text-[17px] font-black text-gray-900 tracking-tight leading-tight truncate pr-4">Wafrivet Core AI</h3>
+                   <div className="flex items-center gap-2">
+                      <span className="text-[11px] font-bold uppercase tracking-widest text-gray-300">Yesterday</span>
+                      <CaretRight size={14} weight="bold" className="text-gray-200 group-hover:text-gray-900 transition-all" />
+                   </div>
+                </div>
+                <p className="text-[14px] leading-snug line-clamp-2 text-gray-400 font-medium">
+                   How can I help you today, Dr. Ademola?
+                </p>
+             </div>
+          </Link>
       </div>
 
     </div>

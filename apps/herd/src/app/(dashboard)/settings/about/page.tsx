@@ -1,8 +1,25 @@
+"use client";
+
 import { CaretLeft, Globe, GithubLogo, TwitterLogo, ShieldCheck, Info, SealCheck, ShareNetwork, Star } from "@phosphor-icons/react";
 import Link from "next/link";
+import { useState, useEffect } from "react";
 import { cn } from "@/lib/utils";
 
 export default function AboutPage() {
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  if (!mounted) {
+    return (
+      <div className="min-h-screen bg-[#F9FAFB] flex items-center justify-center">
+         <div className="w-8 h-8 border-4 border-[#2D4D31]/10 border-t-[#2D4D31] rounded-full animate-spin" />
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-[#F9FAFB] pb-32 animate-in fade-in slide-in-from-right-4 duration-500">
       {/* Sub Header */}
@@ -30,25 +47,57 @@ export default function AboutPage() {
            </div>
         </div>
 
-        {/* Links Group */}
+        {/* Links Group - Explicitly Rendered to avoid serialization issues */}
         <div className="bg-white rounded-[40px] border border-gray-100 shadow-sm overflow-hidden divide-y divide-gray-50">
-           {[
-             { label: "Official Website", icon: Globe, href: "https://wafrivet.com" },
-             { label: "Terms of Service", icon: ShieldCheck, href: "#" },
-             { label: "Privacy Policy", icon: Info, href: "#" },
-             { label: "Rate the App", icon: Star, href: "#" },
-             { label: "Share with Peers", icon: ShareNetwork, href: "#" },
-           ].map((link, idx) => (
-             <a key={idx} href={link.href} target="_blank" className="w-full p-6 flex items-center justify-between hover:bg-gray-50 transition-all group">
-                <div className="flex items-center gap-5">
-                   <div className="w-10 h-10 bg-gray-50 text-gray-400 rounded-xl flex items-center justify-center transition-transform group-hover:scale-110">
-                      <link.icon size={20} weight="bold" />
-                   </div>
-                   <span className="text-[15px] font-black text-gray-900">{link.label}</span>
-                </div>
-                <CaretLeft size={18} weight="bold" className="text-gray-200 rotate-180 group-hover:text-gray-900 transition-all" />
-             </a>
-           ))}
+           <a href="https://wafrivet.com" target="_blank" className="w-full p-6 flex items-center justify-between hover:bg-gray-50 transition-all group">
+              <div className="flex items-center gap-5">
+                 <div className="w-10 h-10 bg-gray-50 text-gray-400 rounded-xl flex items-center justify-center transition-transform group-hover:scale-110">
+                    <Globe size={20} weight="bold" />
+                 </div>
+                 <span className="text-[15px] font-black text-gray-900">Official Website</span>
+              </div>
+              <CaretLeft size={18} weight="bold" className="text-gray-200 rotate-180 group-hover:text-gray-900 transition-all" />
+           </a>
+
+           <a href="#" className="w-full p-6 flex items-center justify-between hover:bg-gray-50 transition-all group">
+              <div className="flex items-center gap-5">
+                 <div className="w-10 h-10 bg-gray-50 text-gray-400 rounded-xl flex items-center justify-center transition-transform group-hover:scale-110">
+                    <ShieldCheck size={20} weight="bold" />
+                 </div>
+                 <span className="text-[15px] font-black text-gray-900">Terms of Service</span>
+              </div>
+              <CaretLeft size={18} weight="bold" className="text-gray-200 rotate-180 group-hover:text-gray-900 transition-all" />
+           </a>
+
+           <a href="#" className="w-full p-6 flex items-center justify-between hover:bg-gray-50 transition-all group">
+              <div className="flex items-center gap-5">
+                 <div className="w-10 h-10 bg-gray-50 text-gray-400 rounded-xl flex items-center justify-center transition-transform group-hover:scale-110">
+                    <Info size={20} weight="bold" />
+                 </div>
+                 <span className="text-[15px] font-black text-gray-900">Privacy Policy</span>
+              </div>
+              <CaretLeft size={18} weight="bold" className="text-gray-200 rotate-180 group-hover:text-gray-900 transition-all" />
+           </a>
+
+           <a href="#" className="w-full p-6 flex items-center justify-between hover:bg-gray-50 transition-all group">
+              <div className="flex items-center gap-5">
+                 <div className="w-10 h-10 bg-gray-50 text-gray-400 rounded-xl flex items-center justify-center transition-transform group-hover:scale-110">
+                    <Star size={20} weight="bold" />
+                 </div>
+                 <span className="text-[15px] font-black text-gray-900">Rate the App</span>
+              </div>
+              <CaretLeft size={18} weight="bold" className="text-gray-200 rotate-180 group-hover:text-gray-900 transition-all" />
+           </a>
+
+           <a href="#" className="w-full p-6 flex items-center justify-between hover:bg-gray-50 transition-all group">
+              <div className="flex items-center gap-5">
+                 <div className="w-10 h-10 bg-gray-50 text-gray-400 rounded-xl flex items-center justify-center transition-transform group-hover:scale-110">
+                    <ShareNetwork size={20} weight="bold" />
+                 </div>
+                 <span className="text-[15px] font-black text-gray-900">Share with Peers</span>
+              </div>
+              <CaretLeft size={18} weight="bold" className="text-gray-200 rotate-180 group-hover:text-gray-900 transition-all" />
+           </a>
         </div>
 
         {/* Socials */}

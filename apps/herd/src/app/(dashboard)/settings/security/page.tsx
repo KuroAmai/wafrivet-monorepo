@@ -2,11 +2,18 @@
 
 import { CaretLeft, Fingerprint, ShieldCheck, Key, DeviceMobile, Devices, Warning, ToggleRight, ToggleLeft } from "@phosphor-icons/react";
 import Link from "next/link";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { cn } from "@/lib/utils";
 
 export default function SecurityPage() {
-  const [faceId, setFaceId] = useState(true);
+  const [mounted, setMounted] = useState(false);
+  const [biometricsEnabled, setBiometricsEnabled] = useState(true);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  if (!mounted) return null;
 
   return (
     <div className="min-h-screen bg-[#F9FAFB] pb-32 animate-in fade-in slide-in-from-right-4 duration-500">
@@ -44,8 +51,8 @@ export default function SecurityPage() {
                     <p className="text-[12px] text-gray-400 font-medium">Use FaceID or Fingerprint</p>
                  </div>
               </div>
-              <button onClick={() => setFaceId(!faceId)} className={cn("transition-colors duration-300", faceId ? "text-[#2D4D31]" : "text-gray-200")}>
-                 {faceId ? <ToggleRight size={44} weight="fill" /> : <ToggleLeft size={44} weight="fill" />}
+              <button onClick={() => setBiometricsEnabled(!biometricsEnabled)} className={cn("transition-colors duration-300", biometricsEnabled ? "text-[#2D4D31]" : "text-gray-200")}>
+                 {biometricsEnabled ? <ToggleRight size={44} weight="fill" /> : <ToggleLeft size={44} weight="fill" />}
               </button>
            </div>
         </div>

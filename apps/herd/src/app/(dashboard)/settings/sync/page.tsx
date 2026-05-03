@@ -6,7 +6,14 @@ import { useState } from "react";
 import { cn } from "@/lib/utils";
 
 export default function SyncPage() {
+  const [mounted, setMounted] = useState(false);
   const [isSyncing, setIsSyncing] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  if (!mounted) return null;
 
   const startSync = () => {
     setIsSyncing(true);
