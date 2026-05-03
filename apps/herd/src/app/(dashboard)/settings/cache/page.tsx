@@ -2,7 +2,7 @@
 
 import { CaretLeft, HardDrive, Trash, Info, CheckCircle, Database, Notebook, Warning } from "@phosphor-icons/react";
 import Link from "next/link";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { cn } from "@/lib/utils";
 
 const CACHE_ITEMS = [
