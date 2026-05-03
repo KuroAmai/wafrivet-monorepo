@@ -100,13 +100,6 @@ export default function AIListPage() {
         ))}
       </div>
 
-      {/* New Chat FAB - Minimalist iMessage style */}
-      <div className="mt-12 flex justify-center">
-         <button className="flex items-center gap-3 px-8 py-4 bg-gray-900 text-white rounded-full font-black text-[13px] uppercase tracking-widest shadow-2xl active:scale-95 transition-all">
-            <ChatCircleDots size={20} weight="fill" />
-            New Thread
-         </button>
-      </div>
     </div>
   );
 }

@@ -9,7 +9,6 @@ import {
   CaretRight, 
   IdentificationBadge, 
   CloudArrowUp, 
-  Smartphone,
   Info,
   Clock,
   SealCheck,

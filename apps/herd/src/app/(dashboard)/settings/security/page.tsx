@@ -1,6 +1,4 @@
-"use client";
-
-import { CaretLeft, Fingerprint, ShieldCheck, Key, Smartphone, Devices, Warning, ToggleRight, ToggleLeft } from "@phosphor-icons/react";
+import { CaretLeft, Fingerprint, ShieldCheck, Key, DeviceMobile, Devices, Warning, ToggleRight, ToggleLeft } from "@phosphor-icons/react";
 import Link from "next/link";
 import { useState } from "react";
 import { cn } from "@/lib/utils";
@@ -72,7 +70,7 @@ export default function SecurityPage() {
               <button className="w-full p-6 flex items-center justify-between hover:bg-gray-50 transition-all group">
                  <div className="flex items-center gap-5">
                     <div className="w-12 h-12 bg-purple-50 text-purple-500 rounded-2xl flex items-center justify-center">
-                       <Smartphone size={24} weight="bold" />
+                       <DeviceMobile size={24} weight="bold" />
                     </div>
                     <div className="text-left">
                        <h4 className="text-[15px] font-black text-gray-900 leading-none">Two-Factor Auth</h4>
