@@ -1,5 +1,7 @@
 "use client";
 
+import { use } from "react";
+
 import { 
   CaretLeft, 
   Wallet, 
@@ -49,8 +51,9 @@ const getBNPLData = (id: string) => {
   };
 };
 
-export default function BNPLRecoveryPage({ params }: { params: { id: string } }) {
-  const data = getBNPLData(params.id);
+export default function BNPLRecoveryPage({ params }: { params: Promise<{ id: string }> }) {
+  const { id } = use(params);
+  const data = getBNPLData(id);
 
   return (
     <div className="space-y-10 animate-in fade-in slide-in-from-bottom-4 duration-700">
@@ -78,22 +81,22 @@ export default function BNPLRecoveryPage({ params }: { params: { id: string } })
 
       {/* Financial Pulse Header */}
       <div className="bg-white p-10 rounded-[48px] border border-gray-100 shadow-sm relative overflow-hidden">
-        <div className="absolute top-0 right-0 w-64 h-64 bg-red-50 rounded-full -mr-32 -mt-32 opacity-50 pointer-events-none" />
+        <div className="absolute top-0 left-0 w-2 h-full bg-red-500" />
         <div className="flex flex-col md:flex-row items-center gap-12 relative z-10">
-          <div className="w-32 h-32 rounded-[40px] bg-red-50 text-red-500 flex items-center justify-center shadow-inner border border-red-100">
-            <Wallet size={64} weight="duotone" />
+          <div className="w-28 h-28 rounded-[36px] bg-red-50 text-red-500 flex items-center justify-center shadow-inner">
+            <Wallet size={56} weight="duotone" />
           </div>
           <div className="flex-1 text-center md:text-left">
             <div className="flex flex-wrap items-center justify-center md:justify-start gap-3 mb-4">
-              <span className="px-4 py-1.5 bg-red-50 text-red-500 border border-red-100 rounded-full text-[10px] font-black uppercase tracking-widest">
-                {data.status} Recovery
+              <span className="px-4 py-1.5 bg-red-50 text-red-500 border border-red-100 rounded-full text-[10px] font-black uppercase tracking-widest flex items-center gap-2">
+                <div className="w-2 h-2 bg-red-500 rounded-full animate-ping" /> {data.status} Recovery
               </span>
               <span className="px-4 py-1.5 bg-orange-50 text-orange-500 border border-orange-100 rounded-full text-[10px] font-black uppercase tracking-widest flex items-center gap-1.5">
                 <Warning size={12} weight="fill" /> Risk Level: {data.risk}
               </span>
             </div>
-            <h1 className="text-[42px] font-black text-gray-900 tracking-tight leading-none mb-3">{data.amount} Due</h1>
-            <p className="text-[16px] text-gray-500 font-medium">{data.user} · Due on {data.dueDate}</p>
+            <h1 className="text-[42px] font-black text-gray-900 tracking-tight leading-none mb-3">{data.amount} Overdue</h1>
+            <p className="text-[16px] text-gray-400 font-medium">{data.user} · Due on {data.dueDate}</p>
           </div>
           <div className="flex flex-col items-center md:items-end">
             <span className="text-[12px] font-black text-gray-400 uppercase tracking-[0.2em] mb-2">Aging Factor</span>

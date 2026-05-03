@@ -1,0 +1,16 @@
+{
+  "name": "Wafrivet Herd",
+  "short_name": "Herd",
+  "description": "NFC-powered animal health layer for Wafrivet",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#F9FAFB",
+  "theme_color": "#2D4D31",
+  "icons": [
+    {
+      "src": "/icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml"
+    }
+  ]
+}

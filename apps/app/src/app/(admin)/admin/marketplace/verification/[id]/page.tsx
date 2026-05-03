@@ -1,10 +1,12 @@
 "use client";
 
+import { use } from "react";
+
 import { 
   CaretLeft, 
   ShieldCheck, 
   IdentificationCard, 
-  FileSearch, 
+  FileMagnifyingGlass, 
   Files, 
   CheckCircle, 
   XCircle, 
@@ -46,8 +48,9 @@ const getChemistData = (id: string) => {
   };
 };
 
-export default function ChemistVerificationPage({ params }: { params: { id: string } }) {
-  const data = getChemistData(params.id);
+export default function ChemistVerificationPage({ params }: { params: Promise<{ id: string }> }) {
+  const { id } = use(params);
+  const data = getChemistData(id);
 
   return (
     <div className="space-y-10 animate-in fade-in slide-in-from-bottom-4 duration-700">
@@ -75,22 +78,22 @@ export default function ChemistVerificationPage({ params }: { params: { id: stri
 
       {/* Verification Pulse Header */}
       <div className="bg-white p-10 rounded-[48px] border border-gray-100 shadow-sm relative overflow-hidden">
-        <div className="absolute top-0 right-0 w-64 h-64 bg-emerald-50 rounded-full -mr-32 -mt-32 opacity-50 pointer-events-none" />
+        <div className="absolute top-0 left-0 w-2 h-full bg-emerald-500" />
         <div className="flex flex-col md:flex-row items-center gap-12 relative z-10">
-          <div className="w-32 h-32 rounded-[40px] bg-emerald-50 text-emerald-500 flex items-center justify-center shadow-inner border border-emerald-100">
-            <Storefront size={64} weight="duotone" />
+          <div className="w-28 h-28 rounded-[36px] bg-emerald-50 text-emerald-500 flex items-center justify-center shadow-inner">
+            <Storefront size={56} weight="duotone" />
           </div>
           <div className="flex-1 text-center md:text-left">
             <div className="flex flex-wrap items-center justify-center md:justify-start gap-3 mb-4">
-              <span className="px-4 py-1.5 bg-blue-50 text-blue-500 border border-blue-100 rounded-full text-[10px] font-black uppercase tracking-widest">
-                Compliance Review
+              <span className="px-4 py-1.5 bg-emerald-50 text-emerald-500 border border-emerald-100 rounded-full text-[10px] font-black uppercase tracking-widest flex items-center gap-2">
+                <div className="w-2 h-2 bg-emerald-500 rounded-full animate-ping" /> Compliance Review
               </span>
-              <span className="px-4 py-1.5 bg-emerald-50 text-emerald-500 border border-emerald-100 rounded-full text-[10px] font-black uppercase tracking-widest flex items-center gap-1.5">
+              <span className="px-4 py-1.5 bg-gray-50 text-gray-500 border border-gray-100 rounded-full text-[10px] font-black uppercase tracking-widest flex items-center gap-1.5">
                 <SealCheck size={12} weight="fill" /> {data.stats.verificationStep}
               </span>
             </div>
             <h1 className="text-[42px] font-black text-gray-900 tracking-tight leading-none mb-3">{data.name}</h1>
-            <p className="text-[16px] text-gray-500 font-medium">{data.location} · Registered by {data.proprietor}</p>
+            <p className="text-[16px] text-gray-400 font-medium">{data.location} · Registered by {data.proprietor}</p>
           </div>
           <div className="flex flex-col items-center md:items-end">
             <span className="text-[12px] font-black text-gray-400 uppercase tracking-[0.2em] mb-2">Completion</span>
@@ -211,7 +214,7 @@ export default function ChemistVerificationPage({ params }: { params: { id: stri
             <h3 className="text-[10px] font-black uppercase tracking-[0.2em] mb-8 text-white/40">Marketplace SOPs</h3>
             <div className="space-y-2">
               {[
-                { icon: FileSearch, text: "Request More Docs" },
+                { icon: FileMagnifyingGlass, text: "Request More Docs" },
                 { icon: MapPin, text: "Schedule Site Visit" },
               ].map((btn, i) => (
                 <button key={i} className="w-full py-3.5 bg-white/5 hover:bg-white/10 rounded-xl text-[11px] font-black uppercase tracking-widest transition-all flex items-center justify-start px-5 gap-3">

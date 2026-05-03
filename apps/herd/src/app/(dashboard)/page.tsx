@@ -1,76 +1,89 @@
-import { getServerAuth } from "@wafrivet/auth";
+"use client";
 
-export const dynamic = "force-dynamic";
-export const revalidate = 0;
+import { MagnifyingGlass, ClockCounterClockwise, Users, Warning, Cow, Horse, Tag, IdentificationBadge } from "@phosphor-icons/react";
+import { useState } from "react";
+import { cn } from "@/lib/utils";
+import Link from "next/link";
 
-export default async function HerdDashboardPage() {
-  let auth;
-  try {
-    auth = await getServerAuth();
-  } catch (e) {
-    auth = { authenticated: false };
-  }
-  
-  const role = (auth as any).role || "farmer";
+const RECENT_SEARCHES = [
+  { id: "WAF-882", name: "Bella", type: "Bovine", icon: Cow },
+  { id: "WAF-901", name: "Luna", type: "Ovine", icon: Tag },
+  { id: "WAF-773", name: "Max", type: "Bovine", icon: Cow },
+  { id: "WAF-112", name: "Daisy", type: "Equine", icon: Horse },
+];
 
+export default function DashboardPage() {
   return (
-    <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-bold text-gray-900">
-          {role === "vet" ? "Veterinary Dashboard" : "My Herd"}
+    <div className="space-y-10 py-6 animate-in fade-in duration-700 pb-32">
+      {/* Personalized Greeting */}
+      <div className="space-y-1">
+        <h1 className="text-[32px] font-black text-gray-900 tracking-tight leading-tight">
+          Good Evening, <br />
+          <span className="text-gray-400">Dr. Ademola</span>
         </h1>
-        {role === "farmer" && (
-          <button className="bg-[#2D4D31] text-white px-4 py-2 rounded-lg font-medium text-sm hover:bg-[#243f28] transition-colors">
-            Generate Report
-          </button>
-        )}
       </div>
 
-      {/* Stats row */}
-      {role === "farmer" ? (
-        <div className="grid grid-cols-4 gap-4">
-          <div className="bg-white p-5 rounded-xl border border-gray-200 shadow-sm">
-            <p className="text-sm text-gray-500 mb-1">Total Animals</p>
-            <p className="text-2xl font-bold text-gray-900">124</p>
-          </div>
-          <div className="bg-white p-5 rounded-xl border border-gray-200 shadow-sm">
-            <p className="text-sm text-gray-500 mb-1">Healthy</p>
-            <p className="text-2xl font-bold text-green-600">118</p>
-          </div>
-          <div className="bg-white p-5 rounded-xl border border-gray-200 shadow-sm">
-            <p className="text-sm text-gray-500 mb-1">At Risk</p>
-            <p className="text-2xl font-bold text-orange-500">4</p>
-          </div>
-          <div className="bg-white p-5 rounded-xl border border-gray-200 shadow-sm">
-            <p className="text-sm text-gray-500 mb-1">Flagged</p>
-            <p className="text-2xl font-bold text-red-600">2</p>
-          </div>
+      {/* Primary Search Interface */}
+      <section className="bg-white border border-gray-100 rounded-[32px] p-1 flex items-center shadow-sm focus-within:ring-4 focus-within:ring-[#2D4D31]/5 focus-within:border-[#2D4D31]/20 transition-all">
+        <div className="pl-5 pr-3">
+          <MagnifyingGlass size={20} weight="bold" className="text-gray-400" />
         </div>
-      ) : (
-        <div className="grid grid-cols-3 gap-4">
-          <div className="bg-white p-5 rounded-xl border border-gray-200 shadow-sm">
-            <p className="text-sm text-gray-500 mb-1">Flagged Patients</p>
-            <p className="text-2xl font-bold text-red-600">8</p>
-          </div>
-          <div className="bg-white p-5 rounded-xl border border-gray-200 shadow-sm">
-            <p className="text-sm text-gray-500 mb-1">Pending Diagnoses</p>
-            <p className="text-2xl font-bold text-orange-500">3</p>
-          </div>
-          <div className="bg-white p-5 rounded-xl border border-gray-200 shadow-sm">
-            <p className="text-sm text-gray-500 mb-1">Recent Visits</p>
-            <p className="text-2xl font-bold text-gray-900">12</p>
-          </div>
-        </div>
-      )}
+        <input 
+          type="text" 
+          placeholder="Search animal by WAF ID or Name..." 
+          className="flex-1 py-3.5 bg-transparent border-none outline-none text-[14px] font-black text-gray-900 placeholder:text-gray-300 placeholder:font-bold"
+        />
+      </section>
 
-      {/* Main Content Area */}
-      <div className="bg-white rounded-xl border border-gray-200 p-6 min-h-[400px] flex items-center justify-center text-gray-400">
-        <p>
-          {role === "vet" 
-            ? "Flagged patients list will appear here." 
-            : "Animal grid will appear here."}
-        </p>
-      </div>
+      {/* Recent Search Strip */}
+      <section className="space-y-4">
+        <div className="flex items-center justify-between px-2">
+          <h3 className="text-[12px] font-black text-gray-400 uppercase tracking-[0.2em] flex items-center gap-2">
+            <ClockCounterClockwise size={18} weight="bold" />
+            Recent Search
+          </h3>
+          <button className="text-[10px] font-black text-[#2D4D31] uppercase tracking-widest">View History</button>
+        </div>
+        
+        <div className="flex gap-4 overflow-x-auto no-scrollbar pb-4 -mx-6 px-6">
+          {RECENT_SEARCHES.map((animal) => (
+            <Link 
+              key={animal.id}
+              href={`/animal/${animal.id}`}
+              className="flex-shrink-0 w-40 bg-white p-6 rounded-[32px] border border-gray-100 shadow-sm hover:shadow-md transition-all active:scale-95 group"
+            >
+              <div className="w-12 h-12 bg-gray-50 rounded-2xl flex items-center justify-center mb-4 group-hover:bg-[#2D4D31]/5 group-hover:text-[#2D4D31] transition-colors text-gray-400">
+                <animal.icon size={24} weight="duotone" />
+              </div>
+              <h4 className="text-[14px] font-black text-gray-900 truncate">{animal.name}</h4>
+              <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mt-0.5">{animal.id}</p>
+            </Link>
+          ))}
+        </div>
+      </section>
+
+      {/* Operational Snapshot */}
+      <section className="grid grid-cols-2 gap-4">
+        {[
+          { label: "Active Herd", value: "50", change: "+12", icon: IdentificationBadge },
+          { label: "Health Alerts", value: "03", change: "Critical", icon: Warning, color: "text-red-500" },
+        ].map((stat, i) => (
+          <div key={i} className="bg-white p-8 rounded-[40px] border border-gray-100 shadow-sm space-y-4">
+            <div className="flex items-center justify-between">
+              <div className="w-10 h-10 bg-gray-50 rounded-xl flex items-center justify-center text-gray-400">
+                <stat.icon size={20} weight="bold" />
+              </div>
+              <span className={cn("text-[9px] font-black uppercase tracking-widest", stat.color || "text-emerald-500")}>
+                {stat.change}
+              </span>
+            </div>
+            <div>
+              <p className="text-[32px] font-black text-gray-900 leading-none">{stat.value}</p>
+              <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mt-1">{stat.label}</p>
+            </div>
+          </div>
+        ))}
+      </section>
     </div>
   );
 }

@@ -1,5 +1,7 @@
 "use client";
 
+import { use } from "react";
+
 import { 
   CaretLeft, 
   Tag, 
@@ -53,8 +55,9 @@ const getAnimalData = (id: string) => {
   };
 };
 
-export default function AnimalDetailsPage({ params }: { params: { id: string } }) {
-  const animal = getAnimalData(params.id);
+export default function AnimalDetailsPage({ params }: { params: Promise<{ id: string }> }) {
+  const { id } = use(params);
+  const animal = getAnimalData(id);
 
   return (
     <div className="space-y-10 pb-20">

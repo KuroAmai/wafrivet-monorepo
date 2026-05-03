@@ -1,20 +1,15 @@
 "use client";
 
-import { 
-  CaretLeft, 
-  Heartbeat, 
-  Thermometer, 
-  Stethoscope, 
-  User, 
-  MapPin, 
-  Phone, 
-  Warning, 
-  ShieldCheck, 
-  ChartLineUp, 
-  Clock, 
-  Activity,
+import { use } from "react";
+
+import {
+  CaretLeft,
+  Thermometer,
+  Stethoscope,
+  Phone,
+  Warning,
+  Clock,
   ArrowRight,
-  DotsThreeVertical,
   Crosshair,
   FirstAid,
   Siren,
@@ -47,15 +42,16 @@ const getVitalData = (id: string) => {
   };
 };
 
-export default function VitalsManagementPage({ params }: { params: { id: string } }) {
-  const data = getVitalData(params.id);
+export default function VitalsManagementPage({ params }: { params: Promise<{ id: string }> }) {
+  const { id } = use(params);
+  const data = getVitalData(id);
 
   return (
     <div className="space-y-10 animate-in fade-in slide-in-from-bottom-4 duration-700">
       {/* Header & Back Navigation */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
-        <Link 
-          href="/admin" 
+        <Link
+          href="/admin"
           className="flex items-center gap-2 text-gray-400 hover:text-gray-900 transition-colors group"
         >
           <div className="w-10 h-10 rounded-2xl border border-gray-100 flex items-center justify-center group-hover:bg-white group-hover:shadow-sm transition-all bg-white/50">
@@ -72,28 +68,28 @@ export default function VitalsManagementPage({ params }: { params: { id: string 
       </div>
 
       {/* Crisis Pulse Header */}
-      <div className="bg-red-500 p-10 rounded-[48px] text-white shadow-xl shadow-red-500/20 relative overflow-hidden">
-        <div className="absolute top-0 right-0 w-96 h-96 bg-white/10 rounded-full -mr-32 -mt-32 blur-3xl pointer-events-none" />
+      <div className="bg-white p-10 rounded-[48px] border border-gray-100 shadow-sm relative overflow-hidden">
+        <div className="absolute top-0 left-0 w-2 h-full bg-red-500" />
         <div className="flex flex-col md:flex-row items-center gap-12 relative z-10">
-          <div className="w-32 h-32 rounded-[40px] bg-white/20 backdrop-blur-md flex items-center justify-center border border-white/20">
-            <Thermometer size={64} weight="duotone" />
+          <div className="w-28 h-28 rounded-[36px] bg-red-50 flex items-center justify-center text-red-500 shadow-inner">
+            <Thermometer size={56} weight="duotone" />
           </div>
           <div className="flex-1 text-center md:text-left">
             <div className="flex flex-wrap items-center justify-center md:justify-start gap-3 mb-4">
-              <span className="px-4 py-1.5 bg-white/20 text-white rounded-full text-[10px] font-black uppercase tracking-widest border border-white/20">
-                Severity: {data.severity}
+              <span className="px-4 py-1.5 bg-red-50 text-red-500 border border-red-100 rounded-full text-[10px] font-black uppercase tracking-widest flex items-center gap-2">
+                <div className="w-2 h-2 bg-red-500 rounded-full animate-ping" /> Critical Alert
               </span>
-              <span className="px-4 py-1.5 bg-red-600 text-white rounded-full text-[10px] font-black uppercase tracking-widest flex items-center gap-1.5 shadow-sm">
-                <Warning size={12} weight="fill" /> {data.duration} Unresolved
+              <span className="px-4 py-1.5 bg-gray-50 text-gray-500 border border-gray-100 rounded-full text-[10px] font-black uppercase tracking-widest">
+                {data.duration} Unresolved
               </span>
             </div>
-            <h1 className="text-[42px] font-black text-white tracking-tight leading-none mb-3">{data.issue} Detected</h1>
-            <p className="text-[16px] text-white/80 font-medium">Monitoring {data.animal} in {data.location}</p>
+            <h1 className="text-[42px] font-black text-gray-900 tracking-tight leading-none mb-3">{data.issue} Detected</h1>
+            <p className="text-[16px] text-gray-400 font-medium">Monitoring {data.animal} in {data.location}</p>
           </div>
           <div className="flex flex-col items-center md:items-end">
-            <span className="text-[12px] font-black text-white/60 uppercase tracking-[0.2em] mb-2">Protocol Status</span>
-            <div className="text-[24px] font-black text-white tracking-tight leading-none uppercase">Escalated</div>
-            <div className="text-[11px] font-bold text-white/80 mt-2 uppercase tracking-widest">Awaiting Clinical Intervention</div>
+            <span className="text-[12px] font-black text-gray-400 uppercase tracking-[0.2em] mb-2">Protocol Status</span>
+            <div className="text-[24px] font-black text-red-500 tracking-tight leading-none uppercase">Escalated</div>
+            <div className="text-[11px] font-bold text-gray-400 mt-2 uppercase tracking-widest">Awaiting Clinical Intervention</div>
           </div>
         </div>
       </div>
@@ -126,11 +122,11 @@ export default function VitalsManagementPage({ params }: { params: { id: string 
               <div className="absolute inset-0 p-10 flex flex-col justify-between opacity-5 pointer-events-none">
                 {[...Array(5)].map((_, i) => <div key={i} className="w-full h-px bg-gray-900" />)}
               </div>
-              
+
               {data.trend.map((point, i) => (
                 <div key={i} className="flex-1 flex flex-col items-center gap-4 relative z-10">
-                  <div 
-                    className="w-full bg-red-500 rounded-2xl relative group cursor-help transition-all hover:opacity-80" 
+                  <div
+                    className="w-full bg-red-500 rounded-2xl relative group cursor-help transition-all hover:opacity-80"
                     style={{ height: `${(parseFloat(point.value) - 38) * 40}px` }}
                   >
                     <div className="absolute -top-10 left-1/2 -translate-x-1/2 bg-gray-900 text-white text-[10px] font-black px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity">
@@ -201,7 +197,7 @@ export default function VitalsManagementPage({ params }: { params: { id: string 
                 <span className="text-gray-900 font-bold text-[13px] truncate">{data.location}</span>
               </div>
             </div>
-            <Link 
+            <Link
               href={`/admin/livestock/${data.id}`}
               className="w-full py-4 bg-gray-50 text-gray-900 rounded-2xl font-black text-[10px] uppercase tracking-widest hover:bg-gray-100 transition-all flex items-center justify-center gap-2"
             >

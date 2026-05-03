@@ -1,5 +1,7 @@
 "use client";
 
+import { use } from "react";
+
 import { 
   CaretLeft, 
   ShoppingCart, 
@@ -37,8 +39,9 @@ const getActivityData = (id: string) => {
   return activities[id as keyof typeof activities] || activities["act_1001"];
 };
 
-export default function ActivityDetailsPage({ params }: { params: { id: string } }) {
-  const data = getActivityData(params.id);
+export default function ActivityDetailsPage({ params }: { params: Promise<{ id: string }> }) {
+  const { id } = use(params);
+  const data = getActivityData(id);
 
   return (
     <div className="space-y-10 animate-in fade-in slide-in-from-bottom-4 duration-700">

@@ -1,34 +1,29 @@
-import { getServerAuth } from "@wafrivet/auth";
-import { Sidebar } from "@/components/herd/Sidebar";
+"use client";
+
 import { TopBar } from "@/components/herd/TopBar";
+import { BottomNav } from "@/components/herd/BottomNav";
+import { usePathname } from "next/navigation";
+import { cn } from "@/lib/utils";
 
-export const dynamic = "force-dynamic";
-export const revalidate = 0;
-
-export default async function HerdDashboardLayout({ children }: { children: React.ReactNode }) {
-  let auth;
-  try {
-    auth = await getServerAuth();
-  } catch (e) {
-    auth = { authenticated: false };
-  }
-  
-  // Middleware should handle the redirect to login, but we'll keep a safe check here
-  if (!auth.authenticated && process.env.NODE_ENV === 'production') {
-    // Skip protection during build
-  }
-
-  const role = (auth as any).role || "farmer";
+export default function DashboardLayout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
+  const pathname = usePathname();
+  // Hide TopBar and BottomNav for specific chat routes like /ai/[id]
+  const isChatDetail = pathname.startsWith('/ai/') && pathname !== '/ai';
 
   return (
-    <div className="flex h-screen overflow-hidden bg-gray-50">
-      <Sidebar />
-      <div className="flex-1 flex flex-col h-full overflow-hidden">
-        <TopBar />
-        <main className="flex-1 overflow-y-auto p-8">
-          {children}
-        </main>
-      </div>
-    </div>
+    <>
+      {!isChatDetail && <TopBar />}
+      <main className={cn(
+        "flex-1",
+        !isChatDetail ? "px-6 pb-32" : "h-screen overflow-hidden"
+      )}>
+        {children}
+      </main>
+      {!isChatDetail && <BottomNav />}
+    </>
   );
 }
