@@ -1,8 +1,5 @@
-"use client";
-
 import { CaretLeft, MapPin, Plus, ArrowsClockwise, DotsThreeVertical, ArrowSquareOut, MapTrifold } from "@phosphor-icons/react";
-import Link from "next/link";
-import { useState, useEffect } from "react";
+import { Link } from "react-router-dom";
 import { cn } from "@/lib/utils";
 
 const FARMS = [
@@ -11,20 +8,12 @@ const FARMS = [
   { name: "Ogun Green Pastures", location: "Ogun, NG", animals: 244, status: "Syncing" },
 ];
 
-export default function ManagedFarmsPage() {
-  const [mounted, setMounted] = useState(false);
-
-  useEffect(() => {
-    setMounted(true);
-  }, []);
-
-  if (!mounted) return null;
-
+export default function Farms() {
   return (
     <div className="min-h-screen bg-[#F9FAFB] pb-32 animate-in fade-in slide-in-from-right-4 duration-500">
       {/* Sub Header */}
-      <div className="sticky top-0 z-30 bg-white/80 backdrop-blur-md px-6 py-4 border-b border-gray-100 flex items-center justify-between">
-        <Link href="/settings" className="w-10 h-10 rounded-xl bg-gray-50 flex items-center justify-center text-gray-900 active:scale-90 transition-transform">
+      <div className="sticky top-0 z-30 bg-white/90 backdrop-blur-md px-6 py-5 rounded-b-[32px] border-b border-gray-100 shadow-sm flex items-center justify-between">
+        <Link to="/" className="w-10 h-10 rounded-xl bg-gray-50 flex items-center justify-center text-gray-900 active:scale-90 transition-transform">
            <CaretLeft size={20} weight="bold" />
         </Link>
         <h1 className="text-[16px] font-black text-gray-900 uppercase tracking-widest">Managed Farms</h1>

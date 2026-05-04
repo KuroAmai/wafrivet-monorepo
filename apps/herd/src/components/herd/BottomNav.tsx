@@ -6,8 +6,7 @@ import {
   WifiHigh, 
   Sparkle 
 } from "@phosphor-icons/react";
-import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { Link, useLocation } from "react-router-dom";
 import { cn } from "@/lib/utils";
 
 const NAV_ITEMS = [
@@ -19,7 +18,7 @@ const NAV_ITEMS = [
 ];
 
 export function BottomNav() {
-  const pathname = usePathname();
+  const { pathname } = useLocation();
 
   return (
     <div className="fixed bottom-0 left-0 right-0 z-50 bg-white/80 backdrop-blur-xl border-t border-gray-100 px-6 pb-10 pt-4 flex items-center justify-between shadow-[0_-20px_50px_rgba(0,0,0,0.05)] rounded-t-[40px]">
@@ -30,7 +29,7 @@ export function BottomNav() {
         return (
           <Link
             key={item.path}
-            href={item.path}
+            to={item.path}
             className={cn(
               "relative flex flex-col items-center gap-1.5 transition-all duration-300 active:scale-95 group",
               isActive ? "text-[#2D4D31]" : "text-gray-400 hover:text-gray-600"

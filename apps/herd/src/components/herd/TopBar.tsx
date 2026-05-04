@@ -1,7 +1,7 @@
 "use client";
 
 import { Bell } from "@phosphor-icons/react";
-import Link from "next/link";
+import { Link } from "react-router-dom";
 import { useState, useEffect } from "react";
 import { NotificationDrawer } from "./NotificationDrawer";
 
@@ -28,7 +28,7 @@ export function TopBar() {
       <header className="sticky top-0 z-40 w-full bg-[#F9FAFB]/80 backdrop-blur-md px-6 py-4">
         <div className="max-w-xl mx-auto flex items-center justify-between">
           {/* Branding Cluster */}
-          <Link href="/" className="group flex items-center gap-3 active:scale-95 transition-transform">
+          <Link to="/" className="group flex items-center gap-3 active:scale-95 transition-transform">
             <img src="/logo-mark.svg" alt="Wafrivet" className="w-8 h-8 object-contain" />
             <h1 className="text-[20px] font-black text-gray-900 tracking-tight leading-none">Herd</h1>
           </Link>

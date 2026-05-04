@@ -1,9 +1,7 @@
-"use client";
-
-import { MagnifyingGlass, ClockCounterClockwise, Users, Warning, Cow, Horse, Tag, IdentificationBadge } from "@phosphor-icons/react";
-import { useState } from "react";
-import { cn } from "@/lib/utils";
+import { MagnifyingGlass, ClockCounterClockwise, Cow, Horse, Tag, IdentificationBadge, Warning } from "@phosphor-icons/react";
 import { Link } from "react-router-dom";
+import { cn } from "@/lib/utils";
+import { toast } from "sonner";
 
 const RECENT_SEARCHES = [
   { id: "WAF-882", name: "Bella", type: "Bovine", icon: Cow },
@@ -12,7 +10,7 @@ const RECENT_SEARCHES = [
   { id: "WAF-112", name: "Daisy", type: "Equine", icon: Horse },
 ];
 
-export default function DashboardPage() {
+export default function Dashboard() {
   return (
     <div className="space-y-10 py-6 animate-in fade-in duration-700 pb-32">
       {/* Personalized Greeting */}
@@ -42,7 +40,13 @@ export default function DashboardPage() {
             <ClockCounterClockwise size={18} weight="bold" />
             Recent Search
           </h3>
-          <button className="text-[10px] font-black text-[#2D4D31] uppercase tracking-widest">View History</button>
+          <Link 
+            to="/history"
+            className="px-4 py-1.5 bg-emerald-50 text-[#2D4D31] rounded-full text-[10px] font-black uppercase tracking-[0.15em] hover:bg-emerald-100 transition-all active:scale-95 shadow-sm shadow-emerald-900/5 flex items-center gap-1.5"
+          >
+            View History
+            <ClockCounterClockwise size={12} weight="bold" className="opacity-60" />
+          </Link>
         </div>
         
         <div className="flex gap-4 overflow-x-auto no-scrollbar pb-4 -mx-6 px-6">
@@ -62,13 +66,16 @@ export default function DashboardPage() {
         </div>
       </section>
 
-      {/* Operational Snapshot */}
       <section className="grid grid-cols-2 gap-4">
         {[
-          { label: "Active Herd", value: "50", change: "+12", icon: IdentificationBadge },
-          { label: "Health Alerts", value: "03", change: "Critical", icon: Warning, color: "text-red-500" },
+          { label: "Active Herd", value: "50", change: "+12", icon: IdentificationBadge, path: "/animals" },
+          { label: "Health Alerts", value: "03", change: "Critical", icon: Warning, color: "text-red-500", path: "/alerts" },
         ].map((stat, i) => (
-          <div key={i} className="bg-white p-8 rounded-[40px] border border-gray-100 shadow-sm space-y-4">
+          <Link 
+            key={i} 
+            to={stat.path}
+            className="bg-white p-8 rounded-[40px] border border-gray-100 shadow-sm space-y-4 hover:border-emerald-500/10 transition-all active:scale-[0.98]"
+          >
             <div className="flex items-center justify-between">
               <div className="w-10 h-10 bg-gray-50 rounded-xl flex items-center justify-center text-gray-400">
                 <stat.icon size={20} weight="bold" />
@@ -81,7 +88,7 @@ export default function DashboardPage() {
               <p className="text-[32px] font-black text-gray-900 leading-none">{stat.value}</p>
               <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mt-1">{stat.label}</p>
             </div>
-          </div>
+          </Link>
         ))}
       </section>
     </div>
