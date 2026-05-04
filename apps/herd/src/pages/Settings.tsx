@@ -10,7 +10,8 @@ import {
   Info,
   SealCheck,
   Notebook,
-  ArrowsClockwise
+  ArrowsClockwise,
+  DownloadSimple
 } from "@phosphor-icons/react";
 import { cn } from "@/lib/utils";
 import { useState, useEffect } from "react";
@@ -174,6 +175,28 @@ export default function Settings() {
         <div className="space-y-4">
            <h3 className="px-4 text-[12px] font-black text-gray-300 uppercase tracking-[0.2em]">PWA Console</h3>
            <div className="bg-white rounded-[40px] border border-gray-100 shadow-sm overflow-hidden divide-y divide-gray-50">
+              <button 
+                onClick={() => {
+                  const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !(window as any).MSStream;
+                  if (isIOS) {
+                    alert("To install Herd on your iPhone:\n\n1. Tap the 'Share' icon in Safari\n2. Scroll down and tap 'Add to Home Screen'\n3. Tap 'Add' in the top right");
+                  } else {
+                    window.dispatchEvent(new Event('beforeinstallprompt'));
+                  }
+                }}
+                className="w-full flex items-center justify-between p-5 hover:bg-gray-50 transition-all group active:scale-[0.99]"
+              >
+                 <div className="flex items-center gap-4">
+                    <div className="w-10 h-10 rounded-xl flex items-center justify-center transition-transform group-hover:scale-110 bg-[#2D4D31]/5 text-[#2D4D31]">
+                       <DownloadSimple size={20} weight="bold" />
+                    </div>
+                    <div className="text-left">
+                       <p className="text-[15px] font-black text-gray-900 leading-none">Install Application</p>
+                       <p className="text-[10px] font-bold text-gray-400 mt-1 uppercase tracking-widest">Enable Home Screen Access</p>
+                    </div>
+                 </div>
+                 <CaretRight size={18} weight="bold" className="text-gray-200 group-hover:text-gray-900 group-hover:translate-x-1 transition-all" />
+              </button>
               <Link to="/settings/cache" className="w-full flex items-center justify-between p-5 hover:bg-gray-50 transition-all group active:scale-[0.99]">
                  <div className="flex items-center gap-4">
                     <div className="w-10 h-10 rounded-xl flex items-center justify-center transition-transform group-hover:scale-110 bg-gray-50 text-gray-400">
