@@ -32,9 +32,9 @@ export default function AnimalList() {
               <CaretLeft size={20} weight="bold" />
            </Link>
            <h1 className="text-[16px] font-black text-gray-900 uppercase tracking-widest">Animal Registry</h1>
-           <button className="w-10 h-10 rounded-xl bg-[#2D4D31] flex items-center justify-center text-white active:scale-90 transition-transform">
+           <Link to="/animals/add" className="w-10 h-10 rounded-xl bg-[#2D4D31] flex items-center justify-center text-white active:scale-90 transition-transform">
               <Plus size={20} weight="bold" />
-           </button>
+           </Link>
         </div>
 
         {/* Search Bar */}

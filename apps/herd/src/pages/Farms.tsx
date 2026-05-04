@@ -77,10 +77,13 @@ export default function Farms() {
                          <MapTrifold size={16} weight="bold" />
                          Map
                       </button>
-                      <button className="flex items-center justify-center gap-2 py-3 bg-emerald-50 text-emerald-600 rounded-xl text-[11px] font-black uppercase tracking-widest hover:bg-emerald-100 transition-all">
+                      <Link 
+                        to={`/farms/${farm.name.toLowerCase().replace(/\s+/g, '-')}/portal`}
+                        className="flex items-center justify-center gap-2 py-3 bg-emerald-50 text-emerald-600 rounded-xl text-[11px] font-black uppercase tracking-widest hover:bg-emerald-100 transition-all"
+                      >
                          <ArrowSquareOut size={16} weight="bold" />
                          Portal
-                      </button>
+                      </Link>
                    </div>
                 </div>
               ))}

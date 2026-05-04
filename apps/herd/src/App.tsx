@@ -2,6 +2,7 @@ import { BrowserRouter as Router, Routes, Route, useLocation } from "react-route
 import { useState, useEffect } from "react";
 import { TopBar } from "@/components/herd/TopBar";
 import { BottomNav } from "@/components/herd/BottomNav";
+import { PWAInstallPrompt } from "@/components/herd/PWAInstallPrompt";
 
 // Pages
 import Dashboard from "./pages/Dashboard";
@@ -17,6 +18,8 @@ import AnimalDetail from "./pages/AnimalDetail";
 import AddRecord from "./pages/AddRecord";
 import HealthAlerts from "./pages/HealthAlerts";
 import AnimalList from "./pages/AnimalList";
+import AddAnimal from "./pages/AddAnimal";
+import FarmPortal from "./pages/FarmPortal";
 
 function AppContent() {
   const [mounted, setMounted] = useState(false);
@@ -45,11 +48,14 @@ function AppContent() {
           <Route path="/animal/:id/add-record" element={<AddRecord />} />
           <Route path="/alerts" element={<HealthAlerts />} />
           <Route path="/animals" element={<AnimalList />} />
+          <Route path="/animals/add" element={<AddAnimal />} />
+          <Route path="/farms/:id/portal" element={<FarmPortal />} />
           {/* Fallback for other routes */}
           <Route path="*" element={<Dashboard />} />
         </Routes>
       </main>
       <BottomNav />
+      <PWAInstallPrompt />
     </>
   );
 }
