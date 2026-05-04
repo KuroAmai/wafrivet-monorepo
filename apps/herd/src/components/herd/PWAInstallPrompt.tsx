@@ -1,6 +1,5 @@
 import { useState, useEffect } from 'react';
-import { DownloadSimple, X, DeviceMobile, AppWindow } from '@phosphor-icons/react';
-import { cn } from '@/lib/utils';
+import { DownloadSimple, X, AppWindow } from '@phosphor-icons/react';
 
 export function PWAInstallPrompt() {
   const [installPrompt, setInstallPrompt] = useState<any>(null);
@@ -8,17 +7,13 @@ export function PWAInstallPrompt() {
 
   useEffect(() => {
     const handleBeforeInstallPrompt = (e: any) => {
-      // Prevent the mini-infobar from appearing on mobile
       e.preventDefault();
-      // Stash the event so it can be triggered later.
       setInstallPrompt(e);
-      // Show the install banner
       setIsVisible(true);
     };
 
     window.addEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
 
-    // Check if app is already installed
     if (window.matchMedia('(display-mode: standalone)').matches) {
       setIsVisible(false);
     }
@@ -30,63 +25,44 @@ export function PWAInstallPrompt() {
 
   const handleInstallClick = async () => {
     if (!installPrompt) return;
-
-    // Show the install prompt
     installPrompt.prompt();
-
-    // Wait for the user to respond to the prompt
     const { outcome } = await installPrompt.userChoice;
-    
-    if (outcome === 'accepted') {
-      console.log('User accepted the PWA install prompt');
-      setIsVisible(false);
-    } else {
-      console.log('User dismissed the PWA install prompt');
-    }
-
+    if (outcome === 'accepted') setIsVisible(false);
     setInstallPrompt(null);
   };
 
   if (!isVisible) return null;
 
   return (
-    <div className="fixed bottom-32 left-6 right-6 z-50 animate-in slide-in-from-bottom-10 duration-500">
-      <div className="bg-gray-900 text-white p-6 rounded-[32px] shadow-2xl border border-white/10 backdrop-blur-xl relative overflow-hidden">
-        {/* Decorative background element */}
-        <div className="absolute -top-10 -right-10 w-32 h-32 bg-emerald-500/10 rounded-full blur-3xl" />
+    <div className="fixed bottom-28 left-4 right-4 z-50 animate-in slide-in-from-bottom-5 duration-700">
+      <div className="bg-white/90 backdrop-blur-xl border border-gray-100 p-4 rounded-[28px] shadow-xl shadow-gray-200/40 flex items-center gap-4">
+        {/* Official Brand Logo */}
+        <div className="w-12 h-12 bg-white rounded-2xl flex items-center justify-center shrink-0 border border-gray-100 shadow-sm p-2">
+           <img src="/logo-mark.svg" alt="Herd Logo" className="w-full h-full object-contain" />
+        </div>
         
+        {/* Text Area */}
+        <div className="flex-1 min-w-0">
+           <h3 className="text-[13px] font-black text-gray-900 uppercase tracking-widest leading-none mb-1">Install App</h3>
+           <p className="text-[11px] font-bold text-gray-400 truncate">For full operational intelligence.</p>
+        </div>
+
+        {/* Action Button */}
         <button 
-          onClick={() => setIsVisible(false)}
-          className="absolute top-4 right-4 text-white/40 hover:text-white transition-colors"
+          onClick={handleInstallClick}
+          className="px-5 py-2.5 bg-[#2D4D31] text-white rounded-xl text-[10px] font-black uppercase tracking-widest active:scale-95 transition-all flex items-center gap-2"
         >
-          <X size={20} weight="bold" />
+          <DownloadSimple size={14} weight="bold" />
+          Add
         </button>
 
-        <div className="flex items-start gap-5">
-          <div className="w-14 h-14 bg-emerald-500/20 rounded-[24px] flex items-center justify-center shrink-0 border border-emerald-500/30">
-            <AppWindow size={32} weight="fill" className="text-emerald-400" />
-          </div>
-          <div className="flex-1 pr-6">
-            <h3 className="text-[16px] font-black leading-tight mb-1">Install Herd Console</h3>
-            <p className="text-[12px] font-medium text-white/60">Get the full operational experience with offline access and instant updates.</p>
-          </div>
-        </div>
-
-        <div className="mt-6 flex gap-3">
-          <button 
-            onClick={handleInstallClick}
-            className="flex-1 py-4 bg-white text-gray-900 rounded-2xl text-[11px] font-black uppercase tracking-widest active:scale-95 transition-all flex items-center justify-center gap-2"
-          >
-            <DownloadSimple size={18} weight="bold" />
-            Install App
-          </button>
-          <button 
-            onClick={() => setIsVisible(false)}
-            className="px-6 py-4 bg-white/10 text-white rounded-2xl text-[11px] font-black uppercase tracking-widest active:scale-95 transition-all"
-          >
-            Later
-          </button>
-        </div>
+        {/* Subtle Close */}
+        <button 
+          onClick={() => setIsVisible(false)}
+          className="w-8 h-8 flex items-center justify-center text-gray-300 hover:text-gray-900 transition-colors"
+        >
+          <X size={16} weight="bold" />
+        </button>
       </div>
     </div>
   );
