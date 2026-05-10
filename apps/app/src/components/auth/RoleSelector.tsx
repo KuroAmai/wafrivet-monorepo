@@ -1,6 +1,6 @@
 "use client";
 
-import { UserRole } from "@wafrivet/auth";
+import type { UserRole } from "@wafrivet/auth";
 import {
   Plant,
   Stethoscope,

@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { Plant, Storefront, GearSix, ArrowRight, SignOut } from "@phosphor-icons/react/dist/ssr";
-import { getServerAuth } from "@wafrivet/auth";
+import { getServerAuth } from "@wafrivet/auth/server";
 
 export const dynamic = "force-dynamic";
 export const revalidate = 0;

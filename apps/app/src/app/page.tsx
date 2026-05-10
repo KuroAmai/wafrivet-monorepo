@@ -1,5 +1,5 @@
 import { redirect } from "next/navigation";
-import { getServerAuth } from "@wafrivet/auth";
+import { getServerAuth } from "@wafrivet/auth/server";
 
 export const dynamic = "force-dynamic";
 export const revalidate = 0;

@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { getServerAuth } from "@wafrivet/auth";
+import { getServerAuth } from "@wafrivet/auth/server";
 import { Quicksand } from "next/font/google";
 import "./globals.css";
 

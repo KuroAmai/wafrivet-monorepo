@@ -1,4 +1,4 @@
-import { getServerAuth } from "@wafrivet/auth";
+import { getServerAuth } from "@wafrivet/auth/server";
 import { Sidebar } from "@/components/distributor/Sidebar";
 import { TopBar } from "@/components/distributor/TopBar";
 
