@@ -1,4 +1,4 @@
-import { Bell } from "@phosphor-icons/react";
+import { Bell } from "@phosphor-icons/react/dist/ssr";
 
 export function TopBar() {
   return (

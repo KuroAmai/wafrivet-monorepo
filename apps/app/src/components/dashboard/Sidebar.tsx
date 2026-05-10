@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { House, Wallet, Bell, User } from "@phosphor-icons/react";
+import { House, Wallet, Bell, User } from "@phosphor-icons/react/dist/ssr";
 
 export function Sidebar() {
   return (
