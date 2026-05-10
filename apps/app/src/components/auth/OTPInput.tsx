@@ -56,9 +56,8 @@ export function OTPInput() {
     // Mock success — set a dummy cookie and redirect to Shop
     document.cookie = "jwt=mock-token; path=/; domain=.wafrivet.com; max-age=3600";
     document.cookie = "jwt=mock-token; path=/; max-age=3600"; // Fallback for local dev
-    
-    const shopUrl = process.env.NEXT_PUBLIC_SHOP_URL || "https://shop.wafrivet.com";
-    window.location.href = shopUrl;
+
+    window.location.href = "/welcome";
   };
 
   const code = digits.join("");

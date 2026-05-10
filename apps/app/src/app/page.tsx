@@ -8,8 +8,7 @@ export default async function HomePage() {
   const auth = await getServerAuth();
   
   if (auth.authenticated) {
-    const shopUrl = process.env.NEXT_PUBLIC_SHOP_URL || "https://shop.wafrivet.com";
-    redirect(shopUrl);
+    redirect("/welcome");
   } else {
     redirect("/login");
   }

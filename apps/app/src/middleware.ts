@@ -3,9 +3,11 @@ import type { NextRequest } from "next/server";
 
 export function middleware(request: NextRequest) {
   const token = request.cookies.get("jwt")?.value || request.cookies.get("token")?.value;
-  const isDashboardPage = request.nextUrl.pathname.startsWith("/dashboard");
+  const { pathname } = request.nextUrl;
+  const isProtected =
+    pathname.startsWith("/dashboard") || pathname === "/welcome";
 
-  if (isDashboardPage && !token) {
+  if (isProtected && !token) {
     return NextResponse.redirect(new URL("/login", request.url));
   }
 
@@ -13,5 +15,5 @@ export function middleware(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ["/dashboard/:path*"],
+  matcher: ["/dashboard/:path*", "/welcome"],
 };

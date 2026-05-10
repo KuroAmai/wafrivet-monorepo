@@ -1,6 +1,5 @@
 import { Sparkle, MagnifyingGlass, CaretRight, Heartbeat, ChartLineUp, Brain } from "@phosphor-icons/react";
 import { Link } from "react-router-dom";
-import { cn } from "@/lib/utils";
 
 export default function AIList() {
   return (
