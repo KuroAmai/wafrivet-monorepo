@@ -26,9 +26,12 @@ export function Sidebar() {
       </div>
       
       <div className="p-4 border-t border-gray-200">
-        <button className="w-full text-left px-3 py-2 text-red-600 hover:bg-red-50 rounded-lg font-medium text-[14px] transition-colors">
+        <Link
+          href="/logout"
+          className="block w-full text-left px-3 py-2 text-red-600 hover:bg-red-50 rounded-lg font-medium text-[14px] transition-colors"
+        >
           Sign out
-        </button>
+        </Link>
       </div>
     </aside>
   );

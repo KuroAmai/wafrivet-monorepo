@@ -16,6 +16,7 @@ import {
 import { cn } from "@/lib/utils";
 import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
+import { logoutClient } from "@wafrivet/auth";
 
 export default function Settings() {
   const [isSyncing, setIsSyncing] = useState(false);
@@ -226,7 +227,11 @@ export default function Settings() {
       </div>
 
       {/* Sign Out */}
-      <button className="w-full flex items-center justify-center gap-3 p-6 bg-red-50 text-red-500 rounded-[32px] font-black text-[15px] hover:bg-red-100 transition-all active:scale-[0.98] group">
+      <button
+        type="button"
+        onClick={() => logoutClient()}
+        className="w-full flex items-center justify-center gap-3 p-6 bg-red-50 text-red-500 rounded-[32px] font-black text-[15px] hover:bg-red-100 transition-all active:scale-[0.98] group"
+      >
          <SignOut size={20} weight="bold" className="group-hover:-translate-x-1 transition-transform" />
          Sign Out Session
       </button>

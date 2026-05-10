@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useState } from "react";
 import { 
   Bell, 
@@ -69,9 +70,12 @@ export function AdminTopBar() {
               <CaretDown size={12} weight="bold" className="text-gray-400 ml-1" />
             </div>
 
-            <button className="w-11 h-11 rounded-2xl bg-white/50 text-red-500 flex items-center justify-center hover:bg-red-50 transition-all border border-gray-100/50">
+            <Link
+              href="/logout"
+              className="w-11 h-11 rounded-2xl bg-white/50 text-red-500 flex items-center justify-center hover:bg-red-50 transition-all border border-gray-100/50"
+            >
               <SignOut size={20} weight="bold" />
-            </button>
+            </Link>
           </div>
         </div>
       </div>

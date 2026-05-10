@@ -13,6 +13,7 @@ import {
 } from "@phosphor-icons/react";
 import { usePathname } from "next/navigation";
 import Link from "next/link";
+import { logoutClient } from "@wafrivet/auth";
 
 export function Sidebar() {
   const pathname = usePathname();
@@ -112,7 +113,11 @@ export function Sidebar() {
       </div>
 
       <div className="mt-auto pt-6">
-        <button className="w-full flex items-center justify-center gap-3 p-6 bg-red-50 text-red-600 rounded-[32px] font-black text-[15px] hover:bg-red-100 transition-all active:scale-[0.98]">
+        <button
+          type="button"
+          onClick={() => logoutClient()}
+          className="w-full flex items-center justify-center gap-3 p-6 bg-red-50 text-red-600 rounded-[32px] font-black text-[15px] hover:bg-red-100 transition-all active:scale-[0.98]"
+        >
           <SignOut size={20} weight="bold" /> Sign Out
         </button>
       </div>

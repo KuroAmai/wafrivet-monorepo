@@ -14,6 +14,7 @@ import {
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useState } from "react";
+import { logoutClient } from "@wafrivet/auth";
 
 export default function ProfileLayout({
   children,
@@ -24,9 +25,7 @@ export default function ProfileLayout({
   const pathname = usePathname();
 
   const handleLogout = () => {
-    // Clear mock token
-    document.cookie = "jwt=; path=/; expires=Thu, 01 Jan 1970 00:00:01 GMT;";
-    window.location.href = "/";
+    logoutClient();
   };
 
   const navItems = [

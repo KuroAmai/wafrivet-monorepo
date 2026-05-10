@@ -12,7 +12,6 @@ import {
   Clock,
   DotsThreeVertical,
   X,
-  Activity,
   UserFocus,
   Database
 } from "@phosphor-icons/react";
