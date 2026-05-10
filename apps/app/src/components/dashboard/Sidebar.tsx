@@ -1,37 +1,142 @@
-import Link from "next/link";
-import { House, Wallet, Bell, User } from "@phosphor-icons/react/dist/ssr";
+"use client";
 
-export function Sidebar() {
+import {
+  Bell,
+  CaretRight,
+  Gear,
+  Question,
+  SealCheck,
+  SignOut,
+  User,
+  Wallet,
+  SquaresFour,
+} from "@phosphor-icons/react";
+import Link from "next/link";
+import { usePathname } from "next/navigation";
+import { logoutClient } from "@wafrivet/auth";
+
+export type DashboardSidebarProps = {
+  displayName: string;
+  roleSubtitle: string;
+  avatarSrc: string;
+  ordersCount?: string;
+  rating?: string;
+};
+
+export function Sidebar({
+  displayName,
+  roleSubtitle,
+  avatarSrc,
+  ordersCount = "24",
+  rating = "4.9",
+}: DashboardSidebarProps) {
+  const pathname = usePathname();
+
+  const navItems = [
+    { icon: SquaresFour, label: "Dashboard", href: "/dashboard", color: "text-blue-500", bg: "bg-blue-50" },
+    { icon: Wallet, label: "Wallet", href: "/wallet", color: "text-emerald-500", bg: "bg-emerald-50" },
+    { icon: Bell, label: "Notifications", href: "/notifications", color: "text-orange-500", bg: "bg-orange-50" },
+    { icon: User, label: "Profile", href: "/profile", color: "text-purple-500", bg: "bg-purple-50" },
+  ];
+
   return (
-    <aside className="w-64 bg-white border-r border-gray-200 flex flex-col h-full">
-      <div className="h-16 flex items-center px-6 border-b border-gray-200">
-        <span className="font-bold text-xl text-[#2D4D31] tracking-tight">WAFRIVET</span>
+    <aside className="w-full flex flex-col gap-6">
+      <div className="bg-white p-8 rounded-[40px] border border-gray-100 shadow-sm flex flex-col items-center text-center transition-all hover:border-[#2D4D31]/20">
+        <div className="relative mb-6">
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img src={avatarSrc} className="w-24 h-24 rounded-[32px] border-4 border-white shadow-xl shadow-gray-200/50" alt="" />
+          <div className="absolute -bottom-1 -right-1 w-8 h-8 bg-[#2D4D31] rounded-xl flex items-center justify-center text-white border-2 border-white">
+            <SealCheck size={16} weight="fill" />
+          </div>
+        </div>
+        <h1 className="text-[20px] font-black text-gray-900 tracking-tight mb-1 max-w-full truncate px-1">{displayName}</h1>
+        <p className="text-[12px] text-gray-400 font-bold uppercase tracking-widest mb-6">{roleSubtitle}</p>
+
+        <div className="grid grid-cols-2 gap-4 w-full pt-6 border-t border-gray-50">
+          <div className="text-center">
+            <p className="text-[16px] font-black text-gray-900">{ordersCount}</p>
+            <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Orders</p>
+          </div>
+          <div className="text-center border-l border-gray-50">
+            <p className="text-[16px] font-black text-gray-900">{rating}</p>
+            <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Rating</p>
+          </div>
+        </div>
       </div>
-      
-      <div className="flex-1 overflow-y-auto py-6 px-4">
-        <nav className="space-y-1">
-          <Link href="/dashboard" className="flex items-center gap-3 px-3 py-2.5 bg-[#f0f4f0] text-[#2D4D31] rounded-lg font-medium text-[14px]">
-            <House size={20} weight="fill" /> Dashboard
+
+      <div className="space-y-6 flex-1">
+        <div className="bg-white rounded-[40px] border border-gray-100 shadow-sm overflow-hidden">
+          {navItems.map((item, i) => {
+            const isActive = pathname === item.href;
+            return (
+              <Link
+                key={i}
+                href={item.href}
+                className={`w-full flex items-center justify-between p-5 transition-all border-b border-gray-50 last:border-0 group ${
+                  isActive ? "bg-gray-50" : "hover:bg-gray-50/50"
+                }`}
+              >
+                <div className="flex items-center gap-4">
+                  <div
+                    className={`w-10 h-10 ${item.bg} ${item.color} rounded-xl flex items-center justify-center transition-transform group-hover:scale-110`}
+                  >
+                    <item.icon size={20} weight={isActive ? "fill" : "bold"} />
+                  </div>
+                  <span
+                    className={`font-bold transition-colors ${
+                      isActive ? "text-gray-900" : "text-gray-600 group-hover:text-gray-900"
+                    }`}
+                  >
+                    {item.label}
+                  </span>
+                </div>
+                <CaretRight
+                  size={18}
+                  weight="bold"
+                  className={`transition-all ${
+                    isActive
+                      ? "text-gray-900 translate-x-1"
+                      : "text-gray-300 group-hover:text-gray-900 group-hover:translate-x-1"
+                  }`}
+                />
+              </Link>
+            );
+          })}
+        </div>
+
+        <div className="bg-white rounded-[40px] border border-gray-100 shadow-sm overflow-hidden">
+          <Link
+            href="/profile"
+            className="w-full flex items-center justify-between p-5 hover:bg-gray-50 transition-all border-b border-gray-50 group"
+          >
+            <div className="flex items-center gap-4">
+              <div className="w-10 h-10 bg-gray-50 text-gray-400 rounded-xl flex items-center justify-center group-hover:text-gray-900">
+                <Gear size={20} weight="bold" />
+              </div>
+              <span className="font-bold text-gray-600 group-hover:text-gray-900">Settings</span>
+            </div>
+            <CaretRight size={18} weight="bold" className="text-gray-300 group-hover:text-gray-900 group-hover:translate-x-1 transition-all" />
           </Link>
-          <Link href="/wallet" className="flex items-center gap-3 px-3 py-2.5 text-gray-600 hover:bg-gray-50 hover:text-gray-900 rounded-lg font-medium text-[14px] transition-colors">
-            <Wallet size={20} /> Wallet
+          <Link href="#" className="w-full flex items-center justify-between p-5 hover:bg-gray-50 transition-all group">
+            <div className="flex items-center gap-4">
+              <div className="w-10 h-10 bg-gray-50 text-gray-400 rounded-xl flex items-center justify-center group-hover:text-gray-900">
+                <Question size={20} weight="bold" />
+              </div>
+              <span className="font-bold text-gray-600 group-hover:text-gray-900">Support</span>
+            </div>
+            <CaretRight size={18} weight="bold" className="text-gray-300 group-hover:text-gray-900 group-hover:translate-x-1 transition-all" />
           </Link>
-          <Link href="/notifications" className="flex items-center gap-3 px-3 py-2.5 text-gray-600 hover:bg-gray-50 hover:text-gray-900 rounded-lg font-medium text-[14px] transition-colors">
-            <Bell size={20} /> Notifications
-          </Link>
-          <Link href="/profile" className="flex items-center gap-3 px-3 py-2.5 text-gray-600 hover:bg-gray-50 hover:text-gray-900 rounded-lg font-medium text-[14px] transition-colors">
-            <User size={20} /> Profile
-          </Link>
-        </nav>
+        </div>
       </div>
-      
-      <div className="p-4 border-t border-gray-200">
-        <Link
-          href="/logout"
-          className="block w-full text-left px-3 py-2 text-red-600 hover:bg-red-50 rounded-lg font-medium text-[14px] transition-colors"
+
+      <div className="mt-auto pt-6">
+        <button
+          type="button"
+          onClick={() => logoutClient()}
+          className="w-full flex items-center justify-center gap-3 p-6 bg-red-50 text-red-600 rounded-[32px] font-black text-[15px] hover:bg-red-100 transition-all active:scale-[0.98]"
         >
-          Sign out
-        </Link>
+          <SignOut size={20} weight="bold" /> Sign Out
+        </button>
       </div>
     </aside>
   );
