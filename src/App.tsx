@@ -15,6 +15,7 @@ import InvestorsPage from "./pages/InvestorsPage";
 import TermsPage from "./pages/TermsPage";
 import PrivacyPage from "./pages/PrivacyPage";
 import CookiesPage from "./pages/CookiesPage";
+import ToolsOverviewPage from "./pages/ToolsOverviewPage";
 
 const queryClient = new QueryClient();
 
@@ -32,6 +33,7 @@ const App = () => (
               <Route path="/farmers" element={<FarmersPage />} />
               <Route path="/vets" element={<VetsPage />} />
               <Route path="/suppliers" element={<SuppliersPage />} />
+              <Route path="/tools" element={<ToolsOverviewPage />} />
               <Route path="/investors" element={<InvestorsPage />} />
               <Route path="/terms" element={<TermsPage />} />
               <Route path="/privacy" element={<PrivacyPage />} />

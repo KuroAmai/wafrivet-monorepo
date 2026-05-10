@@ -186,21 +186,21 @@ export const HowItWorksSection = () => {
 
         <div className="flex flex-col sm:flex-row flex-wrap items-center justify-center gap-3 sm:gap-4">
           <Link
-            to="/farmers"
+            to="/tools#farmers"
             className="inline-flex w-full sm:w-auto items-center justify-center gap-2 rounded-full border-2 border-[#2D4D31]/20 bg-white px-6 py-3 text-[15px] font-semibold text-[#111811] hover:border-[#2D4D31]/40 transition-colors"
           >
             See what farmers get
             <ArrowRight className="h-4 w-4" aria-hidden />
           </Link>
           <Link
-            to="/vets"
+            to="/tools#vets"
             className="inline-flex w-full sm:w-auto items-center justify-center gap-2 rounded-full border-2 border-[#2D4D31]/20 bg-white px-6 py-3 text-[15px] font-semibold text-[#111811] hover:border-[#2D4D31]/40 transition-colors"
           >
             See tools for vets
             <ArrowRight className="h-4 w-4" aria-hidden />
           </Link>
           <Link
-            to="/suppliers"
+            to="/tools#suppliers"
             className="inline-flex w-full sm:w-auto items-center justify-center gap-2 rounded-full border-2 border-[#2D4D31]/20 bg-white px-6 py-3 text-[15px] font-semibold text-[#111811] hover:border-[#2D4D31]/40 transition-colors"
           >
             See options for suppliers
