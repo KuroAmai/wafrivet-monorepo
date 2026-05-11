@@ -9,19 +9,17 @@ import { FAQSection } from "@/components/home/FAQSection";
 import { HowItWorksSection } from "@/components/home/HowItWorksSection";
 import { AudienceStripSection } from "@/components/home/AudienceStripSection";
 import { SocialProofSection } from "@/components/home/SocialProofSection";
+import { TeamSection } from "@/components/home/TeamSection";
 import { useEffect } from "react";
 import { useLocation } from "react-router-dom";
+import { scrollToHash } from "@/lib/scrollToHash";
 
 const Index = () => {
   const { hash } = useLocation();
 
   useEffect(() => {
     if (!hash) return;
-    const id = hash.replace("#", "");
-    const el = document.getElementById(id);
-    if (el) {
-      el.scrollIntoView({ behavior: "smooth", block: "start" });
-    }
+    scrollToHash(hash);
   }, [hash]);
 
   return (
@@ -34,6 +32,7 @@ const Index = () => {
       <FarmerSection />
       <AudienceStripSection />
       <SocialProofSection />
+      <TeamSection />
       <PricingSection />
       <CommunitySection />
       <FAQSection />
