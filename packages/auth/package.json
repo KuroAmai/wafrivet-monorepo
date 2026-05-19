@@ -10,6 +10,11 @@
   "scripts": {
     "typecheck": "tsc -p tsconfig.json --noEmit"
   },
+  "dependencies": {
+    "@tanstack/react-query": "^5.83.0",
+    "@wafrivet/api": "*",
+    "@wafrivet/types": "*"
+  },
   "peerDependencies": {
     "next": "^16.2.4",
     "react": "^19.2.0"

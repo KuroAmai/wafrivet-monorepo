@@ -17,6 +17,7 @@ import {
   CaretRight
 } from "@phosphor-icons/react";
 import { cn } from "@/lib/utils";
+import { useAdminUsers } from "@/hooks/useAdminApi";
 
 const USERS_DATA = [
   { id: 1, name: "Emeka Obi", phone: "+234 801 234 5678", role: "Farmer", state: "Lagos", animals: 42, orders: 12, status: "Active", joined: "May 12, 2024" },
@@ -31,8 +32,22 @@ export default function AllUsersPage() {
   const [selectedRole, setSelectedRole] = useState("All Roles");
   const [selectedStatus, setSelectedStatus] = useState("All Status");
   const [selectedState, setSelectedState] = useState("All States");
+  const { data: usersResponse, isError: usersApiError } = useAdminUsers({ limit: 50 });
 
-  const filteredUsers = USERS_DATA.filter(user => {
+  const usersSource =
+    usersResponse?.data?.map((u, i) => ({
+      id: u.id ?? i,
+      name: [u.firstName, u.lastName].filter(Boolean).join(" ") || u.email,
+      phone: u.email,
+      role: u.role,
+      state: "—",
+      animals: 0,
+      orders: 0,
+      status: u.isActive ? "Active" : "Inactive",
+      joined: u.createdAt ? new Date(u.createdAt).toLocaleDateString() : "—",
+    })) ?? USERS_DATA;
+
+  const filteredUsers = usersSource.filter((user) => {
     const matchesSearch = 
       user.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
       user.phone.includes(searchQuery);
@@ -49,6 +64,9 @@ export default function AllUsersPage() {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
+          {usersApiError ? (
+            <p className="text-sm text-amber-700 mb-3">Could not load users from API — showing demo data.</p>
+          ) : null}
           <h1 className="text-[32px] font-black text-gray-900 tracking-tight leading-none mb-3">User Management</h1>
           <p className="text-[11px] text-gray-400 font-bold uppercase tracking-[0.2em]">Manage every account across the Wafrivet ecosystem</p>
         </div>

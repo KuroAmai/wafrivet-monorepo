@@ -1,8 +1,10 @@
 import { WifiHigh, Warning, ArrowsClockwise, Info } from "@phosphor-icons/react";
 import { useState } from "react";
 import { cn } from "@/lib/utils";
+import { useDocumentTitle } from "@/lib/useDocumentTitle";
 
 export default function Scan() {
+  useDocumentTitle("NFC Scanner");
   const [isScanning, setIsScanning] = useState(false);
 
   const startScan = () => {

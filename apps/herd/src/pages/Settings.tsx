@@ -17,8 +17,10 @@ import { cn } from "@/lib/utils";
 import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { logoutClient } from "@wafrivet/auth";
+import { useDocumentTitle } from "@/lib/useDocumentTitle";
 
 export default function Settings() {
+  useDocumentTitle("Settings");
   const [isSyncing, setIsSyncing] = useState(false);
   const [mounted, setMounted] = useState(false);
 

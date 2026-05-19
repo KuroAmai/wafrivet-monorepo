@@ -1,5 +1,6 @@
 import { Link } from "react-router-dom";
 import { BarChart3, ShieldCheck, Truck, BadgeCheck } from "lucide-react";
+import { Seo } from "@/components/seo/Seo";
 
 const CARDS = [
   {
@@ -27,6 +28,20 @@ const CARDS = [
 const SuppliersPage = () => {
   return (
     <div className="flex-1 flex flex-col">
+      <Seo
+        title="Wafrivet for suppliers and distributors"
+        description="Reach verified farms, clinics, and agro-vet outlets with real demand signals. Wafrivet helps veterinary manufacturers and distributors ship smarter, fight counterfeits, and grow in Africa."
+        keywords={[
+          "veterinary distribution Africa",
+          "animal health suppliers",
+          "veterinary marketplace",
+          "anti-counterfeit veterinary",
+          "vaccine distribution",
+          "agro-vet network",
+          "livestock supply chain",
+        ]}
+        path="/suppliers"
+      />
       <section className="relative w-full py-16 md:py-24 px-4 md:px-8 bg-gradient-to-b from-[#F7F9F7] to-background border-b border-black/[0.06]">
         <div className="max-w-3xl mx-auto text-center">
           <h1 className="text-3xl md:text-[2.75rem] font-sans font-medium text-[#111811] leading-[1.1] mb-6">

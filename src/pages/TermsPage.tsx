@@ -1,8 +1,16 @@
 import { Link } from "react-router-dom";
 import { CorporatePageLayout } from "@/components/layout/CorporatePageLayout";
+import { Seo } from "@/components/seo/Seo";
 
 const TermsPage = () => {
   return (
+    <>
+    <Seo
+      title="Terms & Conditions — Wafrivet"
+      description="Read the Wafrivet Terms & Conditions covering acceptable use, account responsibilities, payments, disclaimers, and limitations of liability for the Wafrivet platform."
+      keywords={["Wafrivet terms", "terms and conditions", "user agreement"]}
+      path="/terms"
+    />
     <CorporatePageLayout
       title="Terms & Conditions"
       subtitle="These terms outline the rules and guidelines for using Wafrivet services. Replace the placeholders below with counsel-approved text before launch."
@@ -91,6 +99,7 @@ const TermsPage = () => {
         },
       ]}
     />
+    </>
   );
 };
 

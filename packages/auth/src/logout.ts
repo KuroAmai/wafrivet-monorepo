@@ -24,7 +24,7 @@ export function logoutClient(): void {
     return;
   }
   const expire = "Thu, 01 Jan 1970 00:00:00 GMT";
-  const names = ["jwt", "token"];
+  const names = ["jwt", "token", "access_token"];
   const domains = [".wafrivet.com", "", window.location.hostname];
   for (const name of names) {
     for (const domain of domains) {

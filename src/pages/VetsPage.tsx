@@ -1,5 +1,6 @@
 import { Link } from "react-router-dom";
 import { Radio, Mic2, Package, TrendingUp } from "lucide-react";
+import { Seo } from "@/components/seo/Seo";
 
 const CARDS = [
   {
@@ -27,6 +28,21 @@ const CARDS = [
 const VetsPage = () => {
   return (
     <div className="flex-1 flex flex-col">
+      <Seo
+        title="Wafrivet for vets, paravets and agro-vets"
+        description="A clinical OS for veterinarians, paravets, and agro-vet outlets across Africa — NFC animal records, AI-assisted notes, prescription tools, and a verified veterinary marketplace."
+        keywords={[
+          "Wafrivet for vets",
+          "veterinary software Africa",
+          "AI veterinary assistant",
+          "NFC animal records",
+          "paravet tools",
+          "agro-vet platform",
+          "veterinary prescription",
+          "livestock clinical workflow",
+        ]}
+        path="/vets"
+      />
       <section className="relative w-full py-16 md:py-24 px-4 md:px-8 bg-gradient-to-b from-[#F7F9F7] to-background border-b border-black/[0.06]">
         <div className="max-w-3xl mx-auto text-center">
           <h1 className="text-3xl md:text-[2.75rem] font-sans font-medium text-[#111811] leading-[1.1] mb-6">

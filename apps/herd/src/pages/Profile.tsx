@@ -1,8 +1,10 @@
 import { CaretLeft, Camera, User, Envelope, Phone, Globe, Check } from "@phosphor-icons/react";
 import { Link } from "react-router-dom";
 import { useState } from "react";
+import { useDocumentTitle } from "@/lib/useDocumentTitle";
 
 export default function Profile() {
+  useDocumentTitle("Profile");
   const [isSaving, setIsSaving] = useState(false);
 
   const handleSave = () => {

@@ -2,6 +2,7 @@ import { CaretLeft, Warning, Thermometer, WarningCircle, Heartbeat, CaretRight, 
 import { Link } from "react-router-dom";
 import { cn } from "@/lib/utils";
 import { useState } from "react";
+import { useDocumentTitle } from "@/lib/useDocumentTitle";
 
 const ALERTS = [
   { id: 1, animal: "Bella", tag: "WAF-882", issue: "Elevated Temperature", severity: "Critical", value: "40.2°C", time: "12m ago", icon: Thermometer, color: "text-red-500", bg: "bg-red-50" },
@@ -10,6 +11,7 @@ const ALERTS = [
 ];
 
 export default function HealthAlerts() {
+  useDocumentTitle("Health Alerts");
   const [activeTab, setActiveTab] = useState("Critical");
 
   return (

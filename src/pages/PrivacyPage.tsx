@@ -1,8 +1,16 @@
 import { Link } from "react-router-dom";
 import { CorporatePageLayout } from "@/components/layout/CorporatePageLayout";
+import { Seo } from "@/components/seo/Seo";
 
 const PrivacyPage = () => {
   return (
+    <>
+    <Seo
+      title="Privacy Policy — Wafrivet"
+      description="How Wafrivet collects, uses, retains, and shares personal information. Read about your rights and how to contact us about your data."
+      keywords={["Wafrivet privacy", "privacy policy", "data protection"]}
+      path="/privacy"
+    />
     <CorporatePageLayout
       title="Privacy Policy"
       subtitle="This policy explains how Wafrivet collects, uses, and shares personal information. Replace placeholders with counsel-approved text before launch."
@@ -94,6 +102,7 @@ const PrivacyPage = () => {
         },
       ]}
     />
+    </>
   );
 };
 

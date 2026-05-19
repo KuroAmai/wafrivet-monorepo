@@ -13,6 +13,13 @@ import { TeamSection } from "@/components/home/TeamSection";
 import { useEffect } from "react";
 import { useLocation } from "react-router-dom";
 import { scrollToHash } from "@/lib/scrollToHash";
+import { Seo } from "@/components/seo/Seo";
+import {
+  ORG_JSON_LD,
+  WEBSITE_JSON_LD,
+  SITE_DEFAULT_DESCRIPTION,
+  SITE_DEFAULT_KEYWORDS,
+} from "@/lib/seo/site";
 
 const Index = () => {
   const { hash } = useLocation();
@@ -24,6 +31,13 @@ const Index = () => {
 
   return (
     <div className="min-h-screen bg-background flex flex-col">
+      <Seo
+        title="Wafrivet — Livestock health OS for African farms"
+        description={SITE_DEFAULT_DESCRIPTION}
+        keywords={SITE_DEFAULT_KEYWORDS}
+        path="/"
+        jsonLd={[ORG_JSON_LD, WEBSITE_JSON_LD]}
+      />
       <Hero />
       <Stats />
       <ProblemCarousel />

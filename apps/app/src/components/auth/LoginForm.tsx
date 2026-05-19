@@ -45,13 +45,35 @@ function Field({
 export function LoginForm() {
   const router = useRouter();
   const [showPass, setShowPass] = useState(false);
+  const [apiError, setApiError] = useState<string | null>(null);
   const { register, handleSubmit, formState: { errors, isSubmitting } } = useForm({
     resolver: zodResolver(schema),
   });
 
-  const onSubmit = async () => {
-    await new Promise(r => setTimeout(r, 1200));
-    router.push("/verify");
+  const onSubmit = async (values: z.infer<typeof schema>) => {
+    setApiError(null);
+    const email = values.emailOrPhone.includes("@")
+      ? values.emailOrPhone
+      : `${values.emailOrPhone}@wafrivet.local`;
+
+    const res = await fetch("/api/auth/login", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ email, password: values.password }),
+    });
+
+    const data = await res.json().catch(() => ({}));
+    if (!res.ok) {
+      setApiError(data.message ?? "Sign in failed. Check your credentials.");
+      return;
+    }
+
+    if (typeof document !== "undefined" && data.accessToken) {
+      document.cookie = `jwt=${encodeURIComponent(data.accessToken)}; path=/; max-age=${data.expiresIn ?? 3600}; SameSite=Lax`;
+    }
+
+    router.push("/welcome");
+    router.refresh();
   };
 
   return (
@@ -60,6 +82,12 @@ export function LoginForm() {
         <h1 className="text-[30px] font-semibold text-gray-900 tracking-tight leading-tight">Welcome back</h1>
         <p className="text-[15px] text-gray-500 mt-1.5">Sign in to your Wafrivet account</p>
       </div>
+
+      {apiError ? (
+        <p className="mb-4 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
+          {apiError}
+        </p>
+      ) : null}
 
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
         <Field

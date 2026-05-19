@@ -22,6 +22,7 @@ import {
   CaretRight,
   CaretLeft
 } from "@phosphor-icons/react";
+import { WarRoomLiveStats } from "@/components/admin/WarRoomLiveStats";
 import { 
   BarChart, 
   Bar, 
@@ -114,6 +115,8 @@ export default function AdminDashboard() {
           </button>
         </div>
       </div>
+
+      <WarRoomLiveStats />
 
       {/* Top Stat Cards */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3 gap-8">

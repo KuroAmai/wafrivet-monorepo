@@ -12,6 +12,10 @@
   "dependencies": {
     "@phosphor-icons/react": "^2.1.10",
     "@solar-icons/react": "^1.1.0",
+    "@tanstack/react-query": "^5.83.0",
+    "@wafrivet/api": "*",
+    "@wafrivet/auth": "*",
+    "@wafrivet/types": "*",
     "@wafrivet/ui": "*",
     "clsx": "^2.1.1",
     "framer-motion": "^12.38.0",

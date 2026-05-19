@@ -1,8 +1,16 @@
 import { Link } from "react-router-dom";
 import { CorporatePageLayout } from "@/components/layout/CorporatePageLayout";
+import { Seo } from "@/components/seo/Seo";
 
 const CookiesPage = () => {
   return (
+    <>
+    <Seo
+      title="Cookie Policy — Wafrivet"
+      description="How Wafrivet uses cookies and similar technologies for essential functionality, preferences, and analytics — plus how to manage cookies in your browser."
+      keywords={["Wafrivet cookies", "cookie policy", "cookie management"]}
+      path="/cookies"
+    />
     <CorporatePageLayout
       title="Cookie Policy"
       subtitle="This policy explains how cookies and similar technologies are used on Wafrivet sites and services. Replace placeholders with final policy text before launch."
@@ -71,6 +79,7 @@ const CookiesPage = () => {
         },
       ]}
     />
+    </>
   );
 };
 

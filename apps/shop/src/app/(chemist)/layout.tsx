@@ -1,9 +1,23 @@
+import type { Metadata } from "next";
 import { getServerAuth } from "@wafrivet/auth/server";
 import { Sidebar } from "@/components/chemist/Sidebar";
 import { ChemistNavbar } from "@/components/chemist/ChemistNavbar";
 
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
+
+export const metadata: Metadata = {
+  title: {
+    default: "Chemist Console",
+    template: "%s | Chemist | Wafrivet Shop",
+  },
+  robots: {
+    index: false,
+    follow: false,
+    nocache: true,
+    googleBot: { index: false, follow: false },
+  },
+};
 
 export default async function ChemistLayout({ children }: { children: React.ReactNode }) {
   let auth;

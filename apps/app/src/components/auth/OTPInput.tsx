@@ -52,12 +52,19 @@ export function OTPInput() {
 
   const handleVerify = async (code: string) => {
     setIsVerifying(true);
-    await new Promise(r => setTimeout(r, 1200));
-    // Mock success — set a dummy cookie and redirect to Shop
-    document.cookie = "jwt=mock-token; path=/; domain=.wafrivet.com; max-age=3600";
-    document.cookie = "jwt=mock-token; path=/; max-age=3600"; // Fallback for local dev
+    await new Promise((r) => setTimeout(r, 800));
 
-    window.location.href = "/welcome";
+    const mockEnabled =
+      process.env.NEXT_PUBLIC_ENABLE_MOCK_AUTH === "true";
+
+    if (mockEnabled) {
+      document.cookie = "jwt=mock-token; path=/; max-age=3600";
+      window.location.href = "/welcome";
+      return;
+    }
+
+    router.push("/welcome");
+    router.refresh();
   };
 
   const code = digits.join("");

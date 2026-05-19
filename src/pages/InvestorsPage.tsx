@@ -1,7 +1,22 @@
 import { CorporatePageLayout } from "@/components/layout/CorporatePageLayout";
+import { Seo } from "@/components/seo/Seo";
 
 const InvestorsPage = () => {
   return (
+    <>
+    <Seo
+      title="Investor relations — Wafrivet"
+      description="Wafrivet combines smart hardware, AI, and a verified B2B veterinary marketplace into one platform upgrading livestock health outcomes across Africa — with a defensible data moat."
+      keywords={[
+        "Wafrivet investors",
+        "Africa agritech",
+        "livestock health investment",
+        "veterinary platform funding",
+        "AI animal health",
+        "agritech series A",
+      ]}
+      path="/investors"
+    />
     <CorporatePageLayout
       title="Investor Relations"
       subtitle="Wafrivet combines hardware, AI, and a B2B marketplace into a single platform that can upgrade livestock health outcomes across Africa and beyond — while creating a defensible data moat."
@@ -111,6 +126,7 @@ const InvestorsPage = () => {
         },
       ]}
     />
+    </>
   );
 };
 

@@ -1,18 +1,63 @@
-"use client";
+import type { Metadata } from "next";
+import RidersClient from "./RidersClient";
+import { SITE } from "../../lib/seo/site";
+import {
+  JsonLd,
+  breadcrumbSchema,
+  webPageSchema,
+} from "../../lib/seo/jsonLd";
 
-import { Navbar } from "@/components/layout/Navbar";
-import { SiteFooter } from "@/components/layout/SiteFooter";
-import ComingSoon from "@/pages/ComingSoon";
+const PATH = "/riders";
+const TITLE = "Riders & logistics partners";
+const DESCRIPTION =
+  "Deliver life-saving veterinary medicines to the last mile and get paid reliably. Join the Wafrivet logistics network — predictable rural routes, transparent payouts, and clear onboarding.";
+
+export const metadata: Metadata = {
+  title: TITLE,
+  description: DESCRIPTION,
+  keywords: [
+    ...SITE.defaultKeywords,
+    "veterinary delivery",
+    "rural logistics",
+    "last-mile veterinary",
+    "rider partners Africa",
+    "agro-vet logistics",
+  ],
+  alternates: { canonical: PATH },
+  openGraph: {
+    type: "website",
+    url: PATH,
+    title: TITLE,
+    description: DESCRIPTION,
+    siteName: SITE.name,
+    locale: SITE.locale,
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: TITLE,
+    description: DESCRIPTION,
+  },
+};
 
 export default function Page() {
   return (
-    <div className="max-w-[1440px] mx-auto min-h-screen relative w-full shadow-2xl bg-background flex flex-col">
-      <Navbar />
-      <main className="flex-1 flex flex-col">
-        <ComingSoon />
-      </main>
-      <SiteFooter />
-    </div>
+    <>
+      <JsonLd
+        id="ld-riders-webpage"
+        data={webPageSchema({
+          name: TITLE,
+          description: DESCRIPTION,
+          path: PATH,
+        })}
+      />
+      <JsonLd
+        id="ld-riders-breadcrumb"
+        data={breadcrumbSchema([
+          { name: "Home", path: "/" },
+          { name: "Riders", path: PATH },
+        ])}
+      />
+      <RidersClient />
+    </>
   );
 }
-

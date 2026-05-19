@@ -1,5 +1,6 @@
 import { Link } from "react-router-dom";
 import { Sprout, Pill, Scan, Smartphone } from "lucide-react";
+import { Seo } from "@/components/seo/Seo";
 
 const BENEFITS = [
   {
@@ -27,6 +28,21 @@ const BENEFITS = [
 const FarmersPage = () => {
   return (
     <div className="flex-1 flex flex-col">
+      <Seo
+        title="Wafrivet for farmers — Early disease alerts and real medicines"
+        description="Wafrivet helps livestock farmers in Africa catch disease early, order genuine vaccines and medicines, and keep one trusted health history per animal — even on a basic phone."
+        keywords={[
+          "Wafrivet for farmers",
+          "livestock farming Africa",
+          "early disease detection",
+          "animal health alerts",
+          "veterinary medicines delivery",
+          "smart livestock tags",
+          "feature phone farming",
+          "USSD farm tools",
+        ]}
+        path="/farmers"
+      />
       <section className="relative w-full py-16 md:py-24 px-4 md:px-8 bg-gradient-to-b from-[#F7F9F7] to-background border-b border-black/[0.06]">
         <div className="max-w-3xl mx-auto text-center">
           <h1 className="text-3xl md:text-[2.75rem] font-sans font-medium text-[#111811] leading-[1.1] mb-6">

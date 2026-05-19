@@ -1,5 +1,6 @@
 import { CaretLeft, ClockCounterClockwise, Cow, MapPin, Tag, Brain, MagnifyingGlass } from "@phosphor-icons/react";
 import { Link } from "react-router-dom";
+import { useDocumentTitle } from "@/lib/useDocumentTitle";
 
 const HISTORY_GROUPS = [
   {
@@ -20,6 +21,7 @@ const HISTORY_GROUPS = [
 ];
 
 export default function History() {
+  useDocumentTitle("Activity History");
   return (
     <div className="min-h-screen bg-[#F9FAFB] pb-32 animate-in fade-in slide-in-from-right-4 duration-500">
       {/* Header */}

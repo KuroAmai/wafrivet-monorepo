@@ -1,6 +1,13 @@
 import { Link, useLocation } from "react-router-dom";
 import type { ReactNode } from "react";
 import { CorporatePageLayout } from "@/components/layout/CorporatePageLayout";
+import { Seo } from "@/components/seo/Seo";
+
+type SeoMeta = {
+  title: string;
+  description: string;
+  keywords: ReadonlyArray<string>;
+};
 
 type PageDef = {
   title: string;
@@ -8,6 +15,7 @@ type PageDef = {
   sections: Array<{ id: string; label: string; content: ReactNode }>;
   primaryCta?: { label: string; href: string };
   heroImageUrl?: string;
+  seo: SeoMeta;
 };
 
 const PAGES: Record<string, PageDef> = {
@@ -84,6 +92,18 @@ const PAGES: Record<string, PageDef> = {
     primaryCta: { label: "Join the referral program", href: "mailto:hello@wafrivet.com?subject=Referral%20program%20interest" },
     heroImageUrl:
       "https://media.istockphoto.com/id/1297176679/photo/young-farmer-with-his-herd-of-livestock-in-the-field.jpg?s=612x612&w=0&k=20&c=Jni6qtAl9W5MLn-XU6-d5zFAQjxh3rzFzLAlsLjMmrs=",
+    seo: {
+      title: "Referral & creator program — Wafrivet",
+      description:
+        "Earn as you help farmers and vets discover Wafrivet. Join the referral and creator program for influencers, vets, agro-dealers, and partner organizations.",
+      keywords: [
+        "Wafrivet referral",
+        "creator program",
+        "agritech referral",
+        "veterinary partner program",
+        "farmer affiliate",
+      ],
+    },
   },
   "/riders": {
     title: "Riders & logistics partners",
@@ -141,6 +161,18 @@ const PAGES: Record<string, PageDef> = {
     primaryCta: { label: "Become a partner", href: "mailto:hello@wafrivet.com?subject=Logistics%20partner%20interest" },
     heroImageUrl:
       "https://media.istockphoto.com/id/2165464510/photo/two-multiracial-men-in-lumberyard-with-clipboards-truck.jpg?s=612x612&w=0&k=20&c=ajxzEciAjau3XdocYruN0-mG8t0aI4T_H_F_axToySw=",
+    seo: {
+      title: "Riders & logistics partners — Wafrivet",
+      description:
+        "Deliver veterinary medicines to the last mile and get paid reliably. Join the Wafrivet logistics network with clustered routes, transparent payouts, and rural delivery support.",
+      keywords: [
+        "Wafrivet riders",
+        "veterinary last mile",
+        "rural delivery Africa",
+        "logistics partner",
+        "motorcycle delivery",
+      ],
+    },
   },
   "/careers": {
     title: "Careers",
@@ -222,6 +254,18 @@ const PAGES: Record<string, PageDef> = {
     primaryCta: { label: "View open roles", href: "mailto:hello@wafrivet.com?subject=Open%20roles" },
     heroImageUrl:
       "https://media.istockphoto.com/id/1297011397/photo/smiling-man-and-woman-standing-with-cow-at-farm.jpg?s=612x612&w=0&k=20&c=nCNMs-foOssMKorZc00XrOsbLCDwld-lSAtyxiIWy_k=",
+    seo: {
+      title: "Careers — Wafrivet",
+      description:
+        "Help build the OS for livestock health in Africa. Wafrivet is hiring engineers, vets, designers, and operators rethinking how animal health works from the ground up.",
+      keywords: [
+        "Wafrivet careers",
+        "agritech jobs",
+        "Africa startup jobs",
+        "veterinary product roles",
+        "remote agritech",
+      ],
+    },
   },
 };
 
@@ -232,6 +276,12 @@ const ComingSoon = () => {
   if (!def) {
     return (
       <div className="flex-1 px-4 md:px-8 py-16 md:py-24 max-w-2xl mx-auto">
+        <Seo
+          title="Coming soon — Wafrivet"
+          description="This Wafrivet page is on the way. In the meantime, explore the platform or get in touch with our team."
+          path={pathname || "/coming-soon"}
+          noindex
+        />
         <h1 className="text-3xl font-medium text-[#111811] mb-6">Page</h1>
         <p className="text-[#111811]/70 leading-relaxed mb-8">This page is not available.</p>
         <Link to="/" className="text-[15px] font-semibold text-[#2D4D31] hover:underline underline-offset-4">
@@ -242,6 +292,13 @@ const ComingSoon = () => {
   }
 
   return (
+    <>
+    <Seo
+      title={def.seo.title}
+      description={def.seo.description}
+      keywords={def.seo.keywords}
+      path={pathname}
+    />
     <CorporatePageLayout
       title={def.title}
       subtitle={def.subtitle}
@@ -278,6 +335,7 @@ const ComingSoon = () => {
         },
       ]}
     />
+    </>
   );
 };
 

@@ -105,7 +105,7 @@ const TrackIcon = ({
           >
             <div className={`absolute top-[10%] left-[15%] w-[35%] h-[12%] bg-gradient-to-r from-white/60 to-transparent rounded-full blur-[1px] -rotate-[35deg] pointer-events-none transition-all duration-500 ${(isActive || isHovered) ? 'opacity-0 scale-125' : 'opacity-100'}`} />
             <div className={`absolute inset-[2px] rounded-full border-[1.5px] border-white/20 pointer-events-none transition-opacity duration-500 ${(isActive || isHovered) ? 'opacity-0' : 'opacity-100'}`} />
-            <img src={item.src} className={`w-full h-full object-contain drop-shadow-[0_15px_25px_rgba(0,0,0,0.2)] relative z-10 transition-transform duration-500 ${(isActive || isHovered) ? 'scale-150' : 'scale-100'}`} />
+            <img src={item.src} alt={item.title} className={`w-full h-full object-contain drop-shadow-[0_15px_25px_rgba(0,0,0,0.2)] relative z-10 transition-transform duration-500 ${(isActive || isHovered) ? 'scale-150' : 'scale-100'}`} />
             <div className={`absolute inset-0 bg-gradient-to-tr from-transparent via-white/5 to-white/10 rounded-full pointer-events-none transition-opacity duration-500 ${(isActive || isHovered) ? 'opacity-0' : 'opacity-100'}`} />
             <div className={`absolute inset-0 rounded-full bg-gradient-to-tr from-[#2D4D31]/10 via-transparent to-white/20 mix-blend-overlay pointer-events-none transition-opacity duration-500 ${(isActive || isHovered) ? 'opacity-0' : 'opacity-40'}`} />
           </div>

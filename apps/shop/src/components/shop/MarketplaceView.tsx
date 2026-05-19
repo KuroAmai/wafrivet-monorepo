@@ -11,6 +11,8 @@ import {
   PawPrint
 } from "@phosphor-icons/react";
 import { useState, useEffect } from "react";
+import { getAccessToken } from "@wafrivet/api";
+import { useCatalog } from "@/hooks/useShopApi";
 
 const ANIMALS = ["Cattle", "Poultry", "Pigs", "Goats", "Sheep"];
 
@@ -18,9 +20,10 @@ export function MarketplaceView() {
   const [search, setSearch] = useState("");
   const [isLoggedIn, setIsLoggedIn] = useState(false);
 
+  const { data: catalogItems } = useCatalog(search);
+
   useEffect(() => {
-    const hasToken = typeof document !== 'undefined' && document.cookie.includes("jwt=mock-token");
-    setIsLoggedIn(hasToken);
+    setIsLoggedIn(Boolean(getAccessToken()));
   }, []);
 
   const handleProtectedAction = (e: React.MouseEvent) => {
@@ -119,11 +122,24 @@ export function MarketplaceView() {
           </div>
           
           <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-4 sm:gap-8">
-            <ProductCard id="1" name="Oxytetracycline 20%" price="6,500" category="Antibiotics" image="https://images.unsplash.com/photo-1584308666744-24d5c474f2ae?auto=format&fit=crop&q=80&w=400" stock={3} coldChain />
-            <ProductCard id="2" name="Ivermectin 1%" price="4,200" category="Dewormers" image="https://images.unsplash.com/photo-1516467508483-a7212febe31a?auto=format&fit=crop&q=80&w=400" stock={12} />
-            <ProductCard id="3" name="Digital Ear Tags (x50)" price="18,000" category="Equipment" image="https://images.unsplash.com/photo-1595079676339-1534801ad6cf?auto=format&fit=crop&q=80&w=400" stock={25} />
-            <ProductCard id="4" name="Automatic Syringe" price="12,500" category="Equipment" image="https://images.unsplash.com/photo-1583337130417-3346a1be7dee?auto=format&fit=crop&q=80&w=400" stock={2} />
-            <ProductCard id="5" name="Multivitamin Injection" price="3,800" category="Supplements" image="https://images.unsplash.com/photo-1584308666744-24d5c474f2ae?auto=format&fit=crop&q=80&w=400" stock={8} />
+            {(catalogItems?.length ? catalogItems : []).slice(0, 12).map((item) => (
+              <ProductCard
+                key={item.id}
+                id={item.id}
+                name={item.name}
+                price="—"
+                category={item.dosageForm ?? "Catalog"}
+                image="https://images.unsplash.com/photo-1584308666744-24d5c474f2ae?auto=format&fit=crop&q=80&w=400"
+                stock={10}
+                coldChain={item.requiresColdChain}
+              />
+            ))}
+            {!catalogItems?.length ? (
+              <>
+                <ProductCard id="1" name="Oxytetracycline 20%" price="6,500" category="Antibiotics" image="https://images.unsplash.com/photo-1584308666744-24d5c474f2ae?auto=format&fit=crop&q=80&w=400" stock={3} coldChain />
+                <ProductCard id="2" name="Ivermectin 1%" price="4,200" category="Dewormers" image="https://images.unsplash.com/photo-1516467508483-a7212febe31a?auto=format&fit=crop&q=80&w=400" stock={12} />
+              </>
+            ) : null}
           </div>
         </section>
       </main>

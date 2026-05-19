@@ -1,9 +1,23 @@
+import type { Metadata } from "next";
 import { getServerAuth } from "@wafrivet/auth/server";
 import { Sidebar } from "@/components/distributor/Sidebar";
 import { TopBar } from "@/components/distributor/TopBar";
 
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
+
+export const metadata: Metadata = {
+  title: {
+    default: "Distributor Console",
+    template: "%s | Distributor | Wafrivet Shop",
+  },
+  robots: {
+    index: false,
+    follow: false,
+    nocache: true,
+    googleBot: { index: false, follow: false },
+  },
+};
 
 export default async function DistributorLayout({ children }: { children: React.ReactNode }) {
   let auth;

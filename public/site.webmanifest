@@ -1,0 +1,26 @@
+{
+  "name": "Wafrivet",
+  "short_name": "Wafrivet",
+  "description": "Wafrivet is the all-in-one livestock health OS for African farms — smart NFC tags, AI diagnostics, and a verified veterinary marketplace.",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#FFFFFF",
+  "theme_color": "#2D4D31",
+  "lang": "en",
+  "dir": "ltr",
+  "icons": [
+    {
+      "src": "/logo-mark.svg",
+      "type": "image/svg+xml",
+      "sizes": "any",
+      "purpose": "any"
+    },
+    {
+      "src": "/logo-mark-white.svg",
+      "type": "image/svg+xml",
+      "sizes": "any",
+      "purpose": "maskable"
+    }
+  ]
+}

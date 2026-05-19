@@ -40,7 +40,7 @@ export const Hero = () => {
 
           <img
             src="/heroimage.png"
-            alt="Livestock cows in a field"
+            alt="Herd of healthy cattle grazing in a green African pasture — Wafrivet livestock health platform"
             className="absolute inset-0 w-full h-full object-cover object-[center_30%]"
             loading="eager"
           />

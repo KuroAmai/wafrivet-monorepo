@@ -1,7 +1,9 @@
 import { Sparkle, MagnifyingGlass, CaretRight, Heartbeat, ChartLineUp, Brain } from "@phosphor-icons/react";
 import { Link } from "react-router-dom";
+import { useDocumentTitle } from "@/lib/useDocumentTitle";
 
 export default function AIList() {
+  useDocumentTitle("Intelligence");
   return (
     <div className="flex flex-col h-full animate-in fade-in slide-in-from-bottom-4 duration-700">
       {/* Header Area */}

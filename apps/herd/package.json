@@ -11,7 +11,10 @@
     "typecheck": "tsc -p tsconfig.json --noEmit"
   },
   "dependencies": {
+    "@tanstack/react-query": "^5.83.0",
+    "@wafrivet/api": "*",
     "@wafrivet/auth": "*",
+    "@wafrivet/types": "*",
     "react": "^19.2.0",
     "react-dom": "^19.2.0",
     "react-router-dom": "^6.30.1",

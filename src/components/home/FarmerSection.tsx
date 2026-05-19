@@ -128,7 +128,7 @@ export const FarmerSection = () => {
               <img
                 key={index}
                 src={step.image}
-                alt={step.label}
+                alt={`${step.label} — ${step.heading}`}
                 className={`absolute inset-0 w-full h-full object-cover transition-all duration-700 ease-[cubic-bezier(0.25,0.8,0.25,1)] ${index === activeIndex
                   ? "opacity-100 scale-100"
                   : "opacity-0 scale-[1.03]"

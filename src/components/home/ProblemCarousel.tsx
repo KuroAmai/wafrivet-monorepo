@@ -101,7 +101,7 @@ export const ProblemCarousel = () => {
                   {/* Image */}
                   <img
                     src={card.image}
-                    alt={card.label}
+                    alt={`${card.label} — ${card.sublabel}`}
                     className={`absolute inset-0 w-full h-full object-cover transition-transform duration-700 ${isActive ? "scale-100" : "scale-110"
                       }`}
                     style={{

@@ -2,6 +2,7 @@ import { MagnifyingGlass, ClockCounterClockwise, Cow, Horse, Tag, Identification
 import { Link } from "react-router-dom";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
+import { useDocumentTitle } from "@/lib/useDocumentTitle";
 
 const RECENT_SEARCHES = [
   { id: "WAF-882", name: "Bella", type: "Bovine", icon: Cow },
@@ -11,6 +12,7 @@ const RECENT_SEARCHES = [
 ];
 
 export default function Dashboard() {
+  useDocumentTitle();
   return (
     <div className="space-y-10 py-6 animate-in fade-in duration-700 pb-32">
       {/* Personalized Greeting */}

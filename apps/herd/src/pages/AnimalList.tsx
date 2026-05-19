@@ -1,7 +1,9 @@
 import { CaretLeft, MagnifyingGlass, Cow, Horse, Tag, CaretRight, Plus, Funnel } from "@phosphor-icons/react";
 import { Link } from "react-router-dom";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { cn } from "@/lib/utils";
+import { useDocumentTitle } from "@/lib/useDocumentTitle";
+import { useAnimals } from "@/hooks/useHerdApi";
 
 const ALL_ANIMALS = [
   { id: "WAF-882", name: "Bella", breed: "Holstein", type: "Bovine", status: "Healthy", icon: Cow },
@@ -13,10 +15,26 @@ const ALL_ANIMALS = [
 ];
 
 export default function AnimalList() {
+  useDocumentTitle("Animals");
   const [search, setSearch] = useState("");
   const [filter, setFilter] = useState("All");
+  const { data: apiAnimals } = useAnimals();
 
-  const filteredAnimals = ALL_ANIMALS.filter(animal => {
+  const animals = useMemo(() => {
+    if (apiAnimals?.length) {
+      return apiAnimals.map((a) => ({
+        id: a.wafId ?? a.animalUid,
+        name: a.name ?? "Unknown",
+        breed: a.breed ?? "—",
+        type: a.species ?? "Livestock",
+        status: a.status ?? "Healthy",
+        icon: Cow,
+      }));
+    }
+    return ALL_ANIMALS;
+  }, [apiAnimals]);
+
+  const filteredAnimals = animals.filter((animal) => {
     const matchesSearch = animal.name.toLowerCase().includes(search.toLowerCase()) || 
                          animal.id.toLowerCase().includes(search.toLowerCase());
     const matchesFilter = filter === "All" || animal.type === filter;

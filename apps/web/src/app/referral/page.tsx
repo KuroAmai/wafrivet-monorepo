@@ -1,18 +1,62 @@
-"use client";
+import type { Metadata } from "next";
+import ReferralClient from "./ReferralClient";
+import { SITE } from "../../lib/seo/site";
+import {
+  JsonLd,
+  breadcrumbSchema,
+  webPageSchema,
+} from "../../lib/seo/jsonLd";
 
-import { Navbar } from "@/components/layout/Navbar";
-import { SiteFooter } from "@/components/layout/SiteFooter";
-import ComingSoon from "@/pages/ComingSoon";
+const PATH = "/referral";
+const TITLE = "Referral & creator program";
+const DESCRIPTION =
+  "Help farmers and vets discover Wafrivet — and earn as you do it. A simple referral and creator program with clear tiers, transparent payouts, and tracking links for every farm, clinic, or supplier you bring on.";
+
+export const metadata: Metadata = {
+  title: TITLE,
+  description: DESCRIPTION,
+  keywords: [
+    ...SITE.defaultKeywords,
+    "Wafrivet referral",
+    "creator program",
+    "agritech affiliates",
+    "veterinary creator program",
+  ],
+  alternates: { canonical: PATH },
+  openGraph: {
+    type: "website",
+    url: PATH,
+    title: TITLE,
+    description: DESCRIPTION,
+    siteName: SITE.name,
+    locale: SITE.locale,
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: TITLE,
+    description: DESCRIPTION,
+  },
+};
 
 export default function Page() {
   return (
-    <div className="max-w-[1440px] mx-auto min-h-screen relative w-full shadow-2xl bg-background flex flex-col">
-      <Navbar />
-      <main className="flex-1 flex flex-col">
-        <ComingSoon />
-      </main>
-      <SiteFooter />
-    </div>
+    <>
+      <JsonLd
+        id="ld-referral-webpage"
+        data={webPageSchema({
+          name: TITLE,
+          description: DESCRIPTION,
+          path: PATH,
+        })}
+      />
+      <JsonLd
+        id="ld-referral-breadcrumb"
+        data={breadcrumbSchema([
+          { name: "Home", path: "/" },
+          { name: "Referral", path: PATH },
+        ])}
+      />
+      <ReferralClient />
+    </>
   );
 }
-

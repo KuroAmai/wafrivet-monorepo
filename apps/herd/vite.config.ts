@@ -12,6 +12,15 @@ export default defineConfig({
   server: {
     host: "::",
     port: 3002,
+    proxy: {
+      "/api/gateway": {
+        target:
+          process.env.VITE_API_URL ??
+          "https://wafrivet-api-gateway-wdvfp4toqa-ew.a.run.app",
+        changeOrigin: true,
+        rewrite: (path) => path.replace(/^\/api\/gateway/, ""),
+      },
+    },
   },
   plugins: [
     react(),

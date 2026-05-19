@@ -2,6 +2,7 @@ import { Link, useLocation } from "react-router-dom";
 import { ArrowRight } from "lucide-react";
 import { useEffect } from "react";
 import { scrollToHash } from "@/lib/scrollToHash";
+import { Seo } from "@/components/seo/Seo";
 
 const pillClass =
   "inline-flex w-full sm:w-auto items-center justify-center gap-2 rounded-full border-2 border-[#2D4D31]/20 bg-white px-5 py-3 text-sm font-semibold text-[#2D4D31] hover:bg-[#F7F9F7] transition-colors active:scale-[0.98]";
@@ -16,6 +17,20 @@ const ToolsOverviewPage = () => {
 
   return (
     <div className="flex-1 flex flex-col">
+      <Seo
+        title="Wafrivet platform tools — Herd, Shop and Wafrivet App"
+        description="See how Wafrivet's tools work together for farmers, vets, agro-vets, and suppliers — NFC animal records, AI diagnostics, a verified veterinary marketplace, and multi-channel access."
+        keywords={[
+          "Wafrivet tools",
+          "Wafrivet Herd",
+          "Wafrivet Shop",
+          "livestock OS",
+          "NFC livestock platform",
+          "veterinary tools",
+          "agritech platform",
+        ]}
+        path="/tools"
+      />
       <section className="relative w-full py-16 md:py-20 px-4 md:px-8 bg-gradient-to-b from-[#F7F9F7] to-background border-b border-black/[0.06]">
         <div className="max-w-[1100px] mx-auto">
           <p className="text-center text-sm font-semibold uppercase tracking-wider text-[#2D4D31]/90 mb-4">Platform overview</p>

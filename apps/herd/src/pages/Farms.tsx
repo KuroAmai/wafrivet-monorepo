@@ -1,6 +1,8 @@
 import { CaretLeft, MapPin, Plus, ArrowsClockwise, DotsThreeVertical, ArrowSquareOut, MapTrifold } from "@phosphor-icons/react";
 import { Link } from "react-router-dom";
 import { cn } from "@/lib/utils";
+import { useDocumentTitle } from "@/lib/useDocumentTitle";
+import { useFarms } from "@/hooks/useHerdApi";
 
 const FARMS = [
   { name: "Lekki Dairy Central", location: "Lagos, NG", animals: 124, status: "Active" },
@@ -9,6 +11,16 @@ const FARMS = [
 ];
 
 export default function Farms() {
+  useDocumentTitle("Managed Farms");
+  const { data: apiFarms } = useFarms();
+  const farms =
+    apiFarms?.map((f) => ({
+      name: f.name,
+      location: f.location ?? "—",
+      animals: f.animalCount ?? 0,
+      status: "Active",
+    })) ?? FARMS;
+
   return (
     <div className="min-h-screen bg-[#F9FAFB] pb-32 animate-in fade-in slide-in-from-right-4 duration-500">
       {/* Sub Header */}
@@ -45,7 +57,7 @@ export default function Farms() {
            </div>
            
            <div className="space-y-4">
-              {FARMS.map((farm, idx) => (
+              {farms.map((farm, idx) => (
                 <div key={idx} className="bg-white p-6 rounded-[40px] border border-gray-100 shadow-sm group hover:border-[#2D4D31]/10 transition-all">
                    <div className="flex items-center justify-between mb-6">
                       <div className="flex items-center gap-4">
