@@ -22,6 +22,9 @@ const fallback: AuthState = {
   logout: async () => {
     throw new Error("AuthProvider is required for logout");
   },
+  refreshUser: async () => {
+    throw new Error("AuthProvider is required for refreshUser");
+  },
 };
 
 export function useAuth(): AuthState {
