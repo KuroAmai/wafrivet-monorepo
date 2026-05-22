@@ -35,6 +35,11 @@ export function TopBar() {
 
           {/* Action Cluster */}
           <div className="flex items-center gap-2">
+            {!isOnline ? (
+              <span className="text-[10px] font-black uppercase tracking-widest text-amber-600 px-2">
+                Offline
+              </span>
+            ) : null}
             <button 
               onClick={() => setIsNotificationsOpen(true)}
               className="relative p-2.5 text-gray-400 hover:bg-white hover:text-gray-900 rounded-2xl transition-all active:scale-90"

@@ -1,4 +1,4 @@
-import { Sparkle, MagnifyingGlass, CaretRight, Heartbeat, ChartLineUp, Brain } from "@phosphor-icons/react";
+import { MagnifyingGlass, CaretRight, Heartbeat, ChartLineUp, Brain } from "@phosphor-icons/react";
 import { Link } from "react-router-dom";
 import { useDocumentTitle } from "@/lib/useDocumentTitle";
 

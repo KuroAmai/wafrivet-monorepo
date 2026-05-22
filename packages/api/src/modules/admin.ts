@@ -40,3 +40,13 @@ export async function updateOrderStatus(
   const { data } = await apiClient.patch(`/admin/orders/${orderId}/status`, body);
   return data;
 }
+
+export async function listAdminCatalog(params?: { limit?: number; cursor?: string }) {
+  const { data } = await apiClient.get("/admin/catalog", { params });
+  return data;
+}
+
+export async function listOversightSuppliers(params?: { limit?: number; cursor?: string }) {
+  const { data } = await apiClient.get("/admin/oversight/suppliers", { params });
+  return data;
+}

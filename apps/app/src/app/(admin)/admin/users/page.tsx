@@ -17,6 +17,8 @@ import {
   CaretRight
 } from "@phosphor-icons/react";
 import { cn } from "@/lib/utils";
+import { isMockDataEnabled } from "@wafrivet/api";
+import { ApiQueryFeedback } from "@wafrivet/ui";
 import { useAdminUsers } from "@/hooks/useAdminApi";
 
 const USERS_DATA = [
@@ -32,11 +34,17 @@ export default function AllUsersPage() {
   const [selectedRole, setSelectedRole] = useState("All Roles");
   const [selectedStatus, setSelectedStatus] = useState("All Status");
   const [selectedState, setSelectedState] = useState("All States");
-  const { data: usersResponse, isError: usersApiError } = useAdminUsers({ limit: 50 });
+  const {
+    data: usersResponse,
+    isError: usersApiError,
+    isLoading: usersLoading,
+    error: usersError,
+    refetch: refetchUsers,
+  } = useAdminUsers({ limit: 50 });
 
-  const usersSource =
+  const apiUsers =
     usersResponse?.data?.map((u, i) => ({
-      id: u.id ?? i,
+      id: u.id ?? String(i),
       name: [u.firstName, u.lastName].filter(Boolean).join(" ") || u.email,
       phone: u.email,
       role: u.role,
@@ -45,7 +53,14 @@ export default function AllUsersPage() {
       orders: 0,
       status: u.isActive ? "Active" : "Inactive",
       joined: u.createdAt ? new Date(u.createdAt).toLocaleDateString() : "—",
-    })) ?? USERS_DATA;
+    })) ?? [];
+
+  const usersSource =
+    apiUsers.length > 0
+      ? apiUsers
+      : usersApiError && isMockDataEnabled()
+        ? USERS_DATA
+        : apiUsers;
 
   const filteredUsers = usersSource.filter((user) => {
     const matchesSearch = 
@@ -64,9 +79,6 @@ export default function AllUsersPage() {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          {usersApiError ? (
-            <p className="text-sm text-amber-700 mb-3">Could not load users from API — showing demo data.</p>
-          ) : null}
           <h1 className="text-[32px] font-black text-gray-900 tracking-tight leading-none mb-3">User Management</h1>
           <p className="text-[11px] text-gray-400 font-bold uppercase tracking-[0.2em]">Manage every account across the Wafrivet ecosystem</p>
         </div>
@@ -151,6 +163,17 @@ export default function AllUsersPage() {
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-50">
+              <tr>
+                <td colSpan={8} className="p-0 border-none">
+                  <ApiQueryFeedback
+                    isLoading={usersLoading}
+                    isError={usersApiError && !isMockDataEnabled()}
+                    errorMessage={(usersError as Error)?.message}
+                    isEmpty={!usersLoading && !usersApiError && filteredUsers.length === 0}
+                    onRetry={() => refetchUsers()}
+                  />
+                </td>
+              </tr>
               {filteredUsers.map((user) => (
                 <tr key={user.id} className="group hover:bg-gray-50/30 transition-all">
                   <td className="px-5 py-5">

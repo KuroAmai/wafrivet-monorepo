@@ -22,3 +22,11 @@ export function useAnimal(animalUid: string) {
     enabled: Boolean(animalUid),
   });
 }
+
+export function useAiContext(animalUid: string) {
+  return useQuery({
+    queryKey: ["herd", "ai-context", animalUid] as const,
+    queryFn: () => herdApi.postAiContext(animalUid),
+    enabled: Boolean(animalUid),
+  });
+}

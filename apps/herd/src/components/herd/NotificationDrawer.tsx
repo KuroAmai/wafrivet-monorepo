@@ -1,7 +1,7 @@
 "use client";
 
 import { motion, AnimatePresence } from "framer-motion";
-import { X, Bell, ShieldCheck, Heartbeat, Warning, CaretRight, WifiHigh, IdentificationBadge } from "@phosphor-icons/react";
+import { X, Bell, ShieldCheck, Heartbeat, CaretRight, WifiHigh, IdentificationBadge } from "@phosphor-icons/react";
 import { cn } from "@/lib/utils";
 
 interface NotificationDrawerProps {

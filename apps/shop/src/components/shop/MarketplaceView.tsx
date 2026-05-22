@@ -11,7 +11,8 @@ import {
   PawPrint
 } from "@phosphor-icons/react";
 import { useState, useEffect } from "react";
-import { getAccessToken } from "@wafrivet/api";
+import { getAccessToken, isMockDataEnabled } from "@wafrivet/api";
+import { ApiQueryFeedback } from "@wafrivet/ui";
 import { useCatalog } from "@/hooks/useShopApi";
 
 const ANIMALS = ["Cattle", "Poultry", "Pigs", "Goats", "Sheep"];
@@ -20,7 +21,7 @@ export function MarketplaceView() {
   const [search, setSearch] = useState("");
   const [isLoggedIn, setIsLoggedIn] = useState(false);
 
-  const { data: catalogItems } = useCatalog(search);
+  const { data: catalogItems, isLoading, isError, error, refetch } = useCatalog(search);
 
   useEffect(() => {
     setIsLoggedIn(Boolean(getAccessToken()));
@@ -30,7 +31,7 @@ export function MarketplaceView() {
     if (!isLoggedIn) {
       e.preventDefault();
       const loginUrl = "https://app.wafrivet.com/login?redirect=" + encodeURIComponent(window.location.href);
-      window.location.href = loginUrl;
+      window.location.href = "/login";
     }
   };
 
@@ -121,8 +122,15 @@ export function MarketplaceView() {
             <h2 className="text-[22px] font-black text-gray-900 tracking-tight">Recommended for you</h2>
           </div>
           
+          <ApiQueryFeedback
+            isLoading={isLoading}
+            isError={isError && !isMockDataEnabled()}
+            errorMessage={(error as Error)?.message}
+            isEmpty={!isLoading && !isError && !catalogItems?.length}
+            onRetry={() => refetch()}
+          />
           <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-4 sm:gap-8">
-            {(catalogItems?.length ? catalogItems : []).slice(0, 12).map((item) => (
+            {(catalogItems ?? []).slice(0, 12).map((item) => (
               <ProductCard
                 key={item.id}
                 id={item.id}
@@ -134,7 +142,7 @@ export function MarketplaceView() {
                 coldChain={item.requiresColdChain}
               />
             ))}
-            {!catalogItems?.length ? (
+            {isMockDataEnabled() && isError ? (
               <>
                 <ProductCard id="1" name="Oxytetracycline 20%" price="6,500" category="Antibiotics" image="https://images.unsplash.com/photo-1584308666744-24d5c474f2ae?auto=format&fit=crop&q=80&w=400" stock={3} coldChain />
                 <ProductCard id="2" name="Ivermectin 1%" price="4,200" category="Dewormers" image="https://images.unsplash.com/photo-1516467508483-a7212febe31a?auto=format&fit=crop&q=80&w=400" stock={12} />

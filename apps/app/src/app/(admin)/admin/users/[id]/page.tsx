@@ -1,5 +1,9 @@
 "use client";
 
+import { use } from "react";
+import { isMockDataEnabled } from "@wafrivet/api";
+import { ApiQueryFeedback } from "@wafrivet/ui";
+import { useAdminUser } from "@/hooks/useAdminApi";
 import { 
   CaretLeft, 
   UserCircleGear, 
@@ -46,8 +50,50 @@ const getUserData = (id: string) => {
   };
 };
 
-export default function UserProfilePage({ params }: { params: { id: string } }) {
-  const user = getUserData(params.id);
+export default function UserProfilePage({ params }: { params: Promise<{ id: string }> }) {
+  const { id } = use(params);
+  const { data: apiUser, isLoading, isError, error, refetch } = useAdminUser(id);
+  const api = apiUser as {
+    firstName?: string;
+    lastName?: string;
+    email?: string;
+    role?: string;
+    isActive?: boolean;
+    createdAt?: string;
+  } | null;
+
+  const user = api
+    ? {
+        id,
+        name: [api.firstName, api.lastName].filter(Boolean).join(" ") || api.email || id,
+        phone: "—",
+        email: api.email ?? "—",
+        role: api.role ?? "—",
+        state: "—",
+        status: api.isActive ? "Active" : "Inactive",
+        joined: api.createdAt ? new Date(api.createdAt).toLocaleDateString() : "—",
+        address: "—",
+        lastActive: "—",
+        stats: { animals: 0, orders: 0, bnplBalance: "—", creditScore: 0 },
+        activity: [] as ReturnType<typeof getUserData>["activity"],
+      }
+    : isError && isMockDataEnabled()
+      ? getUserData(id)
+      : null;
+
+  if (!user) {
+    return (
+      <div className="space-y-10">
+        <ApiQueryFeedback
+          isLoading={isLoading}
+          isError={isError && !isMockDataEnabled()}
+          errorMessage={(error as Error)?.message}
+          isEmpty={!isLoading && !isError}
+          onRetry={() => refetch()}
+        />
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-10">

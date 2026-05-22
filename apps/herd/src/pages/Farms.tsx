@@ -1,7 +1,8 @@
 import { CaretLeft, MapPin, Plus, ArrowsClockwise, DotsThreeVertical, ArrowSquareOut, MapTrifold } from "@phosphor-icons/react";
 import { Link } from "react-router-dom";
-import { cn } from "@/lib/utils";
 import { useDocumentTitle } from "@/lib/useDocumentTitle";
+import { isMockDataEnabled } from "@wafrivet/api";
+import { ApiQueryFeedback } from "@wafrivet/ui";
 import { useFarms } from "@/hooks/useHerdApi";
 
 const FARMS = [
@@ -12,14 +13,16 @@ const FARMS = [
 
 export default function Farms() {
   useDocumentTitle("Managed Farms");
-  const { data: apiFarms } = useFarms();
-  const farms =
+  const { data: apiFarms, isLoading, isError, error, refetch } = useFarms();
+  const mapped =
     apiFarms?.map((f) => ({
       name: f.name,
       location: f.location ?? "—",
       animals: f.animalCount ?? 0,
       status: "Active",
-    })) ?? FARMS;
+    })) ?? [];
+  const farms =
+    mapped.length > 0 ? mapped : isError && isMockDataEnabled() ? FARMS : mapped;
 
   return (
     <div className="min-h-screen bg-[#F9FAFB] pb-32 animate-in fade-in slide-in-from-right-4 duration-500">
@@ -35,15 +38,24 @@ export default function Farms() {
       </div>
 
       <div className="px-6 py-10 space-y-10">
+        <ApiQueryFeedback
+          isLoading={isLoading}
+          isError={isError && !isMockDataEnabled()}
+          errorMessage={(error as Error)?.message}
+          isEmpty={!isLoading && !isError && farms.length === 0}
+          onRetry={() => refetch()}
+        />
         {/* Statistics Bar */}
         <div className="grid grid-cols-2 gap-4">
            <div className="bg-[#2D4D31] p-6 rounded-[32px] text-white">
               <p className="text-[11px] font-black uppercase tracking-widest text-white/60 mb-2">Total Managed</p>
-              <h2 className="text-[32px] font-black">12</h2>
+              <h2 className="text-[32px] font-black">{farms.length}</h2>
            </div>
            <div className="bg-white p-6 rounded-[32px] border border-gray-100 shadow-sm">
               <p className="text-[11px] font-black uppercase tracking-widest text-gray-400 mb-2">Total Animals</p>
-              <h2 className="text-[32px] font-black text-gray-900">450</h2>
+              <h2 className="text-[32px] font-black text-gray-900">
+                {farms.reduce((sum, f) => sum + f.animals, 0)}
+              </h2>
            </div>
         </div>
 

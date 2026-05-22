@@ -15,6 +15,9 @@ import {
   X
 } from "@phosphor-icons/react";
 import { cn } from "@/lib/utils";
+import { isMockDataEnabled } from "@wafrivet/api";
+import { ApiQueryFeedback } from "@wafrivet/ui";
+import { useAdminOrders } from "@/hooks/useAdminApi";
 
 const ORDERS_DATA = [
   { id: "#ORD-9281", farmer: "Emeka Obi", chemist: "Pharmacy Plus", items: 3, total: "₦12,500", payment: "Wallet", status: "Delivered", date: "2 mins ago" },
@@ -28,8 +31,31 @@ export default function AllOrdersPage() {
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedStatus, setSelectedStatus] = useState("All Status");
   const [selectedPayment, setSelectedPayment] = useState("All Methods");
+  const { data: ordersResponse, isLoading, isError, error, refetch } = useAdminOrders({
+    limit: 50,
+  });
 
-  const filteredOrders = ORDERS_DATA.filter(order => {
+  const apiOrders =
+    ordersResponse?.data?.map((o) => ({
+      id: o.orderNumber ? `#${o.orderNumber}` : o.id.slice(0, 8),
+      farmer: o.clinicName,
+      chemist: o.clinicName,
+      items: o.itemCount,
+      total: `₦${o.totalAmount.toLocaleString()}`,
+      payment: o.settlementStatus ?? "—",
+      status: o.status,
+      date: new Date(o.createdAt).toLocaleString(),
+      stuck: o.routeOptimizationFailed,
+    })) ?? [];
+
+  const ordersSource =
+    apiOrders.length > 0
+      ? apiOrders
+      : isError && isMockDataEnabled()
+        ? ORDERS_DATA
+        : apiOrders;
+
+  const filteredOrders = ordersSource.filter((order) => {
     const matchesSearch = 
       order.id.toLowerCase().includes(searchQuery.toLowerCase()) ||
       order.farmer.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -53,6 +79,14 @@ export default function AllOrdersPage() {
           <DownloadSimple size={18} weight="bold" /> Export Orders
         </button>
       </div>
+
+      <ApiQueryFeedback
+        isLoading={isLoading}
+        isError={isError && !isMockDataEnabled()}
+        errorMessage={(error as Error)?.message}
+        isEmpty={!isLoading && !isError && ordersSource.length === 0}
+        onRetry={() => refetch()}
+      />
 
       {/* Stats Bar */}
       <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-7 gap-4">
@@ -207,7 +241,7 @@ export default function AllOrdersPage() {
 
         {/* Pagination */}
         <div className="p-6 border-t border-gray-50 flex items-center justify-between bg-gray-50/10">
-          <span className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Showing {filteredOrders.length} of {ORDERS_DATA.length} orders</span>
+          <span className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Showing {filteredOrders.length} of {ordersSource.length} orders</span>
           <div className="flex items-center gap-2">
             {[1, 2, 3, "...", 43].map((page, i) => (
               <button key={i} className={cn(

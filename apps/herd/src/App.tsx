@@ -20,8 +20,11 @@ import HealthAlerts from "./pages/HealthAlerts";
 import AnimalList from "./pages/AnimalList";
 import AddAnimal from "./pages/AddAnimal";
 import FarmPortal from "./pages/FarmPortal";
+import Login from "./pages/Login";
+import { RequireAuth } from "@/components/RequireAuth";
 
 function AppContent() {
+  const location = useLocation();
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
@@ -30,8 +33,18 @@ function AppContent() {
 
   if (!mounted) return null;
 
+  const isLogin = location.pathname === "/login";
+
+  if (isLogin) {
+    return (
+      <Routes>
+        <Route path="/login" element={<Login />} />
+      </Routes>
+    );
+  }
+
   return (
-    <>
+    <RequireAuth>
       <TopBar />
       <main className="flex-1 px-6 pb-32">
         <Routes>
@@ -56,7 +69,7 @@ function AppContent() {
       </main>
       <BottomNav />
       <PWAInstallPrompt />
-    </>
+    </RequireAuth>
   );
 }
 

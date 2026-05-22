@@ -1,7 +1,9 @@
 "use client";
 
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import Link from "next/link";
+import { isMockDataEnabled } from "@wafrivet/api";
+import { useAdminOrders, useAdminUsers, useWarRoomSnapshot } from "@/hooks/useAdminApi";
 import { cn } from "@/lib/utils";
 import { 
   Users, 
@@ -94,11 +96,101 @@ const ACTIVITY_FEED = [
 export default function AdminDashboard() {
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 10;
-  
-  const currentItems = ACTIVITY_FEED.slice(
+  const { data: snapshot } = useWarRoomSnapshot();
+  const { data: usersResponse } = useAdminUsers({ limit: 1 });
+  const { data: ordersResponse } = useAdminOrders({ limit: 20 });
+
+  const statCards = useMemo(() => {
+    if (!snapshot) return null;
+    const userCount = usersResponse?.data?.length
+      ? `${usersResponse.data.length}+`
+      : "—";
+    return [
+      {
+        label: "Orders Today",
+        value: String(snapshot.todayOrderVolume),
+        sub: `${snapshot.unroutedOrders} unrouted`,
+        icon: ShoppingCart,
+        color: "text-orange-500",
+        bg: "bg-orange-50",
+      },
+      {
+        label: "GMV Today",
+        value: `₦${snapshot.revenueCollectedToday.toLocaleString()}`,
+        sub: `Pending ₦${snapshot.pendingSettlementAmount.toLocaleString()}`,
+        icon: Money,
+        color: "text-[#2D4D31]",
+        bg: "bg-[#2D4D31]/5",
+      },
+      {
+        label: "Active Riders",
+        value: String(snapshot.activeRiders),
+        sub: `${snapshot.activeManifests} manifests`,
+        icon: Clock,
+        color: "text-purple-500",
+        bg: "bg-purple-50",
+      },
+      {
+        label: "Open Incidents",
+        value: String(snapshot.openComplianceIncidents),
+        sub: snapshot.source === "cache" ? "Cached snapshot" : "Live snapshot",
+        icon: Warning,
+        color: "text-red-500",
+        bg: "bg-red-50",
+      },
+      {
+        label: "Recent Users",
+        value: userCount,
+        sub: "Latest page from API",
+        icon: Users,
+        color: "text-blue-500",
+        bg: "bg-blue-50",
+      },
+      {
+        label: "Settlement Queue",
+        value: `₦${snapshot.pendingSettlementAmount.toLocaleString()}`,
+        sub: "Pending settlement",
+        icon: Receipt,
+        color: "text-emerald-500",
+        bg: "bg-emerald-50",
+      },
+    ];
+  }, [snapshot, usersResponse]);
+
+  const activityFeed = useMemo(() => {
+    const fromOrders =
+      ordersResponse?.data?.map((o) => ({
+        id: o.id,
+        time: new Date(o.createdAt).toLocaleString(),
+        type: "order",
+        icon: ShoppingCart,
+        text: `Order ${o.orderNumber ?? o.id.slice(0, 8)}`,
+        subtext: o.clinicName,
+        value: `₦${o.totalAmount.toLocaleString()}`,
+        color: "text-blue-500",
+        bg: "bg-blue-50",
+      })) ?? [];
+    if (fromOrders.length > 0) return fromOrders;
+    return isMockDataEnabled() ? ACTIVITY_FEED : [];
+  }, [ordersResponse]);
+
+  const currentItems = activityFeed.slice(
     (currentPage - 1) * itemsPerPage,
     currentPage * itemsPerPage
   );
+
+  const displayStatCards =
+    statCards ??
+    (isMockDataEnabled()
+      ? [
+          { label: "Total Users", value: "4,284", sub: "↑ 124 new this week", icon: Users, color: "text-blue-500", bg: "bg-blue-50" },
+          { label: "Active Today", value: "892", sub: "342 sessions today", icon: Clock, color: "text-purple-500", bg: "bg-purple-50" },
+          { label: "Total Animals", value: "12,402", sub: "↑ 45 registered today", icon: Cow, color: "text-emerald-500", bg: "bg-emerald-50" },
+          { label: "Orders Today", value: "158", sub: "120 completed", icon: ShoppingCart, color: "text-orange-500", bg: "bg-orange-50" },
+          { label: "GMV Today", value: "₦4.2M", sub: "₦28M this week", icon: Money, color: "text-[#2D4D31]", bg: "bg-[#2D4D31]/5" },
+          { label: "Active Alerts", value: "24", sub: "8 critical", icon: Warning, color: "text-red-500", bg: "bg-red-50" },
+        ]
+      : []);
 
   return (
     <div className="space-y-10">
@@ -120,14 +212,7 @@ export default function AdminDashboard() {
 
       {/* Top Stat Cards */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3 gap-8">
-        {[
-          { label: "Total Users", value: "4,284", sub: "↑ 124 new this week", icon: Users, color: "text-blue-500", bg: "bg-blue-50" },
-          { label: "Active Today", value: "892", sub: "342 sessions today", icon: Clock, color: "text-purple-500", bg: "bg-purple-50" },
-          { label: "Total Animals", value: "12,402", sub: "↑ 45 registered today", icon: Cow, color: "text-emerald-500", bg: "bg-emerald-50" },
-          { label: "Orders Today", value: "158", sub: "120 completed", icon: ShoppingCart, color: "text-orange-500", bg: "bg-orange-50" },
-          { label: "GMV Today", value: "₦4.2M", sub: "₦28M this week", icon: Money, color: "text-[#2D4D31]", bg: "bg-[#2D4D31]/5" },
-          { label: "Active Alerts", value: "24", sub: "8 critical", icon: Warning, color: "text-red-500", bg: "bg-red-50" },
-        ].map((card, i) => (
+        {displayStatCards.map((card, i) => (
           <div key={i} className="bg-white p-6 rounded-[32px] border border-gray-100 shadow-sm hover:shadow-md transition-all group">
             <div className="flex items-center justify-between mb-4">
               <div className={`w-10 h-10 ${card.bg} ${card.color} rounded-xl flex items-center justify-center`}>
@@ -245,7 +330,7 @@ export default function AdminDashboard() {
           {/* Pagination Footer */}
           <div className="p-6 border-t border-gray-50 flex items-center justify-between bg-gray-50/30">
             <span className="text-[11px] font-black text-gray-400 uppercase tracking-widest">
-              Showing {(currentPage - 1) * itemsPerPage + 1}-{Math.min(currentPage * itemsPerPage, ACTIVITY_FEED.length)} of {ACTIVITY_FEED.length}
+              Showing {(currentPage - 1) * itemsPerPage + 1}-{Math.min(currentPage * itemsPerPage, activityFeed.length)} of {activityFeed.length}
             </span>
             <div className="flex items-center gap-2">
               <button 
@@ -256,7 +341,7 @@ export default function AdminDashboard() {
                 <CaretLeft size={16} weight="bold" />
               </button>
               <div className="flex items-center gap-1">
-                {[...Array(Math.ceil(ACTIVITY_FEED.length / itemsPerPage))].map((_, i) => (
+                {[...Array(Math.ceil(activityFeed.length / itemsPerPage))].map((_, i) => (
                   <button
                     key={i}
                     onClick={() => setCurrentPage(i + 1)}
@@ -272,8 +357,8 @@ export default function AdminDashboard() {
                 ))}
               </div>
               <button 
-                onClick={() => setCurrentPage(p => Math.min(Math.ceil(ACTIVITY_FEED.length / itemsPerPage), p + 1))}
-                disabled={currentPage === Math.ceil(ACTIVITY_FEED.length / itemsPerPage)}
+                onClick={() => setCurrentPage(p => Math.min(Math.ceil(activityFeed.length / itemsPerPage), p + 1))}
+                disabled={currentPage === Math.ceil(activityFeed.length / itemsPerPage)}
                 className="w-9 h-9 rounded-xl flex items-center justify-center border border-gray-100 bg-white text-gray-400 hover:text-gray-900 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
               >
                 <CaretRight size={16} weight="bold" />

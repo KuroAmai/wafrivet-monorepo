@@ -1,4 +1,4 @@
-import { CaretLeft, MapPin, DeviceMobile, Clock, Info, CheckCircle, ShareNetwork, DownloadSimple } from "@phosphor-icons/react";
+import { CaretLeft, MapPin, DeviceMobile, Info, CheckCircle, ShareNetwork, DownloadSimple } from "@phosphor-icons/react";
 import { Link, useParams } from "react-router-dom";
 
 export default function HistoryDetail() {

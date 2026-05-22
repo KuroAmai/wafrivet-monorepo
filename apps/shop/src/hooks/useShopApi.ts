@@ -1,7 +1,7 @@
 "use client";
 
 import { useQuery } from "@tanstack/react-query";
-import { catalogApi, queryKeys, vetApi } from "@wafrivet/api";
+import { catalogApi, queryKeys, supplierApi, vetApi } from "@wafrivet/api";
 import type { MasterSkuDto } from "@wafrivet/types";
 
 export function useCatalog(search?: string) {
@@ -26,6 +26,23 @@ export function useCatalogItem(id: string) {
 export function useVetOrders() {
   return useQuery({
     queryKey: queryKeys.vet.orders(),
-    queryFn: () => vetApi.listVetOrders({ limit: 20 }),
+    queryFn: async () => {
+      const data = await vetApi.listVetOrders({ limit: 20 });
+      return (data as { data?: unknown[] })?.data ?? (Array.isArray(data) ? data : []);
+    },
+  });
+}
+
+export function useSupplierOffers() {
+  return useQuery({
+    queryKey: queryKeys.supplier.offers(),
+    queryFn: () => supplierApi.listSupplierOffers({ limit: 20 }),
+  });
+}
+
+export function useSupplierProfile() {
+  return useQuery({
+    queryKey: queryKeys.supplier.profile,
+    queryFn: () => supplierApi.getSupplierProfile(),
   });
 }

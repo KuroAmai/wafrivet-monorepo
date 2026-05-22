@@ -1,4 +1,4 @@
-import { CaretLeft, ClockCounterClockwise, Cow, MapPin, Tag, Brain, MagnifyingGlass } from "@phosphor-icons/react";
+import { CaretLeft, Cow, MapPin, Tag, Brain, MagnifyingGlass } from "@phosphor-icons/react";
 import { Link } from "react-router-dom";
 import { useDocumentTitle } from "@/lib/useDocumentTitle";
 

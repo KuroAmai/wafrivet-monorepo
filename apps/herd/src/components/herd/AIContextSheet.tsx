@@ -1,8 +1,8 @@
 "use client";
 
 import { Drawer } from "vaul";
-import { Robot, X, PaperPlaneTilt, Pill, CheckCircle, Warning } from "@phosphor-icons/react";
-import { useState } from "react";
+import { Robot, X, PaperPlaneTilt, CheckCircle } from "@phosphor-icons/react";
+import { useState, type ReactNode } from "react";
 import { cn } from "@/lib/utils";
 
 const QUICK_PROMPTS = [
@@ -17,7 +17,7 @@ const SYMPTOMS = [
   "Fever", "Limping", "Not Eating", "Nasal Discharge", "Swollen Joints", "Coughing"
 ];
 
-export function AIContextSheet({ children }: { children: React.ReactNode }) {
+export function AIContextSheet({ children }: { children: ReactNode }) {
   const [selectedSymptoms, setSelectedSymptoms] = useState<string[]>([]);
 
   const toggleSymptom = (symptom: string) => {
@@ -29,7 +29,7 @@ export function AIContextSheet({ children }: { children: React.ReactNode }) {
   return (
     <Drawer.Root>
       <Drawer.Trigger asChild>
-        {children}
+        {children as never}
       </Drawer.Trigger>
       
       <Drawer.Portal>

@@ -52,15 +52,44 @@ export function OTPInput() {
 
   const handleVerify = async (code: string) => {
     setIsVerifying(true);
-    await new Promise((r) => setTimeout(r, 800));
 
-    const mockEnabled =
-      process.env.NEXT_PUBLIC_ENABLE_MOCK_AUTH === "true";
-
+    const mockEnabled = process.env.NEXT_PUBLIC_ENABLE_MOCK_AUTH === "true";
     if (mockEnabled) {
       document.cookie = "jwt=mock-token; path=/; max-age=3600";
       window.location.href = "/welcome";
       return;
+    }
+
+    const email =
+      typeof sessionStorage !== "undefined"
+        ? sessionStorage.getItem("wafrivet_pending_email") ?? ""
+        : "";
+
+    const res = await fetch("/api/auth/verify-email", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ email, token: code }),
+    });
+
+    if (!res.ok) {
+      setIsVerifying(false);
+      return;
+    }
+
+    const loginRes = await fetch("/api/auth/login", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        email,
+        password: sessionStorage.getItem("wafrivet_pending_password") ?? "",
+      }),
+    }).catch(() => null);
+
+    if (loginRes?.ok) {
+      const loginData = await loginRes.json();
+      if (loginData.accessToken) {
+        document.cookie = `jwt=${encodeURIComponent(loginData.accessToken)}; path=/; max-age=${loginData.expiresIn ?? 3600}; SameSite=Lax`;
+      }
     }
 
     router.push("/welcome");

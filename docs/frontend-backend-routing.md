@@ -16,7 +16,7 @@
 | App | Method | Notes |
 |-----|--------|--------|
 | `apps/app`, `apps/shop` | `POST /auth/login` via Next route `/api/auth/login` | Sets `jwt` cookie; client uses Bearer via `@wafrivet/api` |
-| `apps/herd` | TBD with backend | Spike: confirm **Gateway JWT** vs **Field Vet** `POST /farmers/login` (phone + PIN) |
+| `apps/herd` | Gateway JWT (`POST /auth/login` via `@wafrivet/api`) | Field Vet PIN can be added when backend confirms farmer-only auth |
 | Mock demo | `NEXT_PUBLIC_ENABLE_MOCK_AUTH=true` | `mock-token` accepted only when flag set (dev) |
 
 ## Per-app surface
@@ -47,7 +47,7 @@ Backend must allow credentials from:
 
 ## Open items (confirm with backend)
 
-- [ ] Exact gateway prefix for herd (`/herd` vs proxy-only)
-- [ ] Farmer login: gateway signup vs Field Vet PIN
+- [ ] Exact gateway prefix for herd (`/herd` vs proxy-only) — client tries both gateway `/herd` and core `/animals`
+- [x] Farmer login: **Gateway JWT** at `/login` in herd app (Field Vet optional later)
 - [ ] Refresh token cookie vs body-only refresh
 - [ ] Idempotency header name for herd mutations

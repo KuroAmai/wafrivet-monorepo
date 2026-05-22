@@ -1,0 +1,527 @@
+Smart — split the work, run in parallel. Here's exactly what your co-founder needs to do on the backend side while you build the templates.
+
+---
+
+# Backend — Email Integration Guide
+**For the backend dev / co-founder**
+
+---
+
+## What We're Using
+
+- **Resend** — email delivery service
+- **React Email** — renders the templates to HTML
+- The frontend team owns the templates. The backend just receives rendered HTML and sends it.
+
+---
+
+## Step 1 — Create a Resend Account
+
+Go to `resend.com` and sign up.
+
+Once in, go to **Domains → Add Domain** and type `wafrivet.com`.
+
+Resend will give you a set of DNS records to add. They look like this:
+
+```
+Type    Name                          Value
+TXT     resend._domainkey.wafrivet.com   [long string]
+MX      send.wafrivet.com               feedback-smtp.us-east-1.amazonses.com
+TXT     send.wafrivet.com               v=spf1 include:amazonses.com ~all
+```
+
+Go to **Cloudflare → wafrivet.com → DNS → Records** and add each one exactly as Resend shows them. Don't change anything. Once added, go back to Resend and hit Verify. It can take up to 15 minutes but usually happens in under 2.
+
+Once verified the domain shows a green Verified badge in Resend.
+
+---
+
+## Step 2 — Get the API Key
+
+In Resend go to **API Keys → Create API Key**.
+
+Name it `wafrivet-production`.
+
+Copy the key — it only shows once.
+
+Add it to the backend `.env`:
+
+```
+RESEND_API_KEY=re_xxxxxxxxxxxxxxxxxxxx
+FROM_EMAIL=no-reply@wafrivet.com
+FROM_NAME=Wafrivet
+```
+
+---
+
+## Step 3 — Install Dependencies
+
+In the backend repo run:
+
+```bash
+npm install resend
+```
+
+That's the only package needed on the backend side.
+
+---
+
+## Step 4 — Create the Email Service File
+
+Create this file:
+
+```
+src/services/email.service.js
+```
+
+This is the only file that touches Resend. Every other part of the backend calls functions from this file — nothing calls Resend directly.
+
+The file has this structure:
+
+```
+1. Import Resend and initialise with API key
+2. One send function per email type
+3. Each function takes props, accepts HTML, and sends via Resend
+```
+
+The HTML comes from the frontend email package. The backend does not build HTML — it just receives it and sends it.
+
+---
+
+## Step 5 — How the Backend Receives Templates
+
+The frontend team will publish the email package to the monorepo as `@wafrivet/email`. The backend imports from it like this:
+
+```javascript
+import { renderWelcomeEmail } from '@wafrivet/email'
+import { renderOTPEmail } from '@wafrivet/email'
+import { renderOrderConfirmationEmail } from '@wafrivet/email'
+```
+
+Each `render` function takes props and returns an HTML string. The backend passes that string to Resend.
+
+Until the frontend package is ready, the backend dev can use placeholder HTML strings for testing — just a simple `<p>Test email</p>` — and swap in the real templates when they're ready.
+
+---
+
+## Step 6 — The Email Service Structure
+
+The email service file needs one function for every email trigger. Here is every function she needs to create, what triggers it, and what props it needs:
+
+---
+
+### AUTH EMAILS
+
+**sendOTPEmail**
+Triggered by: `POST /api/auth/otp/send` and `POST /api/auth/register`
+Props needed: `{ name, otp_code, expires_in_minutes: 10 }`
+
+**sendWelcomeEmail**
+Triggered by: `POST /api/auth/otp/verify` on success
+Props needed: `{ name, role }`
+
+**sendPasswordResetEmail**
+Triggered by: `POST /api/auth/forgot-password`
+Props needed: `{ name, reset_link, expires_in_minutes: 30 }`
+
+**sendPasswordChangedEmail**
+Triggered by: `POST /api/auth/reset-password` on success
+Props needed: `{ name, changed_at }`
+
+**sendAccountDeactivatedEmail**
+Triggered by: `PATCH /api/admin/users/:id` when status set to inactive
+Props needed: `{ name, reason }`
+
+**sendAccountReactivatedEmail**
+Triggered by: `PATCH /api/admin/users/:id` when status set to active
+Props needed: `{ name }`
+
+---
+
+### ONBOARDING EMAILS
+
+These are time-delayed. They do not fire immediately — they fire via background jobs.
+
+**sendOnboardingDay2Email**
+Triggered by: `jobs/onboarding.js` cron — runs daily, finds users who signed up 2 days ago and haven't completed first key action
+Props needed: `{ name, role }`
+
+**sendOnboardingDay4Email**
+Triggered by: Same job, 4-day check
+Props needed: `{ name, role, first_action_completed }`
+
+**sendOnboardingDay7Email**
+Triggered by: Same job, 7-day check
+Props needed: `{ name, role }`
+
+**sendOnboardingDay14Email**
+Triggered by: Same job, 14-day check
+Props needed: `{ name, role }`
+
+She needs to create a new cron job file for this:
+```
+src/jobs/onboarding.emails.js
+```
+Runs daily at 9am. Checks signup date against today. Fires the right email for each user's stage.
+
+---
+
+### ORDER EMAILS
+
+**sendOrderConfirmationEmail**
+Triggered by: `POST /api/webhooks/paystack` on `charge.success`
+Props needed: `{ farmer_name, order_id, items, subtotal, delivery_fee, total, payment_method, chemist_name, chemist_distance, estimated_delivery_time }`
+
+**sendOrderReceivedEmail** (to chemist)
+Triggered by: Same Paystack webhook on `charge.success`
+Props needed: `{ chemist_name, farmer_name, farmer_location, order_id, items, total, confirm_url }`
+
+**sendOrderAcceptedEmail** (to farmer)
+Triggered by: `PATCH /api/orders/:id/status` when status = confirmed
+Props needed: `{ farmer_name, chemist_name, chemist_rating, order_id, estimated_delivery_time }`
+
+**sendOrderRejectedEmail** (to farmer)
+Triggered by: `PATCH /api/orders/:id/status` when status = cancelled by chemist
+Props needed: `{ farmer_name, order_id, rejection_reason, refund_amount }`
+
+**sendOrderInTransitEmail** (to farmer)
+Triggered by: `PATCH /api/orders/:id/status` when status = in_transit
+Props needed: `{ farmer_name, order_id, tracking_url, estimated_arrival }`
+
+**sendOrderDeliveredEmail** (to farmer)
+Triggered by: `PATCH /api/orders/:id/status` when status = delivered
+Props needed: `{ farmer_name, order_id, items, animal_waf_id, rating_url }`
+
+**sendOrderCancelledFarmerEmail**
+Triggered by: `POST /api/orders/:id/cancel`
+Props needed: `{ farmer_name, order_id, reason, refund_amount }`
+
+**sendOrderCancelledChemistEmail**
+Triggered by: `POST /api/orders/:id/cancel`
+Props needed: `{ chemist_name, order_id, reason }`
+
+**sendRefundProcessedEmail**
+Triggered by: Admin initiates refund or Paystack refund webhook fires
+Props needed: `{ farmer_name, amount, order_id, days_to_reflect: 5 }`
+
+**sendReorderReminderEmail**
+Triggered by: `jobs/reorder.reminders.js` cron — runs daily, finds orders delivered 25 days ago
+Props needed: `{ farmer_name, last_product_name, last_order_id, reorder_url }`
+
+New cron job needed:
+```
+src/jobs/reorder.reminders.js
+```
+Runs daily. Finds orders with `delivered_at` = 25 days ago. Sends one email per order.
+
+---
+
+### STOCK EMAILS
+
+**sendLowStockEmail**
+Triggered by: `jobs/stockout.check.js` (already exists) when stock hits reorder threshold
+Props needed: `{ chemist_name, product_name, current_stock, days_remaining, reorder_qty, reorder_url }`
+
+**sendOutOfStockEmail**
+Triggered by: `PATCH /api/products/:id/stock` when stock_qty = 0
+Props needed: `{ chemist_name, product_name, reorder_url }`
+
+**sendStockoutRiskEmail**
+Triggered by: `jobs/stockout.check.js` when risk_level = high
+Props needed: `{ chemist_name, product_name, current_stock, avg_daily_sales, days_until_stockout, recommended_order_qty }`
+
+**sendStockUpdatedEmail**
+Triggered by: `PATCH /api/products/:id/stock` on success
+Props needed: `{ chemist_name, product_name, new_qty }`
+
+**sendDemandForecastEmail**
+Triggered by: `jobs/forecast.generate.js` (already exists) — add email send at end of job
+Props needed: `{ chemist_name, forecast_rows: [{ product_name, forecasted_units, current_stock, status }] }`
+
+**sendNewNetworkOrderEmail** (to distributor)
+Triggered by: When a chemist places a restock order to their linked distributor
+Props needed: `{ distributor_name, chemist_name, chemist_location, order_id, items, total }`
+
+---
+
+### FINANCE EMAILS
+
+**sendBNPLCreatedEmail**
+Triggered by: `POST /api/finance/bnpl/request` on success
+Props needed: `{ farmer_name, order_total, fee_ngn, fee_pct, total_due, due_date, agreement_id }`
+
+**sendBNPLReminder3DaysEmail**
+Triggered by: `jobs/bnpl.reminders.js` (already exists) — add 3-day check
+Props needed: `{ farmer_name, total_due, due_date, agreement_id, pay_url }`
+
+**sendBNPLReminder24HoursEmail**
+Triggered by: `jobs/bnpl.reminders.js` — 24-hour check
+Props needed: `{ farmer_name, total_due, due_date, agreement_id, pay_url }`
+
+**sendBNPLPaymentSuccessEmail**
+Triggered by: `PATCH /api/finance/bnpl/:id/repay` on success
+Props needed: `{ farmer_name, amount_paid, payment_date, agreement_id }`
+
+**sendBNPLOverdueEmail**
+Triggered by: `jobs/bnpl.reminders.js` — day after due date
+Props needed: `{ farmer_name, total_due, days_overdue, agreement_id, pay_url }`
+
+**sendBNPLDefaultedEmail**
+Triggered by: `PATCH /api/admin/bnpl/:id` when status = defaulted
+Props needed: `{ farmer_name, amount_outstanding, agreement_id }`
+
+**sendCreditScoreIncreasedEmail**
+Triggered by: `jobs/credit.recompute.js` (already exists) — add check for tier upgrade
+Props needed: `{ farmer_name, old_tier, new_tier, old_limit, new_limit }`
+
+The cron job needs to compare the new computed tier against the old one. If it's higher, send the email.
+
+**sendWalletCommissionEmail**
+Triggered by: `WalletTransaction` created with type = commission and status changes to confirmed (after 72-hour hold)
+Props needed: `{ user_name, commission_amount, triggered_by_name, wallet_balance, withdraw_url }`
+
+The 72-hour hold release needs to be handled by a new cron job:
+```
+src/jobs/wallet.holds.js
+```
+Runs hourly. Finds wallet transactions where `hold_until` has passed and status = pending. Confirms them and sends commission email.
+
+**sendWithdrawalRequestedEmail**
+Triggered by: `POST /api/wallet/withdraw`
+Props needed: `{ user_name, amount, bank_name, account_number_masked }`
+
+**sendWithdrawalSuccessEmail**
+Triggered by: `POST /api/webhooks/paystack` on `transfer.success`
+Props needed: `{ user_name, amount, bank_name, date, new_balance }`
+
+**sendWithdrawalFailedEmail**
+Triggered by: `POST /api/webhooks/paystack` on `transfer.failed`
+Props needed: `{ user_name, amount, reason, retry_url }`
+
+**sendSettlementPaidEmail**
+Triggered by: `PATCH /api/admin/chemists/:id` or settlement marked paid
+Props needed: `{ recipient_name, period_start, period_end, gross_ngn, platform_fee_ngn, net_ngn, bank_name, account_masked }`
+
+---
+
+### HEALTH EMAILS
+
+**sendAnimalRegisteredEmail**
+Triggered by: `POST /api/animals` on success
+Props needed: `{ farmer_name, waf_id, species, breed, sex, age_months, profile_url }`
+
+**sendDiagnosisCompleteEmail**
+Triggered by: `POST /api/diagnose/camera` or `POST /api/diagnose/chat/:sessionId` when result is returned
+Props needed: `{ user_name, waf_id, primary_diagnosis, confidence_pct, severity, drug_name, dosage, duration, differentials, order_url, session_url }`
+
+**sendCriticalDiagnosisEmail**
+Triggered by: Same as above but only when `result.emergency = true` or `severity = critical`
+Props needed: `{ user_name, waf_id, primary_diagnosis, severity, find_vet_url, order_url }`
+
+**sendAnimalHealthAlertEmail**
+Triggered by: `jobs/vitals.alert.js` (already exists) — add email for critical alerts
+Props needed: `{ farmer_name, waf_id, alert_type, reading_value, normal_range, recorded_at, animal_url }`
+
+**sendNoVitalsReadingEmail**
+Triggered by: `jobs/vitals.alert.js` — no reading in 48 hours check
+Props needed: `{ farmer_name, waf_id, last_reading_at, scan_url }`
+
+**sendVaccinationDueEmail**
+Triggered by: New cron job — runs daily, checks `AnimalEvent` records where event_type = vaccination and `details.next_due` is 7 days away
+Props needed: `{ farmer_name, waf_id, vaccine_name, due_date, order_url }`
+
+New cron job needed:
+```
+src/jobs/vaccination.reminders.js
+```
+
+**sendVetFollowUpEmail**
+Triggered by: Same cron, checks events with `event_type = clinical_note` and a follow-up date set
+Props needed: `{ vet_name, waf_id, species, last_event_summary, follow_up_date, patient_url }`
+
+**sendTreatmentLoggedEmail**
+Triggered by: When order status = delivered and treatment event is auto-created in `AnimalEvent`
+Props needed: `{ farmer_name, waf_id, drug_name, order_id, event_date, record_url }`
+
+---
+
+### CHEMIST EMAILS
+
+**sendChemistApprovedEmail**
+Triggered by: `PATCH /api/admin/chemists/:id/verify` on verify
+Props needed: `{ chemist_name, dashboard_url }`
+
+**sendChemistRejectedEmail**
+Triggered by: `PATCH /api/admin/chemists/:id/verify` on reject
+Props needed: `{ chemist_name, reason, resubmit_url }`
+
+**sendNewFarmerNearbyEmail**
+Triggered by: `POST /api/animals` — check if new farmer is within any chemist's delivery radius. Batch — send max once per week per chemist even if multiple farmers join
+Props needed: `{ chemist_name, farmer_count, inventory_url }`
+
+New cron job needed:
+```
+src/jobs/new.farmer.alerts.js
+```
+Runs weekly on Monday. Groups new farmers from the past 7 days by proximity to chemists. Sends one batched email per chemist.
+
+**sendMonthlyEarningsEmail**
+Triggered by: New cron job — runs 1st of every month at 8am
+Props needed: `{ chemist_name, month, orders_completed, gross_ngn, platform_fee_ngn, net_ngn, top_products: [{ name, revenue }], new_farmers_count, previous_month_comparison_pct }`
+
+New cron job needed:
+```
+src/jobs/monthly.earnings.js
+```
+
+**sendRatingReceivedEmail**
+Triggered by: When a farmer submits a rating after delivery (rating endpoint needed if not already built)
+Props needed: `{ chemist_name, rating, order_id, review_comment, current_avg_rating }`
+
+---
+
+### ADMIN EMAILS
+
+**sendNewUserSignupAlert** (to admin)
+Triggered by: `POST /api/auth/otp/verify` on success
+Props needed: `{ user_name, user_phone, role, state, signed_up_at, requires_verification }`
+
+**sendBNPLDefaultAlert** (to admin)
+Triggered by: `PATCH /api/admin/bnpl/:id` when status = defaulted
+Props needed: `{ farmer_name, farmer_phone, agreement_id, amount_outstanding, days_overdue, order_id }`
+
+**sendDailyDigestEmail** (to admin)
+Triggered by: New cron job — runs daily at 7am
+Props needed: `{ date, new_signups, orders_placed, orders_completed, gmv_ngn, bnpl_agreements, diagnosis_sessions, animals_registered, ussd_sessions, active_alerts, pending_actions: [] }`
+
+New cron job needed:
+```
+src/jobs/admin.digest.js
+```
+
+**sendIntegrationDownAlert** (to admin)
+Triggered by: API health check fails — needs a health check job
+Props needed: `{ service_name, detected_at, error_message, status_page_url }`
+
+New cron job needed:
+```
+src/jobs/health.check.js
+```
+Runs every 5 minutes. Pings each external service. If any fails, sends alert to admin. Only sends once per incident — not every 5 minutes.
+
+**sendWeeklyReportEmail** (to admin)
+Triggered by: New cron job — runs Monday 7am
+Props needed: `{ week_start, new_users_by_role, gmv_ngn, gmv_vs_last_week_pct, top_chemist, top_product, diagnosis_count, bnpl_performance: { active, repaid, overdue }, outstanding_actions: [] }`
+
+New cron job needed:
+```
+src/jobs/weekly.report.js
+```
+
+---
+
+### MARKETING EMAILS
+
+**sendReferralWelcomeEmail**
+Triggered by: When user activates referral account (referral endpoint needed)
+Props needed: `{ user_name, referral_link, commission_per_role: {} }`
+
+**sendReferralConvertedEmail**
+Triggered by: When referred user completes first order
+Props needed: `{ referrer_name, referred_name, commission_ngn, hold_hours: 72, total_earned_ngn }`
+
+**sendPilotInvitationEmail**
+Triggered by: Manual send from admin panel
+Props needed: `{ first_name, role, invite_url }`
+
+**sendFeatureAnnouncementEmail**
+Triggered by: Manual send from admin panel
+Props needed: `{ user_name, feature_name, feature_description, feature_url }`
+
+**sendReEngagementEmail**
+Triggered by: New cron job — runs daily, finds users with `last_login` = 30 days ago
+Props needed: `{ user_name, role, last_login_at, incomplete_action, cta_url }`
+
+New cron job needed:
+```
+src/jobs/reengagement.emails.js
+```
+
+**sendOutbreakAlertEmail**
+Triggered by: Manual send from admin panel (region selector)
+Props needed: `{ farmer_name, disease_name, affected_species, region, symptoms, recommended_drug, order_url, advisory_source }`
+
+---
+
+### TRANSACTIONAL EMAILS
+
+**sendFailedLoginEmail**
+Triggered by: 5 consecutive failed login attempts on same account
+Props needed: `{ user_name, attempt_time, reset_url }`
+
+**sendNewDeviceLoginEmail**
+Triggered by: Login from unrecognised device (compare against last known device fingerprint)
+Props needed: `{ user_name, device_type, location_approx, login_time, secure_url }`
+
+**sendDataExportEmail**
+Triggered by: User requests data export (endpoint needed)
+Props needed: `{ user_name, download_url, expires_in_hours: 24 }`
+
+**sendTermsUpdateEmail**
+Triggered by: Manual send from admin panel
+Props needed: `{ user_name, effective_date, summary_of_changes, full_terms_url }`
+
+**sendMaintenanceNoticeEmail**
+Triggered by: Manual send from admin panel
+Props needed: `{ user_name, maintenance_date, start_time, end_time, affected_features, unaffected_features }`
+
+**sendServiceRestoredEmail**
+Triggered by: Manual send from admin panel after downtime
+Props needed: `{ user_name, incident_summary }`
+
+---
+
+## Summary of New Cron Jobs Needed
+
+She needs to add these on top of the existing jobs:
+
+```
+src/jobs/onboarding.emails.js       daily 9am
+src/jobs/reorder.reminders.js       daily
+src/jobs/wallet.holds.js            hourly
+src/jobs/vaccination.reminders.js   daily
+src/jobs/new.farmer.alerts.js       weekly Monday
+src/jobs/monthly.earnings.js        1st of month 8am
+src/jobs/admin.digest.js            daily 7am
+src/jobs/health.check.js            every 5 minutes
+src/jobs/weekly.report.js           Monday 7am
+src/jobs/reengagement.emails.js     daily
+```
+
+---
+
+## Summary of New Endpoints Needed
+
+A few email triggers require endpoints that may not exist yet:
+
+```
+POST  /api/orders/:id/rate         Farmer submits rating after delivery
+POST  /api/referrals/activate      User activates referral program
+GET   /api/users/data-export       Request personal data export
+POST  /api/admin/emails/send       Manual email send from admin panel
+      (for pilot invitations, outbreak alerts, feature announcements,
+       maintenance notices, terms updates)
+```
+
+---
+
+## What She Sends Back to You
+
+Once she's done, she sends you:
+
+1. Confirmation that Resend domain is verified
+2. The full list of props each template receives — exactly as listed above
+3. Confirmation of the `FROM_EMAIL` and `FROM_NAME` being used
+4. The export structure from `email.service.js` so you know the exact function names to match your templates to
+
+Then you export your rendered templates from `packages/email` and she imports and calls them. Done.

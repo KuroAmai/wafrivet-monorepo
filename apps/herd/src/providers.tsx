@@ -14,7 +14,7 @@ export function HerdProviders({ children }: { children: ReactNode }) {
 
   return (
     <QueryClientProvider client={queryClient}>
-      <AuthProvider>{children}</AuthProvider>
+      <AuthProvider>{children as never}</AuthProvider>
     </QueryClientProvider>
   );
 }

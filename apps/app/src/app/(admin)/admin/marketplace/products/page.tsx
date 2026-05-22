@@ -14,6 +14,9 @@ import {
   X
 } from "@phosphor-icons/react";
 import { cn } from "@/lib/utils";
+import { isMockDataEnabled } from "@wafrivet/api";
+import { ApiQueryFeedback } from "@wafrivet/ui";
+import { useAdminCatalog } from "@/hooks/useAdminApi";
 
 const PRODUCTS_DATA = [
   { name: "Oxytetracycline 20%", generic: "Oxytetracycline", nafdac: "A4-1284", category: "Antibiotics", chemist: "Pharmacy Plus", price: "₦8,500", stock: 124, verified: true, status: "Active", listed: "May 12" },
@@ -26,8 +29,30 @@ export default function ProductsPage() {
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("All Categories");
   const [selectedStatus, setSelectedStatus] = useState("All Status");
+  const { data: catalogResponse, isLoading, isError, error, refetch } = useAdminCatalog({ limit: 50 });
 
-  const filteredProducts = PRODUCTS_DATA.filter(product => {
+  const apiProducts =
+    (catalogResponse as { data?: Array<Record<string, string>> })?.data?.map((p) => ({
+      name: String(p.name ?? p.skuName ?? "—"),
+      generic: String(p.genericName ?? "—"),
+      nafdac: String(p.nafdacRegNo ?? "—"),
+      category: String(p.category ?? "—"),
+      chemist: String(p.manufacturer ?? "—"),
+      price: "—",
+      stock: Number(p.stock ?? 0),
+      verified: true,
+      status: "Active",
+      listed: "—",
+    })) ?? [];
+
+  const productsSource =
+    apiProducts.length > 0
+      ? apiProducts
+      : isError && isMockDataEnabled()
+        ? PRODUCTS_DATA
+        : apiProducts;
+
+  const filteredProducts = productsSource.filter((product) => {
     const matchesSearch = 
       product.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
       product.nafdac.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -51,6 +76,14 @@ export default function ProductsPage() {
           <DownloadSimple size={18} weight="bold" /> Export Catalog
         </button>
       </div>
+
+      <ApiQueryFeedback
+        isLoading={isLoading}
+        isError={isError && !isMockDataEnabled()}
+        errorMessage={(error as Error)?.message}
+        isEmpty={!isLoading && !isError && productsSource.length === 0}
+        onRetry={() => refetch()}
+      />
 
       {/* Stats Bar */}
       <div className="grid grid-cols-2 md:grid-cols-5 gap-4">

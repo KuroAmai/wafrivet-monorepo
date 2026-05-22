@@ -1,9 +1,8 @@
 "use client";
 
-import { CaretLeft, Camera, User, Envelope, Phone, MapPin, Globe, Check } from "@phosphor-icons/react";
+import { CaretLeft, Camera, User, Envelope, Phone, Globe, Check } from "@phosphor-icons/react";
 import Link from "next/link";
 import { useState } from "react";
-import { cn } from "@/lib/utils";
 
 export default function ProfileInfoPage() {
   const [isSaving, setIsSaving] = useState(false);

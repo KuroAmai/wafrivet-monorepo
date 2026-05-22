@@ -51,6 +51,7 @@ function Field({
 export function SignupForm() {
   const router = useRouter();
   const [showPass, setShowPass] = useState(false);
+  const [apiError, setApiError] = useState<string | null>(null);
 
   const {
     register,
@@ -66,8 +67,33 @@ export function SignupForm() {
   });
 
   const onSubmit = async (data: SignupFormData) => {
-    // API call mock
-    await new Promise((r) => setTimeout(r, 1200));
+    setApiError(null);
+    const parts = data.fullName.trim().split(/\s+/);
+    const firstName = parts[0] ?? "";
+    const lastName = parts.slice(1).join(" ") || firstName;
+    const email = data.phone.includes("@")
+      ? data.phone
+      : `${data.phone.replace(/\D/g, "")}@wafrivet.local`;
+
+    const res = await fetch("/api/auth/signup", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        firstName,
+        lastName,
+        email,
+        password: data.password,
+      }),
+    });
+    const body = await res.json().catch(() => ({}));
+    if (!res.ok) {
+      setApiError(body.message ?? "Could not create account.");
+      return;
+    }
+    if (typeof sessionStorage !== "undefined") {
+      sessionStorage.setItem("wafrivet_pending_email", email);
+      sessionStorage.setItem("wafrivet_pending_password", data.password);
+    }
     router.push("/verify");
   };
 
@@ -80,6 +106,12 @@ export function SignupForm() {
         </h1>
         <p className="text-[15px] text-gray-500 mt-1.5">Join Wafrivet — it's free to get started</p>
       </div>
+
+      {apiError ? (
+        <p className="mb-4 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
+          {apiError}
+        </p>
+      ) : null}
 
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
         <Field

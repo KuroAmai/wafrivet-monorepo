@@ -3,6 +3,8 @@ import { Link } from "react-router-dom";
 import { useMemo, useState } from "react";
 import { cn } from "@/lib/utils";
 import { useDocumentTitle } from "@/lib/useDocumentTitle";
+import { isMockDataEnabled } from "@wafrivet/api";
+import { ApiQueryFeedback } from "@wafrivet/ui";
 import { useAnimals } from "@/hooks/useHerdApi";
 
 const ALL_ANIMALS = [
@@ -18,21 +20,23 @@ export default function AnimalList() {
   useDocumentTitle("Animals");
   const [search, setSearch] = useState("");
   const [filter, setFilter] = useState("All");
-  const { data: apiAnimals } = useAnimals();
+  const { data: apiAnimals, isLoading, isError, error, refetch } = useAnimals();
 
   const animals = useMemo(() => {
-    if (apiAnimals?.length) {
-      return apiAnimals.map((a) => ({
+    const mapped =
+      apiAnimals?.map((a) => ({
         id: a.wafId ?? a.animalUid,
         name: a.name ?? "Unknown",
         breed: a.breed ?? "—",
         type: a.species ?? "Livestock",
         status: a.status ?? "Healthy",
         icon: Cow,
-      }));
-    }
-    return ALL_ANIMALS;
-  }, [apiAnimals]);
+      })) ?? [];
+
+    if (mapped.length > 0) return mapped;
+    if (isError && isMockDataEnabled()) return ALL_ANIMALS;
+    return mapped;
+  }, [apiAnimals, isError]);
 
   const filteredAnimals = animals.filter((animal) => {
     const matchesSearch = animal.name.toLowerCase().includes(search.toLowerCase()) || 
@@ -69,6 +73,13 @@ export default function AnimalList() {
       </div>
 
       <div className="px-6 py-8 space-y-8">
+        <ApiQueryFeedback
+          isLoading={isLoading}
+          isError={isError && !isMockDataEnabled()}
+          errorMessage={(error as Error)?.message}
+          isEmpty={!isLoading && !isError && animals.length === 0}
+          onRetry={() => refetch()}
+        />
         {/* Category Filters */}
         <div className="flex gap-2 overflow-x-auto no-scrollbar -mx-6 px-6">
            {["All", "Bovine", "Equine", "Ovine"].map((cat) => (

@@ -16,7 +16,7 @@ export function ShopProviders({ children }: { children: ReactNode }) {
 
   return (
     <QueryClientProvider client={queryClient}>
-      <AuthProvider>{children}</AuthProvider>
+      <AuthProvider>{children as never}</AuthProvider>
     </QueryClientProvider>
   );
 }

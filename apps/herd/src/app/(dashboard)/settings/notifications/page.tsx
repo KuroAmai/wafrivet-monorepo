@@ -1,6 +1,6 @@
 "use client";
 
-import { CaretLeft, Bell, BellRinging, Siren, ShieldCheck, Heartbeat, Chats, ToggleLeft, ToggleRight } from "@phosphor-icons/react";
+import { CaretLeft, Bell, BellRinging, Siren, ShieldCheck, Heartbeat, ToggleLeft, ToggleRight } from "@phosphor-icons/react";
 import Link from "next/link";
 import { useState, useEffect } from "react";
 import { cn } from "@/lib/utils";
