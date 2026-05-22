@@ -1,12 +1,15 @@
 import NextLink from "next/link";
+import type { LinkProps as NextLinkProps } from "next/link";
 import * as React from "react";
 
-type LinkProps = Omit<React.ComponentProps<typeof NextLink>, "href"> & {
+type LinkProps = Omit<NextLinkProps, "href"> & {
   to: string;
 };
 
 export function LinkShim({ to, ...props }: LinkProps) {
-  return <NextLink href={to} {...props} />;
+  // Cast avoids duplicate @types/react Key mismatch in the monorepo on Vercel.
+  const linkProps = { href: to, ...props } as NextLinkProps;
+  return <NextLink {...linkProps} />;
 }
 
 export const Link: typeof LinkShim = LinkShim;

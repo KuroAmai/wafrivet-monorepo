@@ -10,6 +10,7 @@ export type AuthState = {
   isAuthenticated: boolean;
   login: AuthContextValue["login"];
   logout: AuthContextValue["logout"];
+  refreshUser: AuthContextValue["refreshUser"];
 };
 
 const fallback: AuthState = {
@@ -33,5 +34,6 @@ export function useAuth(): AuthState {
     isAuthenticated: ctx.isAuthenticated,
     login: ctx.login,
     logout: ctx.logout,
+    refreshUser: ctx.refreshUser,
   };
 }

@@ -1,6 +1,21 @@
 const FALLBACK_SITE_URL = "https://wafrivet.com";
 
-const rawSiteUrl = (import.meta.env.VITE_SITE_URL as string | undefined) ?? FALLBACK_SITE_URL;
+function resolveSiteUrl(): string {
+  if (typeof process !== "undefined" && process.env.NEXT_PUBLIC_SITE_URL?.trim()) {
+    return process.env.NEXT_PUBLIC_SITE_URL.trim();
+  }
+  try {
+    const viteEnv = (
+      import.meta as ImportMeta & { env?: { VITE_SITE_URL?: string } }
+    ).env?.VITE_SITE_URL;
+    if (viteEnv?.trim()) return viteEnv.trim();
+  } catch {
+    /* not a Vite bundle */
+  }
+  return FALLBACK_SITE_URL;
+}
+
+const rawSiteUrl = resolveSiteUrl();
 
 export const SITE_URL = rawSiteUrl.replace(/\/+$/, "");
 export const SITE_NAME = "Wafrivet";

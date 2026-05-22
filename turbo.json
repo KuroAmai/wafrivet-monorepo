@@ -1,6 +1,19 @@
 {
   "$schema": "https://turbo.build/schema.json",
   "ui": "tui",
+  "globalEnv": [
+    "AUTH_COOKIE_DOMAIN",
+    "NEXT_PUBLIC_AUTH_COOKIE_DOMAIN",
+    "NEXT_PUBLIC_API_URL",
+    "NEXT_PUBLIC_APP_URL",
+    "NEXT_PUBLIC_SHOP_URL",
+    "NEXT_PUBLIC_HERD_URL",
+    "NEXT_PUBLIC_ENABLE_MOCK_AUTH",
+    "VITE_API_URL",
+    "VITE_CORE_URL",
+    "VITE_FIELD_VET_URL",
+    "VITE_ENABLE_MOCK_AUTH"
+  ],
   "tasks": {
     "dev": {
       "cache": false,
