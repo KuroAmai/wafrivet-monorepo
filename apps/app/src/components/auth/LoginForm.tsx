@@ -46,7 +46,9 @@ export function LoginForm() {
   const router = useRouter();
   const [showPass, setShowPass] = useState(false);
   const [apiError, setApiError] = useState<string | null>(null);
-  const { register, handleSubmit, formState: { errors, isSubmitting } } = useForm({
+  const { register, handleSubmit, formState: { errors, isSubmitting } } = useForm<
+    z.infer<typeof schema>
+  >({
     resolver: zodResolver(schema),
   });
 
@@ -58,6 +60,7 @@ export function LoginForm() {
 
     const res = await fetch("/api/auth/login", {
       method: "POST",
+      credentials: "same-origin",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ email, password: values.password }),
     });
@@ -66,10 +69,6 @@ export function LoginForm() {
     if (!res.ok) {
       setApiError(data.message ?? "Sign in failed. Check your credentials.");
       return;
-    }
-
-    if (typeof document !== "undefined" && data.accessToken) {
-      document.cookie = `jwt=${encodeURIComponent(data.accessToken)}; path=/; max-age=${data.expiresIn ?? 3600}; SameSite=Lax`;
     }
 
     router.push("/welcome");

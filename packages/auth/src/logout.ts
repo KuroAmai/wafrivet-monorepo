@@ -19,18 +19,28 @@ function getAppLoginUrl(): string {
   return `${base}/login`;
 }
 
-export function logoutClient(): void {
+function resolveLogoutHref(returnTo?: string): string {
+  if (!returnTo) return getAppLoginUrl();
+  if (returnTo.startsWith("http://") || returnTo.startsWith("https://")) return returnTo;
+  if (typeof window !== "undefined") {
+    return `${window.location.origin}${returnTo.startsWith("/") ? returnTo : `/${returnTo}`}`;
+  }
+  return returnTo;
+}
+
+import { clearAuthCookieClient } from "./authCookie";
+
+/** @param returnTo — e.g. `/login` on Shop; omit to send users to main app login. */
+export function logoutClient(returnTo?: string): void {
   if (typeof document === "undefined" || typeof window === "undefined") {
     return;
   }
-  const expire = "Thu, 01 Jan 1970 00:00:00 GMT";
-  const names = ["jwt", "token", "access_token"];
-  const domains = [".wafrivet.com", "", window.location.hostname];
-  for (const name of names) {
-    for (const domain of domains) {
-      const domainPart = domain ? `; domain=${domain}` : "";
-      document.cookie = `${name}=; path=/; expires=${expire}; max-age=0${domainPart}`;
+  clearAuthCookieClient();
+  if (typeof window !== "undefined" && window.location.hostname) {
+    const expire = "Thu, 01 Jan 1970 00:00:00 GMT";
+    for (const name of ["jwt", "token", "access_token"] as const) {
+      document.cookie = `${name}=; path=/; expires=${expire}; max-age=0`;
     }
   }
-  window.location.href = getAppLoginUrl();
+  window.location.href = resolveLogoutHref(returnTo);
 }

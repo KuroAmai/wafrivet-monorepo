@@ -1,6 +1,6 @@
 "use client";
 
-import type { UserRole } from "@wafrivet/auth";
+import type { SignupRole } from "@wafrivet/types";
 import {
   Plant,
   Stethoscope,
@@ -9,12 +9,12 @@ import {
 } from "@phosphor-icons/react";
 
 interface RoleSelectorProps {
-  selectedRole?: UserRole;
-  onSelect: (role: UserRole) => void;
+  selectedRole?: SignupRole;
+  onSelect: (role: SignupRole) => void;
 }
 
 const ROLES: {
-  id: UserRole;
+  id: SignupRole;
   title: string;
   description: string;
   Icon: React.ComponentType<{ size?: number | string; className?: string }>;

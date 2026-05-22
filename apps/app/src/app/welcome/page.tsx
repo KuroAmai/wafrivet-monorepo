@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { Plant, Storefront, GearSix, ArrowRight, SignOut } from "@phosphor-icons/react/dist/ssr";
+import { getShopEntryUrl, normalizeUserRole, type UserRole } from "@wafrivet/auth";
 import { getServerAuth } from "@wafrivet/auth/server";
 
 export const dynamic = "force-dynamic";
@@ -33,9 +34,10 @@ export default async function WelcomePage() {
 
   const herdUrl = process.env.NEXT_PUBLIC_HERD_URL || "https://herd.wafrivet.com";
   const shopUrl = process.env.NEXT_PUBLIC_SHOP_URL || "https://shop.wafrivet.com";
-  const accountHref = role === "admin" ? "/admin" : "/dashboard";
+  const productRole = normalizeUserRole(role);
+  const accountHref = productRole === "admin" ? "/admin" : "/dashboard";
 
-  const cards: AppCard[] = [
+  const allCards: AppCard[] = [
     {
       id: "herd",
       title: "Herd",
@@ -55,12 +57,14 @@ export default async function WelcomePage() {
     {
       id: "account",
       title: "Account",
-      description: "Settings, billing, and admin.",
+      description: "Settings, billing, and profile.",
       href: accountHref,
       external: false,
       Icon: GearSix,
     },
   ];
+
+  const cards = cardsForRole(productRole, allCards, shopUrl);
 
   const avatarUrl = `https://api.dicebear.com/9.x/personas/svg?seed=${encodeURIComponent(fullName)}`;
 
@@ -85,7 +89,11 @@ export default async function WelcomePage() {
         </p>
       </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+      <div
+        className={`grid grid-cols-1 gap-3 ${
+          cards.length === 1 ? "max-w-sm mx-auto" : cards.length === 2 ? "sm:grid-cols-2 max-w-xl mx-auto" : "sm:grid-cols-3"
+        }`}
+      >
         {cards.map(({ id, title, description, href, external, Icon }) => {
           const cardClass =
             "group text-left p-5 rounded-xl border border-gray-200 bg-gray-50 hover:border-[#2D4D31] hover:bg-[#f0f4f0] transition-all duration-200 active:scale-[0.99] flex flex-col h-full";
@@ -130,4 +138,57 @@ export default async function WelcomePage() {
       </div>
     </div>
   );
+}
+
+function cardsForRole(
+  role: UserRole | null,
+  cards: AppCard[],
+  shopUrl: string,
+): AppCard[] {
+  if (!role) return cards;
+
+  const herd = cards.find((c) => c.id === "herd")!;
+  const account = cards.find((c) => c.id === "account")!;
+
+  switch (role) {
+    case "farmer":
+    case "vet":
+      return [
+        herd,
+        { ...cards.find((c) => c.id === "shop")!, description: "Order medicine and supplies for your herd." },
+        account,
+      ];
+    case "chemist":
+      return [
+        {
+          id: "shop",
+          title: "Shop dashboard",
+          description: "Manage inventory, orders, and your storefront.",
+          href: getShopEntryUrl("chemist"),
+          external: true,
+          Icon: Storefront,
+        },
+        account,
+      ];
+    case "distributor":
+      return [
+        {
+          id: "shop",
+          title: "Distributor portal",
+          description: "Manage your chemist network and supply chain.",
+          href: getShopEntryUrl("distributor"),
+          external: true,
+          Icon: Storefront,
+        },
+        account,
+      ];
+    case "admin":
+      return cards.map((c) =>
+        c.id === "account"
+          ? { ...c, title: "Admin", description: "Platform settings and operations.", href: "/admin" }
+          : c,
+      );
+    default:
+      return cards;
+  }
 }

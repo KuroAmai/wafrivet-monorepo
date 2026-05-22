@@ -115,7 +115,13 @@ export function Sidebar() {
       <div className="mt-auto pt-6">
         <button
           type="button"
-          onClick={() => logoutClient()}
+          onClick={async () => {
+            await fetch("/api/auth/logout", {
+              method: "POST",
+              credentials: "same-origin",
+            }).catch(() => undefined);
+            logoutClient("/login");
+          }}
           className="w-full flex items-center justify-center gap-3 p-6 bg-red-50 text-red-600 rounded-[32px] font-black text-[15px] hover:bg-red-100 transition-all active:scale-[0.98]"
         >
           <SignOut size={20} weight="bold" /> Sign Out

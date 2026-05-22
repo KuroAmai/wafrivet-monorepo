@@ -1,5 +1,6 @@
 import { cookies } from "next/headers";
 import { NextResponse } from "next/server";
+import { applyAuthCookie } from "@wafrivet/auth";
 import { GATEWAY_URL } from "@/lib/gateway";
 
 export async function POST(request: Request) {
@@ -28,13 +29,7 @@ export async function POST(request: Request) {
 
   const cookieStore = await cookies();
   const maxAge = typeof data.expiresIn === "number" ? data.expiresIn : 3600;
-  cookieStore.set("jwt", data.accessToken, {
-    httpOnly: false,
-    secure: process.env.NODE_ENV === "production",
-    sameSite: "lax",
-    path: "/",
-    maxAge,
-  });
+  applyAuthCookie(cookieStore, data.accessToken as string, maxAge);
 
   return NextResponse.json({
     ok: true,

@@ -7,11 +7,15 @@ export type LoginDto = {
   password: string;
 };
 
+/** Product role chosen at signup; drives onboarding and app redirects. */
+export type SignupRole = "farmer" | "vet" | "chemist" | "distributor";
+
 export type SignupDto = {
   firstName: string;
   lastName: string;
   email: string;
   password: string;
+  role: SignupRole;
   referralCode?: string;
 };
 

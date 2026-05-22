@@ -25,7 +25,9 @@ export function ProfileShell({
   const pathname = usePathname();
 
   const handleLogout = () => {
-    logoutClient();
+    fetch("/api/auth/logout", { method: "POST", credentials: "same-origin" })
+      .catch(() => undefined)
+      .finally(() => logoutClient("/login"));
   };
 
   const navItems = [

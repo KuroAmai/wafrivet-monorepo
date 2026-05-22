@@ -4,6 +4,27 @@ import { useState, useEffect, useRef } from "react";
 import { Button } from "@heroui/react";
 import { useRouter } from "next/navigation";
 import { ArrowRight } from "lucide-react";
+import { normalizeUserRole, redirectByRole } from "@wafrivet/auth";
+
+const PENDING_ROLE_KEY = "wafrivet_pending_role";
+
+function clearPendingSignup() {
+  if (typeof sessionStorage === "undefined") return;
+  sessionStorage.removeItem("wafrivet_pending_email");
+  sessionStorage.removeItem("wafrivet_pending_password");
+  sessionStorage.removeItem(PENDING_ROLE_KEY);
+}
+
+function getPostAuthDestination(profileRole?: string): string {
+  const pending =
+    typeof sessionStorage !== "undefined"
+      ? sessionStorage.getItem(PENDING_ROLE_KEY)
+      : null;
+  const role =
+    normalizeUserRole(profileRole) ?? normalizeUserRole(pending);
+  if (role) return redirectByRole(role);
+  return "/welcome";
+}
 
 const LENGTH = 6;
 
@@ -55,8 +76,15 @@ export function OTPInput() {
 
     const mockEnabled = process.env.NEXT_PUBLIC_ENABLE_MOCK_AUTH === "true";
     if (mockEnabled) {
-      document.cookie = "jwt=mock-token; path=/; max-age=3600";
-      window.location.href = "/welcome";
+      await fetch("/api/auth/session", {
+        method: "POST",
+        credentials: "same-origin",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ token: "mock-token" }),
+      });
+      const destination = getPostAuthDestination();
+      clearPendingSignup();
+      window.location.href = destination;
       return;
     }
 
@@ -67,6 +95,7 @@ export function OTPInput() {
 
     const res = await fetch("/api/auth/verify-email", {
       method: "POST",
+      credentials: "same-origin",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ email, token: code }),
     });
@@ -78,6 +107,7 @@ export function OTPInput() {
 
     const loginRes = await fetch("/api/auth/login", {
       method: "POST",
+      credentials: "same-origin",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         email,
@@ -85,14 +115,22 @@ export function OTPInput() {
       }),
     }).catch(() => null);
 
+    let profileRole: string | undefined;
     if (loginRes?.ok) {
       const loginData = await loginRes.json();
-      if (loginData.accessToken) {
-        document.cookie = `jwt=${encodeURIComponent(loginData.accessToken)}; path=/; max-age=${loginData.expiresIn ?? 3600}; SameSite=Lax`;
-      }
+      profileRole =
+        loginData.user?.role ?? loginData.role ?? loginData.profile?.role;
     }
 
-    router.push("/welcome");
+    const destination = getPostAuthDestination(profileRole);
+    clearPendingSignup();
+
+    if (destination.startsWith("http")) {
+      window.location.href = destination;
+      return;
+    }
+
+    router.push(destination);
     router.refresh();
   };
 

@@ -10,13 +10,27 @@ Marketing (`apps/web`, root Vite) does **not** use the product API. Deploy these
 
 Copy [.env.example](.env.example) into each app's `.env.local` (dev) or hosting dashboard (prod).
 
+## Shared auth cookie (production)
+
+Set on **app** and **shop** (and any host that sets `jwt`):
+
+```bash
+AUTH_COOKIE_DOMAIN=.wafrivet.com
+NEXT_PUBLIC_AUTH_COOKIE_DOMAIN=.wafrivet.com
+```
+
+- All product hosts must be `https://*.wafrivet.com` (not bare `wafrivet.com` unless you also serve the app there).
+- Login BFF routes set `jwt` with `Domain=.wafrivet.com`, so signup on **app** → verify → redirect to **shop** `/dashboard` does not require a second sign-in.
+- `localhost` ports do **not** share cookies; test SSO on deployed subdomains only.
+
 ## Verify live API after deploy
 
 1. Open the **product** URL (not marketing-only).
 2. DevTools → **Network** → filter `wafrivet-api-gateway` or your `NEXT_PUBLIC_API_URL` host.
-3. Log in at `/login` → expect `POST /api/auth/login` → 200 and `jwt` cookie.
-4. Open `/admin/users` → expect `GET .../admin/users` (401/CORS if misconfigured).
-5. If calls fail: fix **CORS** on the gateway for your origin before expecting UI changes.
+3. Log in at `/login` → expect `POST /api/auth/login` → 200 and `jwt` cookie with **Domain** `.wafrivet.com`.
+4. Chemist signup on app → after verify, open shop `/dashboard` without logging in again (same cookie).
+5. Open `/admin/users` → expect `GET .../admin/users` (401/CORS if misconfigured).
+6. If calls fail: fix **CORS** on the gateway for your origin before expecting UI changes.
 
 ## CORS origins to allow (credentials)
 

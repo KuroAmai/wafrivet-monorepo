@@ -1,5 +1,9 @@
 import type { Metadata } from "next";
+import { redirect } from "next/navigation";
+import { headers } from "next/headers";
+import { getShopLoginUrl } from "@wafrivet/auth";
 import { getServerAuth } from "@wafrivet/auth/server";
+import { ShopRoleGuard } from "@/components/auth/ShopRoleGuard";
 import { Sidebar } from "@/components/chemist/Sidebar";
 import { ChemistNavbar } from "@/components/chemist/ChemistNavbar";
 
@@ -23,23 +27,32 @@ export default async function ChemistLayout({ children }: { children: React.Reac
   let auth;
   try {
     auth = await getServerAuth();
-  } catch (e) {
+  } catch {
     auth = { authenticated: false };
   }
 
+  if (!auth.authenticated) {
+    const headersList = await headers();
+    const pathname =
+      headersList.get("x-pathname") ??
+      headersList.get("x-invoke-path") ??
+      "/dashboard";
+    redirect(getShopLoginUrl(pathname));
+  }
+
   return (
-    <div className="min-h-screen bg-[#F9FAFB]">
-      <ChemistNavbar />
-      <main className="max-w-7xl mx-auto px-4 md:px-6 pt-10 pb-20">
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-10">
-          <div className="lg:col-span-3">
-            <Sidebar />
+    <ShopRoleGuard allowed={["chemist", "admin"]}>
+      <div className="min-h-screen bg-[#F9FAFB]">
+        <ChemistNavbar />
+        <main className="max-w-7xl mx-auto px-4 md:px-6 pt-10 pb-20">
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-10">
+            <div className="lg:col-span-3">
+              <Sidebar />
+            </div>
+            <div className="lg:col-span-9">{children}</div>
           </div>
-          <div className="lg:col-span-9">
-            {children}
-          </div>
-        </div>
-      </main>
-    </div>
+        </main>
+      </div>
+    </ShopRoleGuard>
   );
 }

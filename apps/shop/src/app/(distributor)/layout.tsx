@@ -1,5 +1,8 @@
 import type { Metadata } from "next";
+import { redirect } from "next/navigation";
+import { getShopLoginUrl } from "@wafrivet/auth";
 import { getServerAuth } from "@wafrivet/auth/server";
+import { ShopRoleGuard } from "@/components/auth/ShopRoleGuard";
 import { Sidebar } from "@/components/distributor/Sidebar";
 import { TopBar } from "@/components/distributor/TopBar";
 
@@ -23,23 +26,23 @@ export default async function DistributorLayout({ children }: { children: React.
   let auth;
   try {
     auth = await getServerAuth();
-  } catch (e) {
+  } catch {
     auth = { authenticated: false };
   }
-  
-  if (!auth.authenticated && process.env.NODE_ENV === 'production') {
-    // Skip protection during build
+
+  if (!auth.authenticated) {
+    redirect(getShopLoginUrl("/distributor"));
   }
 
   return (
-    <div className="flex h-screen overflow-hidden bg-slate-50">
-      <Sidebar />
-      <div className="flex-1 flex flex-col h-full overflow-hidden">
-        <TopBar />
-        <main className="flex-1 overflow-y-auto p-8">
-          {children}
-        </main>
+    <ShopRoleGuard allowed={["distributor", "admin"]}>
+      <div className="flex h-screen overflow-hidden bg-slate-50">
+        <Sidebar />
+        <div className="flex-1 flex flex-col h-full overflow-hidden">
+          <TopBar />
+          <main className="flex-1 overflow-y-auto p-8">{children}</main>
+        </div>
       </div>
-    </div>
+    </ShopRoleGuard>
   );
 }

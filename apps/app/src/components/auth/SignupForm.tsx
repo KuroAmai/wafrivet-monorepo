@@ -7,11 +7,16 @@ import * as z from "zod";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { Eye, EyeSlash, ArrowRight } from "@phosphor-icons/react";
+import type { SignupRole } from "@wafrivet/types";
+import { RoleSelector } from "./RoleSelector";
+
+const signupRoles = ["farmer", "vet", "chemist", "distributor"] as const;
 
 const signupSchema = z.object({
   fullName: z.string().min(2, "Full name is required"),
   phone: z.string().min(10, "Enter a valid phone number"),
   password: z.string().min(8, "Password must be at least 8 characters"),
+  role: z.enum(signupRoles, { message: "Select how you'll use Wafrivet" }),
 });
 
 type SignupFormData = z.infer<typeof signupSchema>;
@@ -56,6 +61,8 @@ export function SignupForm() {
   const {
     register,
     handleSubmit,
+    setValue,
+    watch,
     formState: { errors, isSubmitting },
   } = useForm<SignupFormData>({
     resolver: zodResolver(signupSchema),
@@ -63,8 +70,11 @@ export function SignupForm() {
       fullName: "",
       phone: "",
       password: "",
+      role: undefined,
     },
   });
+
+  const selectedRole = watch("role") as SignupRole | undefined;
 
   const onSubmit = async (data: SignupFormData) => {
     setApiError(null);
@@ -83,6 +93,7 @@ export function SignupForm() {
         lastName,
         email,
         password: data.password,
+        role: data.role,
       }),
     });
     const body = await res.json().catch(() => ({}));
@@ -93,6 +104,7 @@ export function SignupForm() {
     if (typeof sessionStorage !== "undefined") {
       sessionStorage.setItem("wafrivet_pending_email", email);
       sessionStorage.setItem("wafrivet_pending_password", data.password);
+      sessionStorage.setItem("wafrivet_pending_role", data.role);
     }
     router.push("/verify");
   };
@@ -127,6 +139,19 @@ export function SignupForm() {
           registration={register("phone")}
           placeholder="+234 800 000 0000"
         />
+
+        <div className="space-y-2">
+          <label className="block text-[13px] font-medium text-gray-600">
+            I am signing up as
+          </label>
+          <RoleSelector
+            selectedRole={selectedRole}
+            onSelect={(role) => setValue("role", role, { shouldValidate: true })}
+          />
+          {errors.role?.message ? (
+            <p className="text-[12px] text-red-500 pl-1">{errors.role.message}</p>
+          ) : null}
+        </div>
 
         <Field
           label="Create Password"

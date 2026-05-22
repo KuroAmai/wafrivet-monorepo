@@ -1,5 +1,6 @@
 import { cookies } from "next/headers";
 import { NextResponse } from "next/server";
+import { applyAuthCookie } from "@wafrivet/auth";
 import { GATEWAY_URL } from "@/lib/gateway";
 
 export async function POST(request: Request) {
@@ -9,6 +10,16 @@ export async function POST(request: Request) {
 
   if (!email || !password) {
     return NextResponse.json({ message: "Email and password are required" }, { status: 400 });
+  }
+
+  if (process.env.NEXT_PUBLIC_ENABLE_MOCK_AUTH === "true") {
+    const cookieStore = await cookies();
+    applyAuthCookie(cookieStore, "mock-token", 3600);
+    return NextResponse.json({
+      ok: true,
+      expiresIn: 3600,
+      accessToken: "mock-token",
+    });
   }
 
   const res = await fetch(`${GATEWAY_URL}/auth/login`, {
@@ -28,13 +39,7 @@ export async function POST(request: Request) {
 
   const cookieStore = await cookies();
   const maxAge = typeof data.expiresIn === "number" ? data.expiresIn : 3600;
-  cookieStore.set("jwt", data.accessToken, {
-    httpOnly: false,
-    secure: process.env.NODE_ENV === "production",
-    sameSite: "lax",
-    path: "/",
-    maxAge,
-  });
+  applyAuthCookie(cookieStore, data.accessToken as string, maxAge);
 
   return NextResponse.json({
     ok: true,
