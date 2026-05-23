@@ -12,11 +12,15 @@ const schema = z.object({
   emailOrPhone: z.string().min(1, "Email or phone is required"),
 });
 
+type ForgotPasswordFormData = z.infer<typeof schema>;
+
 export function ForgotPasswordForm() {
   const [isSent, setIsSent] = useState(false);
-  const { register, handleSubmit, formState: { errors, isSubmitting } } = useForm({ resolver: zodResolver(schema) });
+  const { register, handleSubmit, formState: { errors, isSubmitting } } = useForm<ForgotPasswordFormData>({
+    resolver: zodResolver(schema),
+  });
 
-  const onSubmit = async (values: z.infer<typeof schema>) => {
+  const onSubmit = async (values: ForgotPasswordFormData) => {
     const email = toAuthEmail(values.emailOrPhone);
     void email;
     await new Promise((r) => setTimeout(r, 1000));
