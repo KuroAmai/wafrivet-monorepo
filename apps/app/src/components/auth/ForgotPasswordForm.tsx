@@ -6,6 +6,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import Link from "next/link";
 import { ArrowLeft, ArrowRight, EnvelopeSimple } from "@phosphor-icons/react";
+import { toAuthEmail } from "@/lib/authIdentifier";
 
 const schema = z.object({
   emailOrPhone: z.string().min(1, "Email or phone is required"),
@@ -15,8 +16,10 @@ export function ForgotPasswordForm() {
   const [isSent, setIsSent] = useState(false);
   const { register, handleSubmit, formState: { errors, isSubmitting } } = useForm({ resolver: zodResolver(schema) });
 
-  const onSubmit = async () => {
-    await new Promise(r => setTimeout(r, 1000));
+  const onSubmit = async (values: z.infer<typeof schema>) => {
+    const email = toAuthEmail(values.emailOrPhone);
+    void email;
+    await new Promise((r) => setTimeout(r, 1000));
     setIsSent(true);
   };
 

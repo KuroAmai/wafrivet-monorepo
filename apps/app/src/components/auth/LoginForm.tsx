@@ -7,6 +7,8 @@ import * as z from "zod";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { Eye, EyeSlash, ArrowRight } from "@phosphor-icons/react";
+import { toAuthEmail } from "@/lib/authIdentifier";
+import { persistLoginSession } from "@/lib/persistLoginSession";
 import { resolveAuthDestination } from "@/lib/resolveAuthDestination";
 
 const schema = z.object({
@@ -55,9 +57,7 @@ export function LoginForm() {
 
   const onSubmit = async (values: z.infer<typeof schema>) => {
     setApiError(null);
-    const email = values.emailOrPhone.includes("@")
-      ? values.emailOrPhone
-      : `${values.emailOrPhone}@wafrivet.local`;
+    const email = toAuthEmail(values.emailOrPhone);
 
     const res = await fetch("/api/auth/login", {
       method: "POST",
@@ -71,6 +71,8 @@ export function LoginForm() {
       setApiError(data.message ?? "Sign in failed. Check your credentials.");
       return;
     }
+
+    persistLoginSession(data);
 
     const destination = await resolveAuthDestination();
     if (destination.startsWith("http")) {

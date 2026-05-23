@@ -7,6 +7,7 @@ import * as z from "zod";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { Eye, EyeSlash, ArrowRight } from "@phosphor-icons/react";
+import { toAuthEmail } from "@/lib/authIdentifier";
 
 const signupSchema = z.object({
   fullName: z.string().min(2, "Full name is required"),
@@ -71,9 +72,7 @@ export function SignupForm() {
     const parts = data.fullName.trim().split(/\s+/);
     const firstName = parts[0] ?? "";
     const lastName = parts.slice(1).join(" ") || firstName;
-    const email = data.phone.includes("@")
-      ? data.phone
-      : `${data.phone.replace(/\D/g, "")}@wafrivet.local`;
+    const email = toAuthEmail(data.phone);
 
     const res = await fetch("/api/auth/signup", {
       method: "POST",

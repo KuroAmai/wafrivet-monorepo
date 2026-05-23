@@ -5,7 +5,7 @@ import { getMockAuthMe } from "@/lib/mockAuthProfile";
 export async function GET() {
   const token = await getGatewayToken();
   if (!token) {
-    return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
+    return NextResponse.json({ message: "No session cookie" }, { status: 401 });
   }
 
   if (token === "mock-token") {

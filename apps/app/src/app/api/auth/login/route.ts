@@ -1,6 +1,11 @@
 import { cookies } from "next/headers";
 import { NextResponse } from "next/server";
-import { applyAuthCookie } from "@wafrivet/auth";
+import {
+  AUTH_COOKIE_NAME,
+  applyAuthCookie,
+  getAuthCookieSetOptions,
+} from "@wafrivet/auth";
+import { extractAccessToken } from "@/lib/extractAccessToken";
 import { GATEWAY_URL } from "@/lib/gateway";
 
 export async function POST(request: Request) {
@@ -18,22 +23,35 @@ export async function POST(request: Request) {
     body: JSON.stringify({ email, password }),
   });
 
-  const data = await res.json().catch(() => ({}));
+  const data = (await res.json().catch(() => ({}))) as Record<string, unknown>;
 
   if (!res.ok) {
     return NextResponse.json(
-      { message: data.message ?? "Login failed", code: data.code },
+      {
+        message: (data.message as string | undefined) ?? "Login failed",
+        code: data.code,
+      },
       { status: res.status },
     );
   }
 
-  const cookieStore = await cookies();
-  const maxAge = typeof data.expiresIn === "number" ? data.expiresIn : 3600;
-  applyAuthCookie(cookieStore, data.accessToken as string, maxAge);
+  const accessToken = extractAccessToken(data);
+  if (!accessToken) {
+    return NextResponse.json(
+      { message: "Login succeeded but no access token was returned" },
+      { status: 502 },
+    );
+  }
 
-  return NextResponse.json({
+  const maxAge = typeof data.expiresIn === "number" ? data.expiresIn : 3600;
+  const cookieStore = await cookies();
+  applyAuthCookie(cookieStore, accessToken, maxAge);
+
+  const response = NextResponse.json({
     ok: true,
     expiresIn: maxAge,
-    accessToken: data.accessToken as string,
+    accessToken,
   });
+  response.cookies.set(AUTH_COOKIE_NAME, accessToken, getAuthCookieSetOptions(maxAge));
+  return response;
 }

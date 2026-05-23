@@ -4,6 +4,7 @@ import { useState, useEffect, useRef } from "react";
 import { Button } from "@heroui/react";
 import { useRouter } from "next/navigation";
 import { ArrowRight } from "lucide-react";
+import { persistLoginSession } from "@/lib/persistLoginSession";
 import { resolveAuthDestination } from "@/lib/resolveAuthDestination";
 
 function clearPendingSignup() {
@@ -20,6 +21,7 @@ export function OTPInput() {
   const [digits, setDigits] = useState<string[]>(Array(LENGTH).fill(""));
   const [countdown, setCountdown] = useState(60);
   const [isVerifying, setIsVerifying] = useState(false);
+  const [apiError, setApiError] = useState<string | null>(null);
   const inputRefs = useRef<(HTMLInputElement | null)[]>([]);
 
   useEffect(() => {
@@ -73,6 +75,7 @@ export function OTPInput() {
 
   const handleVerify = async (code: string) => {
     setIsVerifying(true);
+    setApiError(null);
 
     const mockEnabled = process.env.NEXT_PUBLIC_ENABLE_MOCK_AUTH === "true";
     if (mockEnabled) {
@@ -99,11 +102,13 @@ export function OTPInput() {
     });
 
     if (!res.ok) {
+      const body = await res.json().catch(() => ({}));
+      setApiError((body as { message?: string }).message ?? "Verification failed.");
       setIsVerifying(false);
       return;
     }
 
-    await fetch("/api/auth/login", {
+    const loginRes = await fetch("/api/auth/login", {
       method: "POST",
       credentials: "same-origin",
       headers: { "Content-Type": "application/json" },
@@ -111,8 +116,19 @@ export function OTPInput() {
         email,
         password: sessionStorage.getItem("wafrivet_pending_password") ?? "",
       }),
-    }).catch(() => null);
+    });
+    const loginData = await loginRes.json().catch(() => ({}));
 
+    if (!loginRes.ok) {
+      setApiError(
+        (loginData as { message?: string }).message ??
+          "Verified, but sign-in failed. Try signing in from the login page.",
+      );
+      setIsVerifying(false);
+      return;
+    }
+
+    persistLoginSession(loginData as { accessToken?: string; expiresIn?: number });
     await navigateAfterAuth();
   };
 
@@ -129,6 +145,12 @@ export function OTPInput() {
           Enter the 6-digit code we sent to your number
         </p>
       </div>
+
+      {apiError ? (
+        <p className="mb-4 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
+          {apiError}
+        </p>
+      ) : null}
 
       <div className="flex gap-2.5 justify-between mb-8" onPaste={handlePaste}>
         {digits.map((digit, idx) => (

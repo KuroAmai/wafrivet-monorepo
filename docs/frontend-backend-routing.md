@@ -38,7 +38,10 @@ Frontend flow: [`onboarding-frontend.md`](./onboarding-frontend.md).
 
 | Variable | Purpose |
 |----------|---------|
+| `API_URL` | Server-side gateway base (BFF routes); include `/api/v1` |
 | `NEXT_PUBLIC_API_URL` | Gateway base including `/api/v1` |
+| `AUTH_COOKIE_DOMAIN` | Shared session cookie domain (e.g. `.wafrivet.com`) |
+| `NEXT_PUBLIC_AUTH_COOKIE_DOMAIN` | Client-side cookie domain (same as above) |
 | `NEXT_PUBLIC_ENABLE_MOCK_AUTH` | Dev mock JWT |
 
 ## CORS
