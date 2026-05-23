@@ -10,7 +10,7 @@ export const CHEMIST_PROTECTED_PREFIXES = [
 
 export const DISTRIBUTOR_PROTECTED_PREFIX = "/distributor";
 
-export const CUSTOMER_PROTECTED_PREFIXES = ["/checkout", "/profile", "/orders"] as const;
+export const CUSTOMER_PROTECTED_PREFIXES = ["/checkout", "/profile"] as const;
 
 export function isChemistConsolePath(pathname: string): boolean {
   return CHEMIST_PROTECTED_PREFIXES.some(

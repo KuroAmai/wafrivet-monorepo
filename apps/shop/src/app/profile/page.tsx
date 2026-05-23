@@ -27,7 +27,7 @@ export default function ProfilePage() {
       <section>
         <div className="flex items-center justify-between mb-8 px-2">
           <h2 className="text-[22px] font-black text-gray-900 tracking-tight">Recent Orders</h2>
-          <Link href="/orders" className="text-[14px] font-black text-[#2D4D31] hover:underline">
+          <Link href="/profile/orders" className="text-[14px] font-black text-[#2D4D31] hover:underline">
             View All
           </Link>
         </div>
@@ -81,7 +81,7 @@ export default function ProfilePage() {
                       <p className="text-[16px] font-black text-gray-900">{order.total}</p>
                     </div>
                     <Link
-                      href={`/orders/${order.id}`}
+                      href={`/profile/orders/${order.id}`}
                       className="px-6 py-3 bg-gray-50 text-gray-900 rounded-xl font-bold text-[13px] hover:bg-gray-100 transition-all"
                     >
                       {order.rawStatus === "OUT_FOR_DELIVERY" ? "Track" : "Details"}

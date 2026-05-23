@@ -70,7 +70,7 @@ export default function CheckoutPage() {
         window.location.href = payment.authorizationUrl;
         return;
       }
-      router.push(`/orders/${oid}`);
+      router.push(`/profile/orders/${oid}`);
     } catch (e) {
       setError(e instanceof Error ? e.message : "Checkout failed");
     } finally {

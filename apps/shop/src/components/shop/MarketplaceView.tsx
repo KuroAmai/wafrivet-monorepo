@@ -64,7 +64,7 @@ export function MarketplaceView() {
         {isLoggedIn && vetCommerce && activeOrder ? (
           <section className="mb-10 flex gap-4 overflow-x-auto no-scrollbar py-2 px-2">
             <Link
-              href={`/orders/${activeOrder.id}`}
+              href={`/profile/orders/${activeOrder.id}`}
               className="flex-shrink-0 w-[300px] bg-white p-5 rounded-[28px] border border-gray-100 flex items-center gap-4 hover:border-[#2D4D31]/20 transition-all"
             >
               <div className="w-12 h-12 bg-blue-50 rounded-2xl flex items-center justify-center text-blue-600">
