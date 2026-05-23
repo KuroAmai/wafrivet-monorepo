@@ -4,16 +4,12 @@ import { ShopNavbar } from "@/components/layout/ShopNavbar";
 import { ProductCard } from "@/components/shop/ProductCard";
 import { ChemistCard } from "@/components/shop/ChemistCard";
 import Link from "next/link";
-import { 
-  TrendUp, 
-  Package, 
-  SealWarning,
-  PawPrint
-} from "@phosphor-icons/react";
-import { useState, useEffect } from "react";
+import { TrendUp, Package, PawPrint } from "@phosphor-icons/react";
+import { useState, useEffect, useMemo } from "react";
 import { getAccessToken, isMockDataEnabled } from "@wafrivet/api";
+import { getCentralLoginUrl } from "@wafrivet/auth";
 import { ApiQueryFeedback } from "@wafrivet/ui";
-import { useCatalog } from "@/hooks/useShopApi";
+import { formatOrderDisplay, useCatalog, useShopperCommerceEnabled, useShopperOrders } from "@/hooks/useShopApi";
 
 const ANIMALS = ["Cattle", "Poultry", "Pigs", "Goats", "Sheep"];
 
@@ -22,6 +18,17 @@ export function MarketplaceView() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
 
   const { data: catalogItems, isLoading, isError, error, refetch } = useCatalog(search);
+  const vetCommerce = useShopperCommerceEnabled();
+  const { data: orders } = useShopperOrders({ limit: 5 });
+
+  const activeOrder = useMemo(() => {
+    if (!vetCommerce || !orders?.length) return null;
+    const inTransit = orders.find((o) =>
+      ["OUT_FOR_DELIVERY", "PROCESSING", "CONFIRMED"].includes(String(o.status).toUpperCase()),
+    );
+    const target = inTransit ?? orders[0];
+    return target ? formatOrderDisplay(target) : null;
+  }, [vetCommerce, orders]);
 
   useEffect(() => {
     setIsLoggedIn(Boolean(getAccessToken()));
@@ -30,8 +37,9 @@ export function MarketplaceView() {
   const handleProtectedAction = (e: React.MouseEvent) => {
     if (!isLoggedIn) {
       e.preventDefault();
-      const loginUrl = "https://app.wafrivet.com/login?redirect=" + encodeURIComponent(window.location.href);
-      window.location.href = "/login";
+      window.location.href = getCentralLoginUrl(
+        typeof window !== "undefined" ? window.location.href : undefined,
+      );
     }
   };
 
@@ -53,29 +61,22 @@ export function MarketplaceView() {
           </div>
         </section>
 
-        {isLoggedIn ? (
+        {isLoggedIn && vetCommerce && activeOrder ? (
           <section className="mb-10 flex gap-4 overflow-x-auto no-scrollbar py-2 px-2">
-            <div className="flex-shrink-0 w-[300px] bg-white p-5 rounded-[28px] border border-gray-100 flex items-center gap-4 cursor-pointer">
+            <Link
+              href={`/orders/${activeOrder.id}`}
+              className="flex-shrink-0 w-[300px] bg-white p-5 rounded-[28px] border border-gray-100 flex items-center gap-4 hover:border-[#2D4D31]/20 transition-all"
+            >
               <div className="w-12 h-12 bg-blue-50 rounded-2xl flex items-center justify-center text-blue-600">
                 <Package size={24} weight="duotone" />
               </div>
               <div>
-                <h2 className="text-[14px] font-bold text-gray-900">Arriving at 2:30 PM</h2>
-                <p className="text-[12px] text-gray-400">Order #WF-9281</p>
+                <h2 className="text-[14px] font-bold text-gray-900">{activeOrder.status}</h2>
+                <p className="text-[12px] text-gray-400">Order #{activeOrder.label}</p>
               </div>
-            </div>
-
-            <div className="flex-shrink-0 w-[300px] bg-[#2D4D31] p-5 rounded-[28px] flex items-center gap-4 text-white cursor-pointer">
-              <div className="w-12 h-12 bg-white/10 rounded-2xl flex items-center justify-center">
-                <SealWarning size={24} weight="fill" />
-              </div>
-              <div>
-                <h2 className="text-[14px] font-bold">New Diagnosis Result</h2>
-                <p className="text-[12px] text-white/70">Terramycin for Cattle</p>
-              </div>
-            </div>
+            </Link>
           </section>
-        ) : (
+        ) : isLoggedIn ? null : (
           <section className="mb-10 px-2">
              <div className="bg-white p-5 md:p-8 rounded-[24px] md:rounded-[32px] border border-gray-100 flex flex-col sm:flex-row items-center gap-6 text-center sm:text-left">
                 <div className="flex flex-col sm:flex-row items-center gap-4 flex-1">

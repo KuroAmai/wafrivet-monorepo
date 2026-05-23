@@ -19,3 +19,4 @@ export * as vetApi from "./modules/vet";
 export * as supplierApi from "./modules/supplier";
 export * as herdApi from "./modules/herd";
 export * as meApi from "./modules/me";
+export * as shopperApi from "./modules/shopper";

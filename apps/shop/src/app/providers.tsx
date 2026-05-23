@@ -3,6 +3,8 @@
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { AuthProvider } from "@wafrivet/auth";
 import { useState, type ReactNode } from "react";
+import { ShopLocationProvider } from "@/contexts/ShopLocationContext";
+import { LocationPicker } from "@/components/shop/LocationPicker";
 
 export function ShopProviders({ children }: { children: ReactNode }) {
   const [queryClient] = useState(
@@ -16,7 +18,12 @@ export function ShopProviders({ children }: { children: ReactNode }) {
 
   return (
     <QueryClientProvider client={queryClient}>
-      <AuthProvider meUrl="/api/auth/me">{children as never}</AuthProvider>
+      <AuthProvider meUrl="/api/auth/me">
+        <ShopLocationProvider>
+          {children as never}
+          <LocationPicker />
+        </ShopLocationProvider>
+      </AuthProvider>
     </QueryClientProvider>
   );
 }

@@ -45,6 +45,9 @@ export type AuthUserProfileDto = {
   updatedAt: string;
   firstName?: string;
   lastName?: string;
+  displayName?: string;
+  avatarUrl?: string | null;
+  phone?: string;
 };
 
 export type AuthMeDto = {
@@ -59,6 +62,8 @@ export type AuthMeDto = {
   lastName?: string | null;
   displayName?: string | null;
   avatarUrl?: string | null;
+  phone?: string | null;
+  createdAt?: string;
   user?: {
     id?: string;
     roles?: (UserRole | string)[];

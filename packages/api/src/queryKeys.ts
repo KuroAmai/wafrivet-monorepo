@@ -26,4 +26,10 @@ export const queryKeys = {
     animal: (uid: string) => ["herd", "animal", uid] as const,
     farms: ["herd", "farms"] as const,
   },
+  regions: {
+    list: (params?: object) => ["regions", "list", params] as const,
+  },
+  notifications: {
+    list: (params?: object) => ["notifications", "list", params] as const,
+  },
 };

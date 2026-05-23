@@ -15,7 +15,21 @@ export async function getProcurementDraft() {
   return data;
 }
 
-export async function submitProcurement(body: unknown) {
+export async function upsertProcurementDraft(body: { items: { offerId: string; quantity: number }[] }) {
+  const { data } = await apiClient.post("/vet/procurement/draft", body);
+  return data;
+}
+
+export async function clearProcurementDraft() {
+  await apiClient.delete("/vet/procurement/draft");
+}
+
+export async function submitProcurement(body: unknown = {}) {
   const { data } = await apiClient.post("/vet/procurement", body);
+  return data;
+}
+
+export async function cancelVetOrder(orderId: string) {
+  const { data } = await apiClient.patch(`/vet/orders/${orderId}/cancel`, {});
   return data;
 }

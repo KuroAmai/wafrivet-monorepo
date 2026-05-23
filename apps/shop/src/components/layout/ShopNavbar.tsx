@@ -6,6 +6,7 @@ import { useEffect, useState } from "react";
 import { getAccessToken } from "@wafrivet/api";
 import { getCentralLoginUrl, normalizeUserRole, useAuth } from "@wafrivet/auth";
 import { displayNameFromProfile } from "@/lib/mapAuthMe";
+import { useShopLocation } from "@/contexts/ShopLocationContext";
 import { CartDrawer } from "@/components/shop/CartDrawer";
 import { NotificationDrawer } from "@/components/shop/NotificationDrawer";
 
@@ -17,8 +18,10 @@ function accountHrefForRole(role: ReturnType<typeof normalizeUserRole>): string 
 
 export function ShopNavbar() {
   const { user, role, isAuthenticated, loading, refreshUser } = useAuth();
+  const { region, openPicker, isLoading: regionLoading } = useShopLocation();
   const [isCartOpen, setIsCartOpen] = useState(false);
   const [isNotificationOpen, setIsNotificationOpen] = useState(false);
+  const locationLabel = region?.regionName ?? (regionLoading ? "Loading…" : "Select location");
 
   const hasToken = Boolean(getAccessToken());
   const loggedIn = isAuthenticated || hasToken;
@@ -42,12 +45,16 @@ export function ShopNavbar() {
                 <img src="/logo.svg" alt="Wafrivet" className="hidden md:block h-12 w-auto" />
                 <img src="/logo-mark.svg" alt="Wafrivet" className="md:hidden h-8 w-auto" />
               </Link>
-              <button className="hidden sm:flex items-center gap-2 border-l border-gray-100 pl-4 group transition-colors">
+              <button
+                type="button"
+                onClick={openPicker}
+                className="hidden sm:flex items-center gap-2 border-l border-gray-100 pl-4 group transition-colors hover:opacity-80"
+              >
                 <MapPin size={14} weight="fill" className="text-[#2D4D31]" />
                 <div className="flex flex-col items-start">
                   <span className="text-[10px] text-gray-400 font-bold uppercase tracking-wider">Your Location</span>
-                  <span className="text-[13px] font-bold text-gray-900 flex items-center gap-1">
-                    Lagos, Nigeria <CaretDown size={12} weight="bold" />
+                  <span className="text-[13px] font-bold text-gray-900 flex items-center gap-1 max-w-[140px] truncate">
+                    {locationLabel} <CaretDown size={12} weight="bold" />
                   </span>
                 </div>
               </button>
