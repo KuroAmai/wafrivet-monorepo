@@ -4,26 +4,13 @@ import { useState, useEffect, useRef } from "react";
 import { Button } from "@heroui/react";
 import { useRouter } from "next/navigation";
 import { ArrowRight } from "lucide-react";
-import { normalizeUserRole, redirectByRole } from "@wafrivet/auth";
-
-const PENDING_ROLE_KEY = "wafrivet_pending_role";
+import { resolveAuthDestination } from "@/lib/resolveAuthDestination";
 
 function clearPendingSignup() {
   if (typeof sessionStorage === "undefined") return;
   sessionStorage.removeItem("wafrivet_pending_email");
   sessionStorage.removeItem("wafrivet_pending_password");
-  sessionStorage.removeItem(PENDING_ROLE_KEY);
-}
-
-function getPostAuthDestination(profileRole?: string): string {
-  const pending =
-    typeof sessionStorage !== "undefined"
-      ? sessionStorage.getItem(PENDING_ROLE_KEY)
-      : null;
-  const role =
-    normalizeUserRole(profileRole) ?? normalizeUserRole(pending);
-  if (role) return redirectByRole(role);
-  return "/welcome";
+  sessionStorage.removeItem("wafrivet_pending_role");
 }
 
 const LENGTH = 6;
@@ -41,7 +28,7 @@ export function OTPInput() {
 
   useEffect(() => {
     if (countdown <= 0) return;
-    const t = setTimeout(() => setCountdown(c => c - 1), 1000);
+    const t = setTimeout(() => setCountdown((c) => c - 1), 1000);
     return () => clearTimeout(t);
   }, [countdown]);
 
@@ -51,7 +38,7 @@ export function OTPInput() {
     next[idx] = char;
     setDigits(next);
     if (char && idx < LENGTH - 1) inputRefs.current[idx + 1]?.focus();
-    if (next.every(d => d) && next.join("").length === LENGTH) {
+    if (next.every((d) => d) && next.join("").length === LENGTH) {
       handleVerify(next.join(""));
     }
   };
@@ -66,9 +53,22 @@ export function OTPInput() {
     e.preventDefault();
     const pasted = e.clipboardData.getData("text").replace(/\D/g, "").slice(0, LENGTH);
     const next = [...digits];
-    pasted.split("").forEach((ch, i) => { next[i] = ch; });
+    pasted.split("").forEach((ch, i) => {
+      next[i] = ch;
+    });
     setDigits(next);
     inputRefs.current[Math.min(pasted.length, LENGTH - 1)]?.focus();
+  };
+
+  const navigateAfterAuth = async () => {
+    const destination = await resolveAuthDestination();
+    clearPendingSignup();
+    if (destination.startsWith("http")) {
+      window.location.href = destination;
+      return;
+    }
+    router.push(destination);
+    router.refresh();
   };
 
   const handleVerify = async (code: string) => {
@@ -82,15 +82,13 @@ export function OTPInput() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ token: "mock-token" }),
       });
-      const destination = getPostAuthDestination();
-      clearPendingSignup();
-      window.location.href = destination;
+      await navigateAfterAuth();
       return;
     }
 
     const email =
       typeof sessionStorage !== "undefined"
-        ? sessionStorage.getItem("wafrivet_pending_email") ?? ""
+        ? (sessionStorage.getItem("wafrivet_pending_email") ?? "")
         : "";
 
     const res = await fetch("/api/auth/verify-email", {
@@ -105,7 +103,7 @@ export function OTPInput() {
       return;
     }
 
-    const loginRes = await fetch("/api/auth/login", {
+    await fetch("/api/auth/login", {
       method: "POST",
       credentials: "same-origin",
       headers: { "Content-Type": "application/json" },
@@ -115,47 +113,36 @@ export function OTPInput() {
       }),
     }).catch(() => null);
 
-    let profileRole: string | undefined;
-    if (loginRes?.ok) {
-      const loginData = await loginRes.json();
-      profileRole =
-        loginData.user?.role ?? loginData.role ?? loginData.profile?.role;
-    }
-
-    const destination = getPostAuthDestination(profileRole);
-    clearPendingSignup();
-
-    if (destination.startsWith("http")) {
-      window.location.href = destination;
-      return;
-    }
-
-    router.push(destination);
-    router.refresh();
+    await navigateAfterAuth();
   };
 
   const code = digits.join("");
-  const isComplete = code.length === LENGTH && digits.every(d => d);
+  const isComplete = code.length === LENGTH && digits.every((d) => d);
 
   return (
     <div>
       <div className="mb-8">
-        <h1 className="text-[30px] font-semibold text-gray-900 tracking-tight leading-tight">Verify your phone</h1>
-        <p className="text-[15px] text-gray-500 mt-1.5">Enter the 6-digit code we sent to your number</p>
+        <h1 className="text-[30px] font-semibold text-gray-900 tracking-tight leading-tight">
+          Verify your phone
+        </h1>
+        <p className="text-[15px] text-gray-500 mt-1.5">
+          Enter the 6-digit code we sent to your number
+        </p>
       </div>
 
-      {/* OTP boxes */}
       <div className="flex gap-2.5 justify-between mb-8" onPaste={handlePaste}>
         {digits.map((digit, idx) => (
           <input
             key={idx}
-            ref={el => { inputRefs.current[idx] = el; }}
+            ref={(el) => {
+              inputRefs.current[idx] = el;
+            }}
             type="text"
             inputMode="numeric"
             maxLength={1}
             value={digit}
-            onChange={e => handleChange(idx, e.target.value)}
-            onKeyDown={e => handleKeyDown(idx, e)}
+            onChange={(e) => handleChange(idx, e.target.value)}
+            onKeyDown={(e) => handleKeyDown(idx, e)}
             className={`w-12 h-14 text-center text-xl font-semibold rounded-xl border outline-none transition-all
               ${digit ? "border-[#2D4D31] bg-[#f0f4f0] text-[#2D4D31]" : "border-gray-200 bg-gray-50 text-gray-900"}
               focus:border-[#2D4D31] focus:bg-white`}
@@ -168,7 +155,9 @@ export function OTPInput() {
         isDisabled={!isComplete || isVerifying}
         className="w-full h-[52px] flex items-center justify-center gap-2 bg-[#2D4D31] text-white font-semibold text-[15px] rounded-xl hover:bg-[#243f28] transition-all disabled:opacity-40"
       >
-        {isVerifying ? "Verifying…" : (
+        {isVerifying ? (
+          "Verifying…"
+        ) : (
           <>
             Verify code <ArrowRight size={17} className="ml-1" />
           </>
@@ -182,6 +171,7 @@ export function OTPInput() {
           </p>
         ) : (
           <button
+            type="button"
             onClick={() => setCountdown(60)}
             className="text-[14px] text-[#2D4D31] font-semibold hover:underline"
           >

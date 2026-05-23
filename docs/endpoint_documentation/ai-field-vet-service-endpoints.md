@@ -2,6 +2,10 @@
 
 This document contains all endpoints for the AI Field Vet service, which provides farmer authentication, session management, and payment webhooks for the field vet AI agent.
 
+> **Identity model:** `/farmers/*` here uses **phone + PIN** and returns a `farmer_id` (session cookie). That is separate from platform **`UserRole.FARMER`** (email/JWT signup via API Gateway → Core). For herd records, NFC, and clinical history, use [herd-service-endpoints-part1.md](./herd-service-endpoints-part1.md). Linking phone farmers to platform users is product-specific and not enforced in these routes.
+
+**Transactional email** (order receipts, OTP, welcome, etc.) is **not** implemented in this service. It runs on the Nest **worker** with frontend `@wafrivet/email` and Core internal routes documented in [core-service-endpoints-part1.md](./core-service-endpoints-part1.md#internal-email-endpoints).
+
 ---
 
 ## Table of Contents

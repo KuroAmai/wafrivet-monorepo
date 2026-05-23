@@ -1,4 +1,15 @@
-export type UserRole = "ADMIN" | "VET" | "SUPPLIER" | "RIDER";
+import type { GatewayOnboardingRole } from "./roles";
+
+export type UserRole =
+  | "ADMIN"
+  | "SUPPORT"
+  | "VET"
+  | "SUPPLIER"
+  | "MANUFACTURER"
+  | "RIDER"
+  | "FARMER"
+  | "REGULAR_CUSTOMER"
+  | "PERSON";
 
 export type HerdRole = "FARMER" | "VETERINARIAN" | "FIELD_AGENT" | "ADMIN" | "SUPPORT";
 
@@ -7,7 +18,7 @@ export type LoginDto = {
   password: string;
 };
 
-/** Product role chosen at signup; drives onboarding and app redirects. */
+/** Legacy product-facing role ids used in some UI labels. */
 export type SignupRole = "farmer" | "vet" | "chemist" | "distributor";
 
 export type SignupDto = {
@@ -15,7 +26,6 @@ export type SignupDto = {
   lastName: string;
   email: string;
   password: string;
-  role: SignupRole;
   referralCode?: string;
 };
 
@@ -35,6 +45,25 @@ export type AuthUserProfileDto = {
   updatedAt: string;
   firstName?: string;
   lastName?: string;
+};
+
+export type AuthMeDto = {
+  id: string;
+  email?: string;
+  role?: UserRole | string;
+  roles?: (UserRole | string)[];
+  kyc_required_for?: GatewayOnboardingRole[];
+  isVerified?: boolean;
+  isActive?: boolean;
+  firstName?: string | null;
+  lastName?: string | null;
+  displayName?: string | null;
+  avatarUrl?: string | null;
+  user?: {
+    id?: string;
+    roles?: (UserRole | string)[];
+    kyc_required_for?: GatewayOnboardingRole[];
+  };
 };
 
 export type RefreshTokenDto = {

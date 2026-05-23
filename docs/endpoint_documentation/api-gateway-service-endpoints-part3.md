@@ -22,6 +22,8 @@ This document contains operations and delivery endpoints for the API Gateway ser
 
 ## Notifications Endpoints
 
+Email for `POST /notifications/dispatch` (and related flows) is sent asynchronously by the **worker** using `emailTemplateId` / `emailTemplateProps` in job metadata. Templates: frontend `@wafrivet/email`. See [core-service-endpoints-part2.md](./core-service-endpoints-part2.md#post-internalnotificationsdispatch).
+
 ### GET /notifications
 **Description:** List notifications
 **Roles Required:** VET, SUPPLIER, RIDER
@@ -541,6 +543,21 @@ This document contains operations and delivery endpoints for the API Gateway ser
 }
 ```
 
+### POST /vet/orders/:orderId/rate *(planned — core implemented)*
+**Description:** Rate a delivered order; notifies supplier by email  
+**Status:** Not on gateway yet; Core: `POST /api/v1/internal/orders/:orderId/rate`  
+**Roles Required:** VET (proposed — clinic must own order)  
+**Params:** orderId (UUID)  
+**Body:** `OrderRateDto`
+```typescript
+{
+  rating: number,           // 1–5
+  reviewComment?: string    // max 2000
+}
+```
+**Response:** `{ recorded: true }`  
+**Errors:** `403` if not delivered or not order owner
+
 ### PATCH /vet/orders/:orderId/cancel
 **Description:** Cancel order
 **Roles Required:** VET
@@ -733,11 +750,23 @@ This document contains operations and delivery endpoints for the API Gateway ser
 - role: UserRole
 - permissions: string[]
 
-### UserRole Enum
-- ADMIN
-- VET
-- SUPPLIER
-- RIDER
+### UserRole Enum (platform / JWT)
+
+Marketplace and profile RBAC use the Prisma `UserRole` enum:
+
+- `ADMIN` — Full platform admin
+- `SUPPORT` — Support staff (read-heavy admin views)
+- `VET` — Clinic / agro-vet (KYC required)
+- `SUPPLIER` — Product supplier (KYC required)
+- `MANUFACTURER` — Manufacturer (KYC required)
+- `RIDER` — Delivery rider (assigned by admin)
+- `FARMER` — Livestock owner / herd consumer (no KYC)
+- `REGULAR_CUSTOMER` — Non-farmer marketplace buyer (no KYC)
+- `PERSON` — Reserved / legacy
+
+**Herd effective roles** (Core `/api/v1/herd/*`, separate namespace): `FARMER`, `VETERINARIAN`, `FIELD_AGENT`, `ADMIN`, `SUPPORT` — see [herd-service-endpoints-part1.md](./herd-service-endpoints-part1.md).
+
+**AI Field Vet** uses phone+PIN `farmer_id` sessions, not `UserRole` — see [ai-field-vet-service-endpoints.md](./ai-field-vet-service-endpoints.md).
 
 ### Common Query Parameters
 - cursor: string (pagination cursor)

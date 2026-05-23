@@ -7,6 +7,7 @@ import * as z from "zod";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { Eye, EyeSlash, ArrowRight } from "@phosphor-icons/react";
+import { resolveAuthDestination } from "@/lib/resolveAuthDestination";
 
 const schema = z.object({
   emailOrPhone: z.string().min(1, "Email or phone is required"),
@@ -71,7 +72,12 @@ export function LoginForm() {
       return;
     }
 
-    router.push("/welcome");
+    const destination = await resolveAuthDestination();
+    if (destination.startsWith("http")) {
+      window.location.href = destination;
+      return;
+    }
+    router.push(destination);
     router.refresh();
   };
 

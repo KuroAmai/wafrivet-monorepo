@@ -471,6 +471,19 @@ This document contains business operations endpoints for the API Gateway service
 
 ## Me Endpoints
 
+### GET /me/data-export *(planned — core implemented)*
+**Description:** Request personal data export; user receives download link by email  
+**Status:** Not on gateway yet; Core: `GET /api/v1/internal/users/:userId/data-export`  
+**Roles Required:** Authenticated user (own `userId`)  
+**Response:** `DataExportResponseDto`
+```typescript
+{
+  downloadUrl: string,
+  expiresInHours: number,
+  requestedAt: string
+}
+```
+
 ### GET /me/dashboard-layout
 **Description:** Get dashboard layout (stub)
 **Public:** Yes

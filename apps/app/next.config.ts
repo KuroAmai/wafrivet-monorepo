@@ -2,7 +2,7 @@ import type { NextConfig } from "next";
 
 const gatewayUrl =
   process.env.NEXT_PUBLIC_API_URL ??
-  "https://wafrivet-api-gateway-wdvfp4toqa-ew.a.run.app";
+  "https://wafrivet-api-gateway-wdvfp4toqa-ew.a.run.app/api/v1";
 
 const nextConfig: NextConfig = {
   transpilePackages: ["@wafrivet/api", "@wafrivet/auth", "@wafrivet/types"],

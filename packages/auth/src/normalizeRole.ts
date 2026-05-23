@@ -12,7 +12,10 @@ export function normalizeUserRole(role?: string | null): UserRole | null {
     pharmacist: "chemist",
     supplier: "chemist",
     distributor: "distributor",
+    manufacturer: "distributor",
     rider: "distributor",
+    regular_customer: "customer",
+    customer: "customer",
     admin: "admin",
   };
   return map[key] ?? null;

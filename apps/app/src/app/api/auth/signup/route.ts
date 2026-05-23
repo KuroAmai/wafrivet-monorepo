@@ -8,16 +8,17 @@ export async function POST(request: Request) {
     return NextResponse.json({
       id: "mock-user",
       email: body.email,
-      role: body.role ?? "farmer",
       isVerified: false,
       isActive: true,
     });
   }
 
+  const { role: _role, ...signupBody } = body as Record<string, unknown>;
+
   const res = await fetch(`${GATEWAY_URL}/auth/signup`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(body),
+    body: JSON.stringify(signupBody),
   });
   const data = await res.json().catch(() => ({}));
   if (!res.ok) {

@@ -15,6 +15,7 @@ This document contains user management endpoints for the API Gateway service.
 - [Onboarding Endpoints](#onboarding-endpoints)
 - [Referral Endpoints](#referral-endpoints)
 - [Roles Endpoints](#roles-endpoints)
+- [Email Features (core internal)](#email-features-core-internal)
 
 ---
 
@@ -272,6 +273,22 @@ This document contains user management endpoints for the API Gateway service.
 }
 ```
 
+### POST /admin/emails/send *(planned — core implemented)*
+**Description:** Queue a templated manual email to one recipient (admin campaigns, pilots, maintenance)  
+**Status:** Not on gateway yet; Core: `POST /api/v1/internal/admin/emails/send`  
+**Roles Required:** ADMIN (proposed)  
+**Body:** `AdminSendEmailDto`
+```typescript
+{
+  recipientEmail: string,
+  recipientUserId?: string,
+  subject: string,
+  templateId: string,
+  templateProps: Record<string, unknown>
+}
+```
+**Response:** `{ queued: true, jobId?: string }` (`202 Accepted` on Core)
+
 ### POST /admin/broadcast
 **Description:** Send broadcast notification to users
 **Roles Required:** ADMIN
@@ -291,6 +308,23 @@ This document contains user management endpoints for the API Gateway service.
   estimatedRecipientCount: number
 }
 ```
+
+---
+
+## Email Features (core internal)
+
+Transactional email is implemented on **Core** (internal) and delivered by the **worker** via Resend. Templates are authored in the **frontend** `@wafrivet/email` package — see [INSTALL_EMAIL_PACKAGE.md](../INSTALL_EMAIL_PACKAGE.md).
+
+These routes are **not proxied by the API Gateway yet**. Call Core at `{CORE_INTERNAL_URL}/api/v1/internal/...` from gateway services when wiring the public API.
+
+| Core internal route | Intended public gateway route (TBD) | Roles (proposed) |
+|---------------------|-------------------------------------|------------------|
+| `POST /internal/admin/emails/send` | `POST /admin/emails/send` | ADMIN |
+| `GET /internal/users/:userId/data-export` | `GET /me/data-export` | Authenticated user (`userId` = self) |
+| `POST /internal/referrals/activate` | `POST /referral/activate` | Authenticated user |
+| `POST /internal/orders/:orderId/rate` | `POST /vet/orders/:orderId/rate` | VET (order owner) |
+
+Signup **verification links** remain on `POST /auth/verify-email` (Supabase). **Welcome** and operational mail use the worker stack after verify.
 
 ---
 
@@ -330,7 +364,7 @@ This document contains user management endpoints for the API Gateway service.
 {
   id: string,  // UUID
   email: string,
-  role: UserRole,  // ADMIN | VET | SUPPLIER | RIDER
+  role: UserRole,  // Primary role; default at signup is REGULAR_CUSTOMER
   roles?: UserRole[],
   isVerified: boolean,
   isActive: boolean,
@@ -338,6 +372,8 @@ This document contains user management endpoints for the API Gateway service.
   updatedAt: string  // ISO-8601 timestamp
 }
 ```
+
+**UserRole values:** `ADMIN` | `SUPPORT` | `VET` | `SUPPLIER` | `MANUFACTURER` | `RIDER` | `FARMER` | `REGULAR_CUSTOMER` | `PERSON`
 
 ### POST /auth/verify-email
 **Description:** Verify user email with token
@@ -378,31 +414,14 @@ This document contains user management endpoints for the API Gateway service.
 
 ### GET /auth/me
 **Description:** Get current user profile
-**Roles Required:** VET, SUPPLIER, RIDER
-**Response:** UserProfileDto (AuthUserProfileDto)
-```typescript
-{
-  id: string,  // UUID
-  email: string,
-  role: UserRole,  // ADMIN | VET | SUPPLIER | RIDER
-  roles?: UserRole[],
-  isVerified: boolean,
-  isActive: boolean,
-  createdAt: string,  // ISO-8601 timestamp
-  updatedAt: string  // ISO-8601 timestamp
-}
-```
+**Roles Required:** Authenticated (any valid JWT)
+**Response:** User profile (includes `roles[]`, KYC status per business role)
 
 ### POST /auth/roles/select
-**Description:** Select user role (for multi-role users)
-**Roles Required:** VET, SUPPLIER, RIDER
-**Body:** SelectRolesDto
-```typescript
-{
-  roles: UserRole[]  // Array of selected roles (non-empty)
-}
-```
-**Response:** Updated token with selected role
+**Description:** Legacy alias — prefer `POST /roles/select`. Same behavior.
+**Roles Required:** Authenticated, email verified
+**Body:** `SelectRolesDto` — `{ roles: UserRole[] }` (non-empty; cannot select `ADMIN`, `SUPPORT`, or `RIDER`)
+**Response:** Proxied from Core; returns updated role assignments
 
 ### POST /auth/register-clinic
 **Description:** Register a new clinic
@@ -505,27 +524,59 @@ This document contains user management endpoints for the API Gateway service.
 
 ## Referral Endpoints
 
+### POST /referral/activate *(planned — core implemented)*
+**Description:** Activate referral program and send referral link email  
+**Status:** Not on gateway yet; Core: `POST /api/v1/internal/referrals/activate`  
+**Roles Required:** Authenticated user (proposed)  
+**Body:** `ReferralActivateDto`
+```typescript
+{ referralCode?: string }  // max 32
+```
+**Response:** `{ referralCode: string, referralLink: string }`
+
 ### GET /referral/me
 **Description:** Get user's referral information
-**Roles Required:** VET, SUPPLIER, RIDER
+**Roles Required:** Authenticated
 **Response:** ReferralDto
 
 ---
 
 ## Roles Endpoints
 
-### GET /roles/options
-**Description:** Get available role options
-**Roles Required:** VET, SUPPLIER, RIDER
-**Response:** RoleOptionsDto
+Role selection runs **after email verification**. Default signup role is `REGULAR_CUSTOMER` until the user selects roles here.
 
-### POST /roles/select
-**Description:** Select a role
-**Roles Required:** VET, SUPPLIER, RIDER
-**Body:** SelectRolesDto
+### GET /roles/options
+**Description:** List selectable marketplace roles (static catalog)
+**Roles Required:** Authenticated (typically post-verify, pre-dashboard)
+**Response:**
 ```typescript
 {
-  roles: UserRole[]  // Array of selected roles (non-empty)
+  roles: Array<{
+    id: UserRole;           // FARMER | REGULAR_CUSTOMER | VET | SUPPLIER | MANUFACTURER
+    name: string;
+    label: string;
+    description: string;
+    requires_kyc: boolean;  // true for VET, SUPPLIER, MANUFACTURER
+  }>;
 }
 ```
-**Response:** Updated token
+
+### POST /roles/select
+**Description:** Assign one or more roles to the current user
+**Roles Required:** Authenticated, email verified
+**Body:** `SelectRolesDto`
+```typescript
+{ roles: UserRole[] }  // Non-empty; ADMIN | SUPPORT | RIDER rejected
+```
+**Response:**
+```typescript
+{
+  user: {
+    id: string;
+    roles: UserRole[];
+    kyc_required_for: ('VET' | 'SUPPLIER' | 'MANUFACTURER')[];
+  }
+}
+```
+
+**KYC:** If `kyc_required_for` is non-empty, route the user to `/onboarding` (VET | SUPPLIER | MANUFACTURER only). `FARMER` and `REGULAR_CUSTOMER` are activated immediately with no KYC.

@@ -1,5 +1,5 @@
 const DEFAULT_GATEWAY =
-  "https://wafrivet-api-gateway-wdvfp4toqa-ew.a.run.app";
+  "https://wafrivet-api-gateway-wdvfp4toqa-ew.a.run.app/api/v1";
 
 const DEFAULT_CORE = "https://wafrivet-core-wdvfp4toqa-ew.a.run.app";
 

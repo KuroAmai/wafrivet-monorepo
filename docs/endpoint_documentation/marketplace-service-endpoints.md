@@ -2,6 +2,8 @@
 
 This document contains all endpoints for the Marketplace service, which handles catalog, offers, orders, payments, and compliance.
 
+**Order/payment/settlement emails** are enqueued from marketplace workers (`order-notification`, `payment-confirmation`, etc.) and sent by `@wafrivet/shared-worker` + frontend `@wafrivet/email`. No dedicated HTTP email routes on Marketplace.
+
 ---
 
 ## Table of Contents

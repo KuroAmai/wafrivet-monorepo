@@ -1,6 +1,12 @@
 import { getShopEntryUrl } from "./shopAuth";
 
-export type UserRole = "farmer" | "vet" | "chemist" | "distributor" | "admin";
+export type UserRole =
+  | "farmer"
+  | "vet"
+  | "chemist"
+  | "distributor"
+  | "customer"
+  | "admin";
 
 export function redirectByRole(role: UserRole): string {
   const appUrl = process.env.NEXT_PUBLIC_APP_URL || "https://app.wafrivet.com";
@@ -13,6 +19,8 @@ export function redirectByRole(role: UserRole): string {
     case "chemist":
     case "distributor":
       return getShopEntryUrl(role);
+    case "customer":
+      return `${appUrl}/welcome`;
     case "admin":
       return `${appUrl}/admin`;
     default:

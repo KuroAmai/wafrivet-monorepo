@@ -33,6 +33,7 @@ The API Gateway is the main entry point for frontend clients. It routes requests
 - Entity management (clinics, suppliers, vets)
 - Logistics and rider operations
 - Notifications
+- Email features (admin send, data export, referral activate, order rate — core internal; gateway proxy TBD)
 - Payments and webhooks
 - Procurement and orders
 - Queue administration
@@ -43,31 +44,48 @@ The API Gateway is the main entry point for frontend clients. It routes requests
 
 ### Core Service
 **Files:**
-- [core-service-endpoints-part1.md](./core-service-endpoints-part1.md) - Admin & Core
-- [core-service-endpoints-part2.md](./core-service-endpoints-part2.md) - Herd & Operations
+- [core-service-endpoints-part1.md](./core-service-endpoints-part1.md) - Admin, auth (internal), entity, email
+- [core-service-endpoints-part2.md](./core-service-endpoints-part2.md) - Logistics, notifications, rider (internal)
 
-The Core service provides internal business logic services used by the API Gateway and other services.
+The Core service provides internal business logic used by the API Gateway and other services. It also hosts the **Herd module** at `/api/v1/herd/*` (see dedicated docs below).
 
-**Controllers:** 20
+**Controllers:** 20+ (including 12 Herd controllers)
 **Key Features:**
 - Internal admin operations
 - Authentication (internal endpoints)
 - Entity management (internal)
 - Health checks
-- Herd management (animals, clinical records, farms, NFC tags, sync)
+- **Herd** — animals, clinical, farms, NFC, sync, AI context (JWT; not on gateway yet)
 - Logistics (internal)
 - Notifications (internal)
+- Internal email (`admin/emails/send`, `users/:userId/data-export`, `referrals/activate`, `orders/:orderId/rate`)
 - Rider operations (internal)
 
-**Endpoint Count:** ~80+ endpoints
+**Endpoint Count:** ~100+ endpoints (incl. ~35 Herd routes)
 
-**Herd Module Endpoints:**
-- AI Context: Assemble token-budgeted AI context for animals
-- Animals: CRUD operations, status updates, snapshots
-- Clinical Records: Diagnoses, treatments, vaccinations, deworming, reproduction, body metrics, management notes
-- Farms: Farm-level snapshots for offline pre-fetch
-- NFC Tags: Provision, replace, resolve, status updates
-- Sync: Batch operations, delta queries, outbox diagnostics
+**Internal email (Core, `/api/v1/internal`):**
+
+| Method | Path | DTO / notes |
+|--------|------|-------------|
+| `POST` | `/admin/emails/send` | `AdminSendEmailDto` → worker + Resend |
+| `GET` | `/users/:userId/data-export` | `DataExportResponseDto` |
+| `POST` | `/referrals/activate` | `ReferralActivateDto` + `userId` |
+| `POST` | `/orders/:orderId/rate` | `OrderRateDto` + `userId` |
+
+Templates: frontend `@wafrivet/email` (backend stubs only). Gaps: [EMAIL_IMPLEMENTATION_GAPS.md](../EMAIL_IMPLEMENTATION_GAPS.md). Endpoints: [core-service-endpoints-part1.md](./core-service-endpoints-part1.md#internal-email-endpoints).
+
+---
+
+### Herd Module (Core `/api/v1/herd`)
+**Files:**
+- [herd-service-endpoints-part1.md](./herd-service-endpoints-part1.md) — overview, animals, farms, NFC tags, sync, AI context
+- [herd-service-endpoints-part2.md](./herd-service-endpoints-part2.md) — clinical records (diagnoses, treatments, vaccinations, etc.)
+
+Livestock identity, NFC tags, offline sync, and clinical history. Uses the same platform JWT as gateway login; **Herd effective roles** (`FARMER`, `VETERINARIAN`, …) are derived from platform `UserRole` (`FARMER`, `VET`, …).
+
+**Access:** Call **wafrivet-core** directly (private Cloud Run) or via a BFF — not proxied on `wafrivet-api-gateway` today.
+
+**Route groups:** `animals`, `farms`, `tags`, `sync`, `ai-context`, `animals/:animalUid/{diagnoses|treatments|vaccinations|deworming|reproductive-events|body-condition-weights|management-notes}`
 
 ---
 
@@ -159,9 +177,11 @@ The Logistics Optimizer service (Python/FastAPI) provides route optimization usi
 - GET /health - Health check (database, memory)
 
 ### Workers Service
-**Controllers:** 1
+**Controllers:** 1 (+ notification/email processors)
 **Endpoints:**
 - GET /health - Health check (BullMQ, memory heap, memory RSS)
+
+**Async email (no HTTP):** Consumes BullMQ jobs from Core/Marketplace/schedulers; sends via Resend and `@wafrivet/email`. See [`Docs/emails.md`](../emails.md).
 
 ---
 
@@ -244,18 +264,32 @@ Used in:
 
 ### User Roles
 
-**UserRole Enum:**
-- ADMIN - Full system access
-- VET - Veterinary clinic users
-- SUPPLIER - Product suppliers
-- RIDER - Delivery riders
+**Platform `UserRole` (Prisma / JWT)** — used by gateway, marketplace, and Herd JWT mapping:
 
-**Herd Roles:**
-- FARMER - Farm owners
-- VETERINARIAN - Veterinarians
-- FIELD_AGENT - Field agents
-- ADMIN - Herd administrators
-- SUPPORT - Support staff
+| Role | Purpose | KYC |
+|------|---------|-----|
+| `ADMIN` | Platform admin | — |
+| `SUPPORT` | Support staff | — |
+| `VET` | Clinic / agro-vet | Required |
+| `SUPPLIER` | Product supplier | Required |
+| `MANUFACTURER` | Manufacturer | Required |
+| `RIDER` | Delivery rider | Assigned by admin |
+| `FARMER` | Livestock owner / herd user | No |
+| `REGULAR_CUSTOMER` | Non-farmer buyer | No |
+| `PERSON` | Reserved | — |
+
+Selectable after signup via `GET/POST /api/v1/roles/*` on the gateway: `FARMER`, `REGULAR_CUSTOMER`, `VET`, `SUPPLIER`, `MANUFACTURER`.
+
+**Herd effective roles** (Core `/api/v1/herd/*` only):
+
+| Herd role | Typical source |
+|-----------|----------------|
+| `FARMER` | `UserRole.FARMER` or farm owner |
+| `VETERINARIAN` | `UserRole.VET` |
+| `FIELD_AGENT` | Farm membership |
+| `ADMIN` / `SUPPORT` | Platform admin/support |
+
+**AI Field Vet** uses a separate phone+PIN `farmer_id` — not `UserRole`. See [ai-field-vet-service-endpoints.md](./ai-field-vet-service-endpoints.md).
 
 ### Authentication Methods
 
@@ -330,13 +364,16 @@ Used in:
 All endpoint documentation files are located in the Wafrivet-Backend root directory:
 
 ```
-Wafrivet-Backend/
+Docs/endpoint_documentation/
 ├── all_Service_Endpoints.md (this file)
-├── api-gateway-service-endpoints-part1.md (User Management)
-├── api-gateway-service-endpoints-part2.md (Business Operations)
-├── api-gateway-service-endpoints-part3.md (Operations & Delivery)
-├── core-service-endpoints-part1.md (Admin & Core)
-├── core-service-endpoints-part2.md (Herd & Operations)
+├── deployed-services-urls.md
+├── api-gateway-service-endpoints-part1.md
+├── api-gateway-service-endpoints-part2.md
+├── api-gateway-service-endpoints-part3.md
+├── core-service-endpoints-part1.md
+├── core-service-endpoints-part2.md
+├── herd-service-endpoints-part1.md
+├── herd-service-endpoints-part2.md
 ├── marketplace-service-endpoints.md
 ├── ai-field-vet-service-endpoints.md
 └── logistics-optimizer-service-endpoints.md
@@ -402,6 +439,7 @@ The AI Field Vet service uses WebSocket connections for real-time agent communic
 - API Gateway → Logistics (internal endpoints)
 - API Gateway → Logistics Optimizer (route optimization)
 - Marketplace → Core (entity operations)
+- **Herd clients → Core** (`/api/v1/herd/*`, same JWT as gateway; gateway proxy planned)
 - All Services → Redis (caching, pub/sub)
 - All Services → Supabase (database)
 

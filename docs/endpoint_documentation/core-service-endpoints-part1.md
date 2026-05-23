@@ -12,6 +12,7 @@ This document contains admin and core endpoints for the Core service.
 - [Admin Endpoints](#admin-endpoints)
 - [Authentication Endpoints](#authentication-endpoints)
 - [Entity Endpoints](#entity-endpoints)
+- [Internal Email Endpoints](#internal-email-endpoints)
 - [Health Endpoints](#health-endpoints)
 
 ---
@@ -349,6 +350,100 @@ This document contains admin and core endpoints for the Core service.
 }
 ```
 **Response:** Updated region
+
+---
+
+## Internal Email Endpoints
+
+**Controller:** `services/core/src/email/email.controller.ts` (`@Controller('internal')`)  
+**Base path:** `/api/v1/internal` (service-to-service; not exposed on API Gateway yet)  
+**Delivery:** BullMQ → `@wafrivet/shared-worker` → `ResendEmailService` + frontend `@wafrivet/email`. See [`Docs/INSTALL_EMAIL_PACKAGE.md`](../INSTALL_EMAIL_PACKAGE.md), [`Docs/emails.md`](../emails.md).
+
+**Templates (frontend repo, not in this backend tree):**
+
+| Location | Purpose |
+|----------|---------|
+| Frontend `@wafrivet/email` | React Email components — install per `INSTALL_EMAIL_PACKAGE.md` |
+| `@wafrivet/mail` (`email-template-props.ts`) | Backend prop types for job payloads |
+| `@wafrivet/mail` (`email-template.registry.ts`) | Maps `EmailTemplateId` → dynamic import of frontend templates |
+
+Preview: `npm run dev` in the frontend email package.
+
+---
+
+### POST /internal/admin/emails/send
+**Description:** Queue a manual admin email (pilot invites, maintenance, feature announcements)  
+**Route:** `/api/v1/internal/admin/emails/send`  
+**Status:** `202 Accepted`  
+**Body:** `AdminSendEmailDto`
+```typescript
+{
+  recipientEmail: string,       // valid email
+  recipientUserId?: string,     // UUID; resolved from email if omitted
+  subject: string,              // max 255
+  templateId: string,           // EmailTemplateId, e.g. admin_manual
+  templateProps: Record<string, unknown>  // passed to @wafrivet/email render
+}
+```
+**Response:**
+```typescript
+{ queued: true, jobId?: string }
+```
+**Queue:** `admin-notifications` / `send-admin-manual-email`
+
+---
+
+### GET /internal/users/:userId/data-export
+**Description:** Request GDPR-style data export; queues email with download link  
+**Route:** `/api/v1/internal/users/:userId/data-export`  
+**Params:** `userId` (UUID)  
+**Response:** `DataExportResponseDto`
+```typescript
+{
+  downloadUrl: string,
+  expiresInHours: number,   // default 24
+  requestedAt: string       // ISO-8601
+}
+```
+**Errors:** `404` if user not found
+
+---
+
+### POST /internal/referrals/activate
+**Description:** Activate referral program and email referral link to the user  
+**Route:** `/api/v1/internal/referrals/activate`  
+**Body:** `ReferralActivateDto` + required `userId` (UUID)
+```typescript
+{
+  userId: string,
+  referralCode?: string       // max 32; uses existing code if omitted
+}
+```
+**Response:**
+```typescript
+{
+  referralCode: string,
+  referralLink: string        // e.g. https://app.wafrivet.com/signup?ref=CODE
+}
+```
+**Errors:** `404` if referral record not found
+
+---
+
+### POST /internal/orders/:orderId/rate
+**Description:** Record buyer rating after delivery; notifies supplier by email  
+**Route:** `/api/v1/internal/orders/:orderId/rate`  
+**Params:** `orderId` (UUID)  
+**Body:** `OrderRateDto` + required `userId` (UUID, must own the order clinic)
+```typescript
+{
+  userId: string,
+  rating: number,             // 1–5
+  reviewComment?: string      // max 2000
+}
+```
+**Response:** `{ recorded: true }`  
+**Errors:** `404` order not found; `403` not buyer or order not `DELIVERED`
 
 ---
 

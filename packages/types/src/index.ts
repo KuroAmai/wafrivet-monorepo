@@ -1,5 +1,7 @@
 export * from "./api";
 export * from "./auth";
+export * from "./roles";
+export * from "./onboarding";
 export * from "./admin";
 export * from "./catalog";
 export * from "./herd";
