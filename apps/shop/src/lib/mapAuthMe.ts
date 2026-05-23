@@ -2,8 +2,7 @@ import type { AuthMeDto, AuthUserProfileDto, UserRole } from "@wafrivet/types";
 
 export function mapAuthMeToProfile(me: AuthMeDto): AuthUserProfileDto {
   const role = (me.role ?? me.roles?.[0] ?? me.user?.roles?.[0] ?? "REGULAR_CUSTOMER") as UserRole;
-  const createdAt = typeof me.createdAt === "string" ? me.createdAt : new Date().toISOString();
-  const updatedAt = typeof me.updatedAt === "string" ? me.updatedAt : createdAt;
+  const now = new Date().toISOString();
 
   return {
     id: me.id ?? me.user?.id ?? "",
@@ -12,8 +11,8 @@ export function mapAuthMeToProfile(me: AuthMeDto): AuthUserProfileDto {
     roles: (me.roles ?? me.user?.roles) as UserRole[] | undefined,
     isVerified: me.isVerified ?? true,
     isActive: me.isActive ?? true,
-    createdAt,
-    updatedAt,
+    createdAt: now,
+    updatedAt: now,
     firstName: me.firstName ?? undefined,
     lastName: me.lastName ?? undefined,
   };
