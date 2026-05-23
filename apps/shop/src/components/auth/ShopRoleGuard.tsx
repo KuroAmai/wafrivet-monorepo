@@ -2,7 +2,7 @@
 
 import { useEffect } from "react";
 import { usePathname, useRouter } from "next/navigation";
-import { useAuth, normalizeUserRole, getShopLoginUrl, type UserRole } from "@wafrivet/auth";
+import { getShopLoginUrl, normalizeUserRole, useAuth, type UserRole } from "@wafrivet/auth";
 
 type ShopRoleGuardProps = {
   allowed: UserRole[];
@@ -18,8 +18,9 @@ export function ShopRoleGuard({ allowed, children }: ShopRoleGuardProps) {
   useEffect(() => {
     if (loading) return;
     if (!isAuthenticated) {
-      const redirect = pathname ? getShopLoginUrl(pathname) : "/login";
-      router.replace(redirect);
+      const returnPath = pathname ?? "/";
+      const loginUrl = getShopLoginUrl(returnPath);
+      window.location.assign(loginUrl);
       return;
     }
     if (productRole && !allowed.includes(productRole)) {

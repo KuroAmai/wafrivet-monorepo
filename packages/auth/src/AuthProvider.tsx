@@ -25,7 +25,25 @@ export type AuthContextValue = {
 
 export const AuthContext = createContext<AuthContextValue | null>(null);
 
-export function AuthProvider({ children }: { children: ReactNode }) {
+async function fetchMeFromBff(url: string): Promise<AuthUserProfileDto> {
+  const res = await fetch(url, { credentials: "same-origin" });
+  const data = await res.json().catch(() => ({}));
+  if (!res.ok) {
+    throw new Error(
+      (data as { message?: string }).message ?? "Failed to load profile",
+    );
+  }
+  return data as AuthUserProfileDto;
+}
+
+export function AuthProvider({
+  children,
+  meUrl,
+}: {
+  children: ReactNode;
+  /** Same-origin BFF path (e.g. `/api/auth/me`) when the browser must not call the gateway directly. */
+  meUrl?: string;
+}) {
   const queryClient = useQueryClient();
   const [bootstrapped, setBootstrapped] = useState(false);
 
@@ -41,7 +59,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     refetch,
   } = useQuery({
     queryKey: queryKeys.auth.me,
-    queryFn: () => authApi.getMe(),
+    queryFn: () => (meUrl ? fetchMeFromBff(meUrl) : authApi.getMe()),
     enabled: bootstrapped && Boolean(getAccessToken()),
     retry: false,
     staleTime: 60_000,
@@ -72,7 +90,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       user: user ?? null,
       role: user?.role,
       loading: !bootstrapped || isLoading || isFetching,
-      isAuthenticated: Boolean(user),
+      isAuthenticated: Boolean(user) || Boolean(getAccessToken()),
       login,
       logout,
       refreshUser,

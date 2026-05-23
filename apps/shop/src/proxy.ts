@@ -1,3 +1,4 @@
+import { getCentralLoginUrl } from "@wafrivet/auth";
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 import {
@@ -23,9 +24,7 @@ export default function proxy(request: NextRequest) {
   requestHeaders.set("x-pathname", pathname);
 
   if (requiresAuth(pathname) && !token) {
-    const loginUrl = new URL("/login", request.url);
-    loginUrl.searchParams.set("redirect", pathname);
-    return NextResponse.redirect(loginUrl);
+    return NextResponse.redirect(getCentralLoginUrl(request.url));
   }
 
   return NextResponse.next({

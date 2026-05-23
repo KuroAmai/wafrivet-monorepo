@@ -1,26 +1,8 @@
-function getAppLoginUrl(): string {
-  let base = "https://app.wafrivet.com";
-  try {
-    if (typeof process !== "undefined" && process.env?.NEXT_PUBLIC_APP_URL) {
-      base = process.env.NEXT_PUBLIC_APP_URL.replace(/\/$/, "");
-    }
-  } catch {
-    /* noop */
-  }
-  try {
-    const im = import.meta as unknown as { env?: { NEXT_PUBLIC_APP_URL?: string } };
-    const url = im.env?.NEXT_PUBLIC_APP_URL;
-    if (url) {
-      base = url.replace(/\/$/, "");
-    }
-  } catch {
-    /* noop */
-  }
-  return `${base}/login`;
-}
+import { clearAuthCookieClient } from "./authCookie";
+import { getCentralLoginUrl } from "./centralAuth";
 
 function resolveLogoutHref(returnTo?: string): string {
-  if (!returnTo) return getAppLoginUrl();
+  if (!returnTo) return getCentralLoginUrl();
   if (returnTo.startsWith("http://") || returnTo.startsWith("https://")) return returnTo;
   if (typeof window !== "undefined") {
     return `${window.location.origin}${returnTo.startsWith("/") ? returnTo : `/${returnTo}`}`;
@@ -28,9 +10,7 @@ function resolveLogoutHref(returnTo?: string): string {
   return returnTo;
 }
 
-import { clearAuthCookieClient } from "./authCookie";
-
-/** @param returnTo — e.g. `/login` on Shop; omit to send users to main app login. */
+/** @param returnTo — optional post-logout URL; defaults to app login. */
 export function logoutClient(returnTo?: string): void {
   if (typeof document === "undefined" || typeof window === "undefined") {
     return;
@@ -39,6 +19,7 @@ export function logoutClient(returnTo?: string): void {
   try {
     sessionStorage.removeItem("wafrivet_roles_confirmed");
     sessionStorage.removeItem("wafrivet_onboarding_session");
+    sessionStorage.removeItem("wafrivet_auth_return_to");
   } catch {
     /* noop */
   }

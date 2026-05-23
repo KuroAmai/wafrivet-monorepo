@@ -4,12 +4,12 @@ Canonical API docs: [`endpoint_documentation/`](./endpoint_documentation/).
 
 ## Flow
 
-1. **Signup** — `POST /auth/signup` (no role in body; backend default `REGULAR_CUSTOMER`).
-2. **Verify** — OTP + login; `resolveAuthDestination()` reads `GET /auth/me`.
+1. **Signup** — on **app** only; `POST /auth/signup` (no role in body; backend default `REGULAR_CUSTOMER`). Optional `?returnTo=` for shop/herd return after onboarding.
+2. **Verify** — OTP + login on app; `resolvePostAuthDestination()` reads `GET /auth/me` and honors stored `returnTo` when allowed.
 3. **Onboarding** (`/onboarding`) when `needsOnboarding(me)`:
    - Steps 1–2: avatar (Dicebear URL) + display name (local UI only until gateway ships profile PATCH).
    - Step 3: professional roles from `GET /roles/options` (grid excludes `REGULAR_CUSTOMER`) → `POST /roles/select`, or **Skip for now** → `POST /roles/select` with `{ roles: ["REGULAR_CUSTOMER"] }`.
-   - If response `user.kyc_required_for` is **empty** → redirect (farmer / shopper done).
+   - If response `user.kyc_required_for` is **empty** → redirect: farmers/vets to Herd, shoppers to **Shop** (`redirectByRole` → `NEXT_PUBLIC_SHOP_URL`), not app `/welcome`.
    - If **non-empty** → `POST /onboarding/start` → step 4 business form → `POST /onboarding/:id/submit`.
 
 ## BFF routes (apps/app)

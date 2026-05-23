@@ -1,5 +1,14 @@
+import { getShopBaseUrl, normalizeUserRole } from "@wafrivet/auth";
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
+
+function hubRedirectForJwtRole(jwtRole: string | undefined, request: NextRequest): URL {
+  const productRole = normalizeUserRole(jwtRole);
+  if (productRole === "customer") {
+    return new URL(getShopBaseUrl());
+  }
+  return new URL("/welcome", request.url);
+}
 
 export function proxy(request: NextRequest) {
   const token = request.cookies.get("jwt")?.value || request.cookies.get("token")?.value;
@@ -19,7 +28,7 @@ export function proxy(request: NextRequest) {
         Buffer.from(token.split(".")[1] ?? "", "base64url").toString("utf8"),
       ) as { role?: string };
       if (payload.role && payload.role !== "ADMIN") {
-        return NextResponse.redirect(new URL("/welcome", request.url));
+        return NextResponse.redirect(hubRedirectForJwtRole(payload.role, request));
       }
     } catch {
       /* allow through; API will enforce */

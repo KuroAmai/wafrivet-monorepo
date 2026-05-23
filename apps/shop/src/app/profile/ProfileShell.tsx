@@ -13,21 +13,22 @@ import {
 } from "@phosphor-icons/react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useState } from "react";
-import { logoutClient } from "@wafrivet/auth";
+import { getCentralLoginUrl, getShopBaseUrl, logoutClient, useAuth } from "@wafrivet/auth";
+import { displayNameFromProfile } from "@/lib/mapAuthMe";
 
 export function ProfileShell({
   children,
 }: {
   children: React.ReactNode;
 }) {
-  const [userName] = useState("Mustapha Ahmed");
+  const { user } = useAuth();
+  const userName = displayNameFromProfile(user as Parameters<typeof displayNameFromProfile>[0]) ?? "there";
   const pathname = usePathname();
 
   const handleLogout = () => {
     fetch("/api/auth/logout", { method: "POST", credentials: "same-origin" })
       .catch(() => undefined)
-      .finally(() => logoutClient("/login"));
+      .finally(() => logoutClient(getCentralLoginUrl(getShopBaseUrl())));
   };
 
   const navItems = [
@@ -88,7 +89,7 @@ export function ProfileShell({
                <div className="bg-white p-8 rounded-[40px] border border-gray-100 shadow-sm flex flex-col items-center text-center transition-all hover:border-[#2D4D31]/20">
                   <div className="relative mb-6">
                      <img
-                       src={`https://api.dicebear.com/7.x/avataaars/svg?seed=Mustapha&backgroundColor=b6e3f4`}
+                       src={`https://api.dicebear.com/7.x/avataaars/svg?seed=${encodeURIComponent(userName)}&backgroundColor=b6e3f4`}
                        className="w-32 h-32 rounded-[40px] border-4 border-white shadow-xl shadow-gray-200/50"
                        alt="Profile avatar"
                      />

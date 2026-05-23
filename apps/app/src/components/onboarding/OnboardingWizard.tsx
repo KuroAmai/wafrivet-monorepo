@@ -16,7 +16,8 @@ import {
   platformRoleToKycRole,
   resolveKycRoleForSelection,
 } from "@/lib/platformRoles";
-import { resolveAuthDestination } from "@/lib/resolveAuthDestination";
+import { readStoredReturnTo } from "@/lib/authReturnTo";
+import { resolvePostAuthDestination } from "@/lib/resolvePostAuthDestination";
 import { AvatarPicker } from "./AvatarPicker";
 import { OnboardingProgress } from "./OnboardingProgress";
 import {
@@ -34,7 +35,7 @@ function filterProfessionalRoleOptions(options: RoleOptionDto[]): RoleOptionDto[
 }
 
 async function navigateAfterOnboarding() {
-  const destination = await resolveAuthDestination();
+  const destination = await resolvePostAuthDestination(readStoredReturnTo());
   if (destination.startsWith("http")) {
     window.location.href = destination;
     return;

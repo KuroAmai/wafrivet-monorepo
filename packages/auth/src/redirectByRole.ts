@@ -1,4 +1,4 @@
-import { getShopEntryUrl } from "./shopAuth";
+import { getShopBaseUrl, getShopEntryUrl } from "./shopAuth";
 
 export type UserRole =
   | "farmer"
@@ -20,7 +20,7 @@ export function redirectByRole(role: UserRole): string {
     case "distributor":
       return getShopEntryUrl(role);
     case "customer":
-      return `${appUrl}/welcome`;
+      return getShopBaseUrl();
     case "admin":
       return `${appUrl}/admin`;
     default:

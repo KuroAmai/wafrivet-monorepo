@@ -1,3 +1,4 @@
+import { getCentralLoginUrl, isAllowedReturnTo } from "./centralAuth";
 import { normalizeUserRole } from "./normalizeRole";
 import type { UserRole } from "./redirectByRole";
 
@@ -30,12 +31,22 @@ export function sanitizeShopRedirect(path: string | null | undefined): string | 
 }
 
 /**
- * Shop login URL. Use `absolute: true` when linking from another app (e.g. main app after signup).
+ * Central app login with returnTo set to a shop URL (path or full URL).
+ * `absolute` is kept for API compatibility; return value is always an absolute app URL.
  */
-export function getShopLoginUrl(redirectPath?: string, absolute = false): string {
-  const safe = sanitizeShopRedirect(redirectPath);
-  const relative = safe ? `/login?redirect=${encodeURIComponent(safe)}` : "/login";
-  return absolute ? `${getShopBaseUrl()}${relative}` : relative;
+export function getShopLoginUrl(redirectPath?: string, _absolute = false): string {
+  const shopBase = getShopBaseUrl();
+  let returnTo = shopBase;
+  if (redirectPath) {
+    const trimmed = redirectPath.trim();
+    if (trimmed.startsWith("http://") || trimmed.startsWith("https://")) {
+      if (isAllowedReturnTo(trimmed)) returnTo = trimmed;
+    } else {
+      const safe = sanitizeShopRedirect(trimmed);
+      if (safe) returnTo = `${shopBase}${safe}`;
+    }
+  }
+  return getCentralLoginUrl(returnTo);
 }
 
 /** Post-signup / cross-app entry when shared `.wafrivet.com` cookie is set. */

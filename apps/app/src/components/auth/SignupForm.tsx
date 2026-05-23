@@ -1,11 +1,13 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
+import { getCentralLoginUrl } from "@wafrivet/auth";
+import { persistReturnTo } from "@/lib/authReturnTo";
 import { Eye, EyeSlash, ArrowRight } from "@phosphor-icons/react";
 import { toAuthEmail } from "@/lib/authIdentifier";
 
@@ -51,7 +53,13 @@ function Field({
 
 export function SignupForm() {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const returnTo = searchParams.get("returnTo");
   const [showPass, setShowPass] = useState(false);
+
+  useEffect(() => {
+    persistReturnTo(returnTo);
+  }, [returnTo]);
   const [apiError, setApiError] = useState<string | null>(null);
 
   const {
@@ -165,9 +173,12 @@ export function SignupForm() {
 
         <p className="text-center text-[14px] text-gray-500 pt-2">
           Already have an account?{" "}
-          <Link href="/login" className="text-[#2D4D31] font-semibold hover:underline">
+          <a
+            href={getCentralLoginUrl(returnTo)}
+            className="text-[#2D4D31] font-semibold hover:underline"
+          >
             Sign in →
-          </Link>
+          </a>
         </p>
       </form>
     </div>

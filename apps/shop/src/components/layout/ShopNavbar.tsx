@@ -2,22 +2,35 @@
 
 import Link from "next/link";
 import { ShoppingCart, Bell, MapPin, CaretDown } from "@phosphor-icons/react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { getAccessToken } from "@wafrivet/api";
-import { useAuth } from "@wafrivet/auth";
+import { getCentralLoginUrl, normalizeUserRole, useAuth } from "@wafrivet/auth";
+import { displayNameFromProfile } from "@/lib/mapAuthMe";
 import { CartDrawer } from "@/components/shop/CartDrawer";
 import { NotificationDrawer } from "@/components/shop/NotificationDrawer";
 
+function accountHrefForRole(role: ReturnType<typeof normalizeUserRole>): string {
+  if (role === "chemist" || role === "admin") return "/dashboard";
+  if (role === "distributor") return "/distributor";
+  return "/profile";
+}
+
 export function ShopNavbar() {
-  const { user, isAuthenticated, loading } = useAuth();
+  const { user, role, isAuthenticated, loading, refreshUser } = useAuth();
   const [isCartOpen, setIsCartOpen] = useState(false);
   const [isNotificationOpen, setIsNotificationOpen] = useState(false);
 
-  const loggedIn = isAuthenticated || Boolean(getAccessToken());
-  const userName =
-    (user as { firstName?: string; email?: string } | null)?.firstName ??
-    (user as { email?: string } | null)?.email?.split("@")[0] ??
-    "Account";
+  const hasToken = Boolean(getAccessToken());
+  const loggedIn = isAuthenticated || hasToken;
+  const productRole = normalizeUserRole(role);
+  const accountHref = accountHrefForRole(productRole);
+  const userName = displayNameFromProfile(user as Parameters<typeof displayNameFromProfile>[0]) ?? "Account";
+
+  useEffect(() => {
+    if (hasToken && !user && !loading) {
+      void refreshUser();
+    }
+  }, [hasToken, user, loading, refreshUser]);
 
   return (
     <>
@@ -42,12 +55,16 @@ export function ShopNavbar() {
 
             <div className="flex items-center gap-3 md:gap-5">
               {!loading && !loggedIn ? (
-                <Link
-                  href="/login"
+                <a
+                  href={
+                    typeof window !== "undefined"
+                      ? getCentralLoginUrl(window.location.href)
+                      : getCentralLoginUrl()
+                  }
                   className="text-[14px] font-bold text-[#2D4D31] hover:underline"
                 >
                   Sign in
-                </Link>
+                </a>
               ) : null}
               <button
                 onClick={() => setIsNotificationOpen(true)}
@@ -63,7 +80,10 @@ export function ShopNavbar() {
               </button>
               {loggedIn ? (
                 <Link
-                  href="/dashboard"
+                  href={accountHref}
+                  onMouseEnter={() => {
+                    if (hasToken && !user) void refreshUser();
+                  }}
                   className="hidden sm:flex items-center gap-2 pl-2 pr-4 py-1.5 rounded-full border border-gray-100 bg-white hover:border-[#2D4D31]/20 transition-all"
                 >
                   <img

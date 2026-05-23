@@ -1,15 +1,17 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
+import { getCentralSignupUrl } from "@wafrivet/auth";
+import { persistReturnTo } from "@/lib/authReturnTo";
+import { resolvePostAuthDestination } from "@/lib/resolvePostAuthDestination";
 import { Eye, EyeSlash, ArrowRight } from "@phosphor-icons/react";
 import { toAuthEmail } from "@/lib/authIdentifier";
 import { persistLoginSession } from "@/lib/persistLoginSession";
-import { resolveAuthDestination } from "@/lib/resolveAuthDestination";
 
 const schema = z.object({
   emailOrPhone: z.string().min(1, "Email or phone is required"),
@@ -47,8 +49,14 @@ function Field({
 
 export function LoginForm() {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const returnTo = searchParams.get("returnTo");
   const [showPass, setShowPass] = useState(false);
   const [apiError, setApiError] = useState<string | null>(null);
+
+  useEffect(() => {
+    persistReturnTo(returnTo);
+  }, [returnTo]);
   const { register, handleSubmit, formState: { errors, isSubmitting } } = useForm<
     z.infer<typeof schema>
   >({
@@ -74,7 +82,7 @@ export function LoginForm() {
 
     persistLoginSession(data);
 
-    const destination = await resolveAuthDestination();
+    const destination = await resolvePostAuthDestination(returnTo);
     if (destination.startsWith("http")) {
       window.location.href = destination;
       return;
@@ -151,9 +159,12 @@ export function LoginForm() {
 
       <p className="text-center text-[14px] text-gray-500">
         Don&apos;t have an account?{" "}
-        <Link href="/signup" className="text-[#2D4D31] font-semibold hover:underline">
+        <a
+          href={getCentralSignupUrl(returnTo)}
+          className="text-[#2D4D31] font-semibold hover:underline"
+        >
           Create one free →
-        </Link>
+        </a>
       </p>
     </div>
   );

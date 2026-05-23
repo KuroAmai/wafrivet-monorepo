@@ -1,7 +1,12 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { Plant, Storefront, GearSix, ArrowRight, SignOut } from "@phosphor-icons/react/dist/ssr";
-import { getShopEntryUrl, normalizeUserRole, type UserRole } from "@wafrivet/auth";
+import {
+  getShopBaseUrl,
+  getShopEntryUrl,
+  normalizeUserRole,
+  type UserRole,
+} from "@wafrivet/auth";
 import { getServerAuth } from "@wafrivet/auth/server";
 
 export const dynamic = "force-dynamic";
@@ -29,12 +34,17 @@ export default async function WelcomePage() {
 
   const user = (auth as { user?: { name?: string; location?: string } }).user;
   const role = (auth as { role?: string }).role;
+  const productRole = normalizeUserRole(role);
+
+  if (productRole === "customer") {
+    redirect(getShopBaseUrl());
+  }
+
   const fullName = user?.name?.trim() || "there";
   const firstName = fullName.split(" ")[0] || fullName;
 
   const herdUrl = process.env.NEXT_PUBLIC_HERD_URL || "https://herd.wafrivet.com";
   const shopUrl = process.env.NEXT_PUBLIC_SHOP_URL || "https://shop.wafrivet.com";
-  const productRole = normalizeUserRole(role);
   const accountHref = productRole === "admin" ? "/admin" : "/dashboard";
 
   const allCards: AppCard[] = [

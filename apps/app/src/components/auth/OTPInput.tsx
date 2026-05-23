@@ -5,7 +5,8 @@ import { Button } from "@heroui/react";
 import { useRouter } from "next/navigation";
 import { ArrowRight } from "lucide-react";
 import { persistLoginSession } from "@/lib/persistLoginSession";
-import { resolveAuthDestination } from "@/lib/resolveAuthDestination";
+import { readStoredReturnTo } from "@/lib/authReturnTo";
+import { resolvePostAuthDestination } from "@/lib/resolvePostAuthDestination";
 
 function clearPendingSignup() {
   if (typeof sessionStorage === "undefined") return;
@@ -63,7 +64,7 @@ export function OTPInput() {
   };
 
   const navigateAfterAuth = async () => {
-    const destination = await resolveAuthDestination();
+    const destination = await resolvePostAuthDestination(readStoredReturnTo());
     clearPendingSignup();
     if (destination.startsWith("http")) {
       window.location.href = destination;
