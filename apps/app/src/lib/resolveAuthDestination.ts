@@ -1,5 +1,6 @@
 import type { AuthMeDto } from "@wafrivet/types";
 import { redirectByRole } from "@wafrivet/auth";
+import { hasRolesConfirmed } from "@/lib/onboardingSession";
 import {
   normalizePlatformRoles,
   pickPrimaryProductRole,
@@ -23,7 +24,9 @@ export function needsOnboarding(me: AuthMeDto): boolean {
 
   const roles = normalizePlatformRoles(extractRoles(me));
   if (roles.length === 0) return true;
-  if (roles.length === 1 && roles[0] === "REGULAR_CUSTOMER") return true;
+  if (roles.length === 1 && roles[0] === "REGULAR_CUSTOMER" && !hasRolesConfirmed()) {
+    return true;
+  }
   return false;
 }
 

@@ -8,6 +8,7 @@ export const FALLBACK_ROLE_OPTIONS: RoleOptionDto[] = [
     description: "Manage your herd, track vitals, and order medicine.",
     requires_kyc: false,
   },
+  /** Shown via "Skip for now" on onboarding, not in the role grid. */
   {
     id: "REGULAR_CUSTOMER",
     name: "regular_customer",

@@ -7,9 +7,9 @@ Canonical API docs: [`endpoint_documentation/`](./endpoint_documentation/).
 1. **Signup** — `POST /auth/signup` (no role in body; backend default `REGULAR_CUSTOMER`).
 2. **Verify** — OTP + login; `resolveAuthDestination()` reads `GET /auth/me`.
 3. **Onboarding** (`/onboarding`) when `needsOnboarding(me)`:
-   - Steps 1–2: avatar (Dicebear URL) + display name → `PATCH /users/profile`.
-   - Step 3: `GET /roles/options` UI → `POST /roles/select` with `{ roles: [PlatformSelectableRole] }`.
-   - If response `user.kyc_required_for` is **empty** → redirect (farmer / regular customer done).
+   - Steps 1–2: avatar (Dicebear URL) + display name (local UI only until gateway ships profile PATCH).
+   - Step 3: professional roles from `GET /roles/options` (grid excludes `REGULAR_CUSTOMER`) → `POST /roles/select`, or **Skip for now** → `POST /roles/select` with `{ roles: ["REGULAR_CUSTOMER"] }`.
+   - If response `user.kyc_required_for` is **empty** → redirect (farmer / shopper done).
    - If **non-empty** → `POST /onboarding/start` → step 4 business form → `POST /onboarding/:id/submit`.
 
 ## BFF routes (apps/app)
@@ -17,7 +17,7 @@ Canonical API docs: [`endpoint_documentation/`](./endpoint_documentation/).
 | BFF | Gateway |
 |-----|---------|
 | `GET /api/auth/me` | `GET /auth/me` |
-| `PATCH /api/users/profile` | `PATCH /users/profile` |
+| `PATCH /api/users/profile` | `PATCH /users/profile` (**not on gateway yet** — BFF exists; wizard does not call it) |
 | `GET /api/roles/options` | `GET /roles/options` |
 | `POST /api/roles/select` | `POST /roles/select` |
 | `GET /api/regions` | `GET /regions` |
@@ -26,7 +26,9 @@ Canonical API docs: [`endpoint_documentation/`](./endpoint_documentation/).
 
 ## Platform roles
 
-Selectable: `FARMER`, `REGULAR_CUSTOMER`, `VET`, `SUPPLIER`, `MANUFACTURER`.
+**Role grid (step 3):** `FARMER`, `VET`, `SUPPLIER`, `MANUFACTURER` only.
+
+**Skip / default shopper:** `REGULAR_CUSTOMER` (signup default; confirmed via skip or explicit select).
 
 KYC required for: `VET`, `SUPPLIER`, `MANUFACTURER` only.
 
@@ -35,7 +37,9 @@ Product redirects (`@wafrivet/auth`): see [`apps/app/src/lib/platformRoles.ts`](
 ## `needsOnboarding` logic
 
 - `kyc_required_for.length > 0` → stay on `/onboarding` (business step).
-- Roles empty or only `REGULAR_CUSTOMER` → role not chosen yet → `/onboarding`.
+- Roles empty → `/onboarding`.
+- Only `REGULAR_CUSTOMER` **and** `sessionStorage` `wafrivet_roles_confirmed` not set → role not confirmed yet → `/onboarding`.
+- After successful `POST /roles/select`, the wizard sets `wafrivet_roles_confirmed=1` (cleared on logout).
 
 ## Mock auth
 

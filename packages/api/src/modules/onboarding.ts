@@ -21,6 +21,7 @@ export async function submitOnboarding(
   return data;
 }
 
+/** Gateway PATCH /users/profile is not exposed yet; unused until backend ships it. */
 export async function updateProfile(body: UpdateUserProfileDto): Promise<unknown> {
   const { data } = await apiClient.patch("/users/profile", body);
   return data;

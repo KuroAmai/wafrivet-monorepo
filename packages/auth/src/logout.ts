@@ -36,6 +36,12 @@ export function logoutClient(returnTo?: string): void {
     return;
   }
   clearAuthCookieClient();
+  try {
+    sessionStorage.removeItem("wafrivet_roles_confirmed");
+    sessionStorage.removeItem("wafrivet_onboarding_session");
+  } catch {
+    /* noop */
+  }
   if (typeof window !== "undefined" && window.location.hostname) {
     const expire = "Thu, 01 Jan 1970 00:00:00 GMT";
     for (const name of ["jwt", "token", "access_token"] as const) {

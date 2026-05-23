@@ -10,6 +10,7 @@ import type {
 import { RoleSelector } from "@/components/auth/RoleSelector";
 import { StepTransition } from "@/components/auth/FormAnimations";
 import { AVATAR_SEEDS, dicebearAvatarUrl } from "@/lib/dicebear";
+import { markRolesConfirmed } from "@/lib/onboardingSession";
 import { FALLBACK_ROLE_OPTIONS } from "@/lib/roleOptionsFallback";
 import {
   platformRoleToKycRole,
@@ -28,11 +29,8 @@ import {
 const PROGRESS_LABELS = ["Avatar", "Your name", "Your role", "Business details"];
 const SESSION_STORAGE_KEY = "wafrivet_onboarding_session";
 
-function splitDisplayName(name: string): { firstName: string; lastName: string } {
-  const parts = name.trim().split(/\s+/);
-  const firstName = parts[0] ?? "";
-  const lastName = parts.slice(1).join(" ") || firstName;
-  return { firstName, lastName };
+function filterProfessionalRoleOptions(options: RoleOptionDto[]): RoleOptionDto[] {
+  return options.filter((r) => r.id !== "REGULAR_CUSTOMER");
 }
 
 async function navigateAfterOnboarding() {
@@ -49,7 +47,9 @@ export function OnboardingWizard() {
   const [direction, setDirection] = useState(1);
   const [avatarSeed, setAvatarSeed] = useState<string>(AVATAR_SEEDS[0]);
   const [displayName, setDisplayName] = useState("");
-  const [roleOptions, setRoleOptions] = useState<RoleOptionDto[]>(FALLBACK_ROLE_OPTIONS);
+  const [roleOptions, setRoleOptions] = useState<RoleOptionDto[]>(
+    filterProfessionalRoleOptions(FALLBACK_ROLE_OPTIONS),
+  );
   const [selectedRole, setSelectedRole] = useState<PlatformSelectableRole | undefined>();
   const [sessionId, setSessionId] = useState<string | null>(null);
   const [gatewayRole, setGatewayRole] = useState<GatewayOnboardingRole | null>(null);
@@ -67,30 +67,11 @@ export function OnboardingWizard() {
     setApiError(null);
   }, [step]);
 
-  const saveProfile = async () => {
-    const { firstName, lastName } = splitDisplayName(displayName);
-    const res = await fetch("/api/users/profile", {
-      method: "PATCH",
-      credentials: "same-origin",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        firstName,
-        lastName,
-        displayName: displayName.trim(),
-        avatarUrl: dicebearAvatarUrl(avatarSeed),
-      }),
-    });
-    if (!res.ok) {
-      const body = await res.json().catch(() => ({}));
-      throw new Error(body.message ?? "Could not save your profile.");
-    }
-  };
-
   const loadRoleOptions = useCallback(async () => {
     const res = await fetch("/api/roles/options", { credentials: "same-origin" });
     const body = await res.json().catch(() => ({}));
     if (res.ok && Array.isArray(body.roles)) {
-      setRoleOptions(body.roles);
+      setRoleOptions(filterProfessionalRoleOptions(body.roles));
     }
   }, []);
 
@@ -119,6 +100,34 @@ export function OnboardingWizard() {
       );
     }
     goTo(4);
+  };
+
+  const completeRoleSelection = async (role: PlatformSelectableRole) => {
+    const selectRes = await fetch("/api/roles/select", {
+      method: "POST",
+      credentials: "same-origin",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ roles: [role] }),
+    });
+    const selectBody = await selectRes.json().catch(() => ({}));
+    if (!selectRes.ok) {
+      throw new Error(selectBody.message ?? "Could not save your role.");
+    }
+
+    markRolesConfirmed();
+
+    const kycRequired: GatewayOnboardingRole[] = selectBody.user?.kyc_required_for ?? [];
+
+    if (kycRequired.length === 0) {
+      if (typeof sessionStorage !== "undefined") {
+        sessionStorage.removeItem(SESSION_STORAGE_KEY);
+      }
+      await navigateAfterOnboarding();
+      return;
+    }
+
+    const kycRole = resolveKycRoleForSelection(role, kycRequired);
+    await startKycSession(kycRole);
   };
 
   useEffect(() => {
@@ -170,6 +179,18 @@ export function OnboardingWizard() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  const handleSkipShopper = async () => {
+    setApiError(null);
+    setLoading(true);
+    try {
+      await completeRoleSelection("REGULAR_CUSTOMER");
+    } catch (e) {
+      setApiError(e instanceof Error ? e.message : "Something went wrong.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const handleContinue = async () => {
     setApiError(null);
     if (step === 1) {
@@ -186,37 +207,12 @@ export function OnboardingWizard() {
     }
     if (step === 3) {
       if (!selectedRole) {
-        setApiError("Select how you'll use Wafrivet.");
+        setApiError("Select a professional role, or skip to browse as a shopper.");
         return;
       }
       setLoading(true);
       try {
-        await saveProfile();
-
-        const selectRes = await fetch("/api/roles/select", {
-          method: "POST",
-          credentials: "same-origin",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ roles: [selectedRole] }),
-        });
-        const selectBody = await selectRes.json().catch(() => ({}));
-        if (!selectRes.ok) {
-          throw new Error(selectBody.message ?? "Could not save your role.");
-        }
-
-        const kycRequired: GatewayOnboardingRole[] =
-          selectBody.user?.kyc_required_for ?? [];
-
-        if (kycRequired.length === 0) {
-          if (typeof sessionStorage !== "undefined") {
-            sessionStorage.removeItem(SESSION_STORAGE_KEY);
-          }
-          await navigateAfterOnboarding();
-          return;
-        }
-
-        const kycRole = resolveKycRoleForSelection(selectedRole, kycRequired);
-        await startKycSession(kycRole);
+        await completeRoleSelection(selectedRole);
       } catch (e) {
         setApiError(e instanceof Error ? e.message : "Something went wrong.");
       } finally {
@@ -364,13 +360,21 @@ export function OnboardingWizard() {
               How will you use Wafrivet?
             </h1>
             <p className="text-[15px] text-gray-500 mt-1.5 mb-6">
-              We&apos;ll tailor your experience to your role
+              Choose a professional role below, or skip to browse the shop as a customer.
             </p>
             <RoleSelector
               options={roleOptions}
               selectedRole={selectedRole}
               onSelect={setSelectedRole}
             />
+            <button
+              type="button"
+              onClick={handleSkipShopper}
+              disabled={loading}
+              className="w-full mt-4 py-3 text-[14px] font-semibold text-[#2D4D31] hover:underline disabled:opacity-50"
+            >
+              Skip for now — browse as a shopper
+            </button>
           </div>
         ) : null}
 
@@ -409,7 +413,7 @@ export function OnboardingWizard() {
         <button
           type="button"
           onClick={handleContinue}
-          disabled={loading}
+          disabled={loading || (step === 3 && !selectedRole)}
           className="flex-1 h-[52px] flex items-center justify-center gap-2 bg-[#2D4D31] text-white font-semibold text-[15px] rounded-xl hover:bg-[#243f28] transition-all disabled:opacity-60"
         >
           {loading ? (
