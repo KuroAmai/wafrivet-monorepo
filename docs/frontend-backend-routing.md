@@ -52,14 +52,26 @@ Frontend flow: [`onboarding-frontend.md`](./onboarding-frontend.md).
 
 | Variable | Purpose |
 |----------|---------|
-| `API_URL` | Server-side gateway base (BFF routes); include `/api/v1` |
-| `NEXT_PUBLIC_API_URL` | Gateway base including `/api/v1` |
+| `API_URL` | Server-side gateway base (BFF routes); include `/api/v1`. **Required on Vercel `app` project** — must match the deployment where users (including seeded admin) exist. Empty values are ignored and the default gateway URL is used. |
+| `NEXT_PUBLIC_API_URL` | Gateway base including `/api/v1` (browser `adminApi` and token refresh). Set to the same host as `API_URL`. |
 | `AUTH_COOKIE_DOMAIN` | Shared session cookie domain (e.g. `.wafrivet.com`) |
 | `NEXT_PUBLIC_AUTH_COOKIE_DOMAIN` | Client-side cookie domain (same as above) |
 | `NEXT_PUBLIC_APP_URL` | App origin (central login/signup) |
 | `NEXT_PUBLIC_SHOP_URL` | Shop origin (used in `returnTo`) |
 | `NEXT_PUBLIC_HERD_URL` | Herd origin (used in `returnTo`) |
 | `NEXT_PUBLIC_ENABLE_MOCK_AUTH` | Dev mock JWT |
+
+## Admin login troubleshooting
+
+1. Sign in at `app` `/login` with the **full seeded email** (not a username).
+2. `POST /api/auth/login` proxies to `{API_URL}/auth/login`. On failure, non-production responses may include `gatewayHost` to confirm which gateway was called.
+3. Verify credentials directly:
+   ```bash
+   curl -s -w "\n%{http_code}" -X POST "https://wafrivet-api-gateway-wdvfp4toqa-ew.a.run.app/api/v1/auth/login" \
+     -H "Content-Type: application/json" \
+     -d '{"email":"<admin-email>","password":"<password>"}'
+   ```
+   If curl returns **401**, fix backend seed or password on that gateway; if **200**, align Vercel `API_URL` with that host.
 
 ## CORS
 

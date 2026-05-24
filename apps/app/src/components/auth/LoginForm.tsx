@@ -53,6 +53,8 @@ export function LoginForm() {
   const returnTo = searchParams.get("returnTo");
   const [showPass, setShowPass] = useState(false);
   const [apiError, setApiError] = useState<string | null>(null);
+  const [apiErrorCode, setApiErrorCode] = useState<string | null>(null);
+  const [fieldErrors, setFieldErrors] = useState<{ emailOrPhone?: string; password?: string }>({});
 
   useEffect(() => {
     persistReturnTo(returnTo);
@@ -65,6 +67,8 @@ export function LoginForm() {
 
   const onSubmit = async (values: z.infer<typeof schema>) => {
     setApiError(null);
+    setApiErrorCode(null);
+    setFieldErrors({});
     const email = toAuthEmail(values.emailOrPhone);
 
     const res = await fetch("/api/auth/login", {
@@ -76,11 +80,19 @@ export function LoginForm() {
 
     const data = await res.json().catch(() => ({}));
     if (!res.ok) {
-      setApiError(data.message ?? "Sign in failed. Check your credentials.");
+      const err = data as {
+        message?: string;
+        code?: string;
+        gatewayCode?: string;
+        fieldErrors?: { emailOrPhone?: string; password?: string };
+      };
+      setApiError(err.message ?? "Sign in failed. Check your credentials.");
+      setApiErrorCode(err.gatewayCode ?? err.code ?? null);
+      setFieldErrors(err.fieldErrors ?? {});
       return;
     }
 
-    persistLoginSession(data);
+    persistLoginSession(data as { accessToken?: string; expiresIn?: number });
 
     const destination = await resolvePostAuthDestination(returnTo);
     if (destination.startsWith("http")) {
@@ -96,24 +108,30 @@ export function LoginForm() {
       <div className="mb-8">
         <h1 className="text-[30px] font-semibold text-gray-900 tracking-tight leading-tight">Welcome back</h1>
         <p className="text-[15px] text-gray-500 mt-1.5">Sign in to your Wafrivet account</p>
+        <p className="text-[12px] text-gray-400 mt-2">
+          Admin accounts: use your full seeded email address, not a username.
+        </p>
       </div>
 
       {apiError ? (
-        <p className="mb-4 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
-          {apiError}
-        </p>
+        <div className="mb-4 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700 space-y-1">
+          <p>{apiError}</p>
+          {apiErrorCode ? (
+            <p className="text-[12px] text-red-600/80 font-mono">Code: {apiErrorCode}</p>
+          ) : null}
+        </div>
       ) : null}
 
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
         <Field
           label="Email or Phone Number"
-          error={errors.emailOrPhone?.message as string}
+          error={(errors.emailOrPhone?.message as string) || fieldErrors.emailOrPhone}
           registration={register("emailOrPhone")}
         />
         <Field
           label="Password"
           type={showPass ? "text" : "password"}
-          error={errors.password?.message as string}
+          error={(errors.password?.message as string) || fieldErrors.password}
           registration={register("password")}
           endContent={
             <button type="button" onClick={() => setShowPass(!showPass)} className="text-gray-400 hover:text-gray-600 transition-colors">

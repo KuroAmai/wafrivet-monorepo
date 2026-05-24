@@ -60,6 +60,61 @@ function matchesAny(haystack: string, needles: string[]): boolean {
   return needles.some((n) => lower.includes(n));
 }
 
+function loginInvalidCredentials(
+  passwordHint = "Check your email and password.",
+): FormattedAuthError {
+  return {
+    code: "INVALID_CREDENTIALS",
+    message: "Email or password is incorrect.",
+    fieldErrors: { password: passwordHint },
+  };
+}
+
+function formatLoginAuthError(
+  body: GatewayErrorBody,
+  status: number,
+  messages: string[],
+  joined: string,
+): FormattedAuthError {
+  if (status >= 500) {
+    return {
+      code: "SERVER_ERROR",
+      message: "Something went wrong. Try again in a moment.",
+    };
+  }
+
+  if (
+    status === 401 ||
+    status === 403 ||
+    body.code === "AUTH_003" ||
+    matchesAny(joined, [
+      "invalid credentials",
+      "unauthorized",
+      "wrong password",
+      "incorrect password",
+    ])
+  ) {
+    return loginInvalidCredentials();
+  }
+
+  if (matchesAny(joined, ["email", "e-mail"]) && matchesAny(joined, ["invalid", "must be", "format"])) {
+    return {
+      code: "INVALID_EMAIL",
+      message: "Enter a valid email address.",
+      fieldErrors: { emailOrPhone: "Enter a valid email or phone number." },
+    };
+  }
+
+  if (status >= 400 && status < 500) {
+    return loginInvalidCredentials();
+  }
+
+  return {
+    code: "UNKNOWN",
+    message: "Something went wrong. Try again.",
+  };
+}
+
 function mapFieldErrors(
   messages: string[],
   code: AuthErrorCode,
@@ -106,6 +161,10 @@ export function formatAuthError(
     messages.length === 0 ||
     messages.every((m) => /bad request exception/i.test(m) || m === "Bad Request");
 
+  if (options?.operation === "login") {
+    return formatLoginAuthError(body, status, messages, joined);
+  }
+
   if (status >= 500) {
     return {
       code: "SERVER_ERROR",
@@ -114,11 +173,7 @@ export function formatAuthError(
   }
 
   if (matchesAny(joined, ["invalid credentials", "unauthorized", "wrong password", "incorrect password"])) {
-    return {
-      code: "INVALID_CREDENTIALS",
-      message: "Email or password is incorrect.",
-      fieldErrors: { password: "Check your password and try again." },
-    };
+    return loginInvalidCredentials("Check your password and try again.");
   }
 
   if (
@@ -219,6 +274,16 @@ export const AUTH_ERROR_GATEWAY_FIXTURES = {
     status: 400,
     body: { message: ["password must be stronger", "password should not be empty"], statusCode: 400 },
     operation: "signup" as const,
+  },
+  loginUnauthorized: {
+    status: 401,
+    body: { message: "Unauthorized", code: "AUTH_003", statusCode: 401 },
+    operation: "login" as const,
+  },
+  loginPasswordPolicyOnSignIn: {
+    status: 400,
+    body: { message: ["password must be stronger"], statusCode: 400 },
+    operation: "login" as const,
   },
   emailTaken: {
     status: 409,
