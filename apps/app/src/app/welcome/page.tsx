@@ -4,6 +4,7 @@ import { Plant, Storefront, GearSix, ArrowRight, SignOut } from "@phosphor-icons
 import {
   getShopBaseUrl,
   getShopEntryUrl,
+  hasAdminAccess,
   normalizeUserRole,
   type UserRole,
 } from "@wafrivet/auth";
@@ -34,6 +35,12 @@ export default async function WelcomePage() {
 
   const user = (auth as { user?: { name?: string; location?: string } }).user;
   const role = (auth as { role?: string }).role;
+  const roles = (auth as { roles?: string[] }).roles ?? (role ? [role] : []);
+
+  if (hasAdminAccess(roles)) {
+    redirect("/admin");
+  }
+
   const productRole = normalizeUserRole(role);
 
   if (productRole === "customer") {

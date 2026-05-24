@@ -16,7 +16,7 @@ export function AppProviders({ children }: { children: ReactNode }) {
 
   return (
     <QueryClientProvider client={queryClient}>
-      <AuthProvider>{children as never}</AuthProvider>
+      <AuthProvider meUrl="/api/auth/me">{children as never}</AuthProvider>
     </QueryClientProvider>
   );
 }

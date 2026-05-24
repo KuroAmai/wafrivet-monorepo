@@ -1,5 +1,7 @@
 import { NextResponse } from "next/server";
+import type { AuthMeDto } from "@wafrivet/types";
 import { gatewayFetch, getGatewayToken } from "@/lib/gatewayAuth";
+import { mapAuthMeToProfile } from "@/lib/mapAuthMe";
 import { getMockAuthMe } from "@/lib/mockAuthProfile";
 
 export async function GET() {
@@ -9,16 +11,17 @@ export async function GET() {
   }
 
   if (token === "mock-token") {
-    return NextResponse.json(await getMockAuthMe());
+    const mock = await getMockAuthMe();
+    return NextResponse.json(mapAuthMeToProfile(mock as AuthMeDto));
   }
 
   const res = await gatewayFetch("/auth/me");
-  const data = await res.json().catch(() => ({}));
+  const data = (await res.json().catch(() => ({}))) as AuthMeDto;
   if (!res.ok) {
     return NextResponse.json(
-      { message: data.message ?? "Failed to load profile" },
+      { message: (data as { message?: string }).message ?? "Failed to load profile" },
       { status: res.status },
     );
   }
-  return NextResponse.json(data);
+  return NextResponse.json(mapAuthMeToProfile(data));
 }

@@ -1,17 +1,10 @@
 import type { AuthMeDto } from "@wafrivet/types";
-import { redirectByRole } from "@wafrivet/auth";
+import { redirectByRole, extractRolesFromMe, hasAdminAccess } from "@wafrivet/auth";
 import { hasRolesConfirmed } from "@/lib/onboardingSession";
 import {
   normalizePlatformRoles,
   pickPrimaryProductRole,
 } from "@/lib/platformRoles";
-
-function extractRoles(me: AuthMeDto): string[] {
-  const fromUser = me.user?.roles ?? [];
-  const top = me.roles ?? [];
-  const single = me.role ? [me.role] : [];
-  return [...top, ...fromUser, ...single];
-}
 
 function extractKycRequired(me: AuthMeDto): string[] {
   return me.kyc_required_for ?? me.user?.kyc_required_for ?? [];
@@ -19,10 +12,14 @@ function extractKycRequired(me: AuthMeDto): string[] {
 
 /** True when user must complete /onboarding (role pick and/or KYC). */
 export function needsOnboarding(me: AuthMeDto): boolean {
+  if (hasAdminAccess(extractRolesFromMe(me))) {
+    return false;
+  }
+
   const kyc = extractKycRequired(me);
   if (kyc.length > 0) return true;
 
-  const roles = normalizePlatformRoles(extractRoles(me));
+  const roles = normalizePlatformRoles(extractRolesFromMe(me));
   if (roles.length === 0) return true;
   if (roles.length === 1 && roles[0] === "REGULAR_CUSTOMER" && !hasRolesConfirmed()) {
     return true;
@@ -38,15 +35,18 @@ export async function resolveAuthDestination(): Promise<string> {
   }
   const me = (await res.json()) as AuthMeDto;
 
+  if (hasAdminAccess(extractRolesFromMe(me))) {
+    return "/admin";
+  }
+
   if (needsOnboarding(me)) {
     return "/onboarding";
   }
 
-  const productRole = pickPrimaryProductRole(extractRoles(me));
+  const productRole = pickPrimaryProductRole(extractRolesFromMe(me));
   if (!productRole) {
     return "/onboarding";
   }
 
-  const dest = redirectByRole(productRole);
-  return dest;
+  return redirectByRole(productRole);
 }

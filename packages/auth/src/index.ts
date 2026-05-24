@@ -28,6 +28,14 @@ export { decodeJwtPayload } from "./decodeJwt";
 export type { UserRole } from "./redirectByRole";
 export { normalizeUserRole } from "./normalizeRole";
 export {
+  extractRolesFromJwt,
+  extractRolesFromMe,
+  hasAdminAccess,
+  isAdminRole,
+  jwtHasAdminAccess,
+  resolvePrimaryRole,
+} from "./adminRole";
+export {
   getShopBaseUrl,
   getShopEntryUrl,
   getShopLoginUrl,

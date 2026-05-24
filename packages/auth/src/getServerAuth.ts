@@ -1,11 +1,13 @@
 import { cookies } from "next/headers";
 import { decodeJwtPayload } from "./decodeJwt";
+import { extractRolesFromJwt, resolvePrimaryRole } from "./adminRole";
 
 export type ServerAuthResult =
   | { authenticated: false }
   | {
       authenticated: true;
       role?: string;
+      roles?: string[];
       user?: { id?: string; email?: string; name?: string; role?: string };
     };
 
@@ -27,22 +29,31 @@ export async function getServerAuth(): Promise<ServerAuthResult> {
       return {
         authenticated: true,
         role: "ADMIN",
+        roles: ["ADMIN"],
         user: { name: "Emeka Okafor", email: "demo@wafrivet.com", role: "ADMIN" },
       };
     }
 
     const payload = decodeJwtPayload(jwt);
-    if (!payload?.sub) {
-      return { authenticated: true, role: payload?.role };
+    if (!payload) {
+      return { authenticated: false };
+    }
+
+    const roles = extractRolesFromJwt(payload);
+    const role = resolvePrimaryRole(roles);
+
+    if (!payload.sub) {
+      return { authenticated: true, role, roles };
     }
 
     return {
       authenticated: true,
-      role: payload.role ?? payload.roles?.[0],
+      role,
+      roles,
       user: {
         id: payload.sub,
         email: payload.email,
-        role: payload.role,
+        role,
       },
     };
   } catch {

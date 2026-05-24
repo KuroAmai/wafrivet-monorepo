@@ -1,22 +1,12 @@
 import type { AuthMeDto } from "@wafrivet/types";
-import { isAllowedReturnTo, redirectByRole } from "@wafrivet/auth";
+import { isAllowedReturnTo, redirectByRole, extractRolesFromMe, hasAdminAccess } from "@wafrivet/auth";
 import {
   clearStoredReturnTo,
   persistReturnTo,
   readStoredReturnTo,
 } from "@/lib/authReturnTo";
-import {
-  normalizePlatformRoles,
-  pickPrimaryProductRole,
-} from "@/lib/platformRoles";
+import { pickPrimaryProductRole } from "@/lib/platformRoles";
 import { needsOnboarding } from "@/lib/resolveAuthDestination";
-
-function extractRoles(me: AuthMeDto): string[] {
-  const fromUser = me.user?.roles ?? [];
-  const top = me.roles ?? [];
-  const single = me.role ? [me.role] : [];
-  return [...top, ...fromUser, ...single];
-}
 
 function pickReturnTo(returnToFromQuery?: string | null): string | null {
   if (returnToFromQuery && isAllowedReturnTo(returnToFromQuery)) {
@@ -37,6 +27,11 @@ export async function resolvePostAuthDestination(
   }
   const me = (await res.json()) as AuthMeDto;
 
+  if (hasAdminAccess(extractRolesFromMe(me))) {
+    clearStoredReturnTo();
+    return returnTo && returnTo.startsWith("/admin") ? returnTo : "/admin";
+  }
+
   if (needsOnboarding(me)) {
     if (returnTo) persistReturnTo(returnTo);
     return "/onboarding";
@@ -49,7 +44,7 @@ export async function resolvePostAuthDestination(
 
   clearStoredReturnTo();
 
-  const productRole = pickPrimaryProductRole(extractRoles(me));
+  const productRole = pickPrimaryProductRole(extractRolesFromMe(me));
   if (!productRole) {
     return "/onboarding";
   }
