@@ -19,7 +19,7 @@ import {
   formatMemberSince,
   fullNameFromProfile,
 } from "@/lib/mapAuthMe";
-import { useShopperOrderStats } from "@/hooks/useShopApi";
+import { useShopperOrderStats, useShopperProfile } from "@/hooks/useShopApi";
 
 export function ProfileShell({
   children,
@@ -27,6 +27,7 @@ export function ProfileShell({
   children: React.ReactNode;
 }) {
   const { user } = useAuth();
+  const { data: shopperProfile } = useShopperProfile();
   const profile = user as {
     firstName?: string;
     lastName?: string;
@@ -35,11 +36,19 @@ export function ProfileShell({
     avatarUrl?: string | null;
     createdAt?: string;
   } | null;
-  const userName = displayNameFromProfile(profile) ?? "there";
-  const fullName = fullNameFromProfile(profile) ?? userName;
-  const memberSince = formatMemberSince(profile?.createdAt);
+  const merged = {
+    ...profile,
+    firstName: shopperProfile?.firstName ?? profile?.firstName,
+    lastName: shopperProfile?.lastName ?? profile?.lastName,
+    displayName: shopperProfile?.displayName ?? profile?.displayName,
+    avatarUrl: shopperProfile?.avatarUrl ?? profile?.avatarUrl,
+    createdAt: shopperProfile?.createdAt ?? profile?.createdAt,
+  };
+  const userName = displayNameFromProfile(merged) ?? "there";
+  const fullName = fullNameFromProfile(merged) ?? userName;
+  const memberSince = formatMemberSince(merged.createdAt);
   const avatarSrc =
-    profile?.avatarUrl ??
+    merged.avatarUrl ??
     `https://api.dicebear.com/7.x/avataaars/svg?seed=${encodeURIComponent(fullName)}&backgroundColor=b6e3f4`;
   const { count, spent, isLoading: statsLoading } = useShopperOrderStats();
   const pathname = usePathname();

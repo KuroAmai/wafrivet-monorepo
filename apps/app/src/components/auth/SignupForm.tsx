@@ -4,17 +4,35 @@ import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
-import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { getCentralLoginUrl } from "@wafrivet/auth";
 import { persistReturnTo } from "@/lib/authReturnTo";
 import { Eye, EyeSlash, ArrowRight } from "@phosphor-icons/react";
 import { toAuthEmail } from "@/lib/authIdentifier";
+import type { AuthFieldErrors } from "@/lib/authApiErrors";
+
+const emailOrPhoneSchema = z
+  .string()
+  .min(1, "Phone or email is required")
+  .refine(
+    (value) => {
+      const trimmed = value.trim();
+      if (trimmed.includes("@")) {
+        return z.string().email().safeParse(trimmed).success;
+      }
+      return trimmed.replace(/\D/g, "").length >= 10;
+    },
+    { message: "Enter a valid phone number (10+ digits) or email address" },
+  );
 
 const signupSchema = z.object({
   fullName: z.string().min(2, "Full name is required"),
-  phone: z.string().min(10, "Enter a valid phone number"),
-  password: z.string().min(8, "Password must be at least 8 characters"),
+  emailOrPhone: emailOrPhoneSchema,
+  password: z
+    .string()
+    .min(8, "Password must be at least 8 characters")
+    .regex(/[a-zA-Z]/, "Password must include at least one letter")
+    .regex(/[0-9]/, "Password must include at least one number"),
 });
 
 type SignupFormData = z.infer<typeof signupSchema>;
@@ -31,24 +49,42 @@ function Field({
   error?: string;
   type?: string;
   endContent?: React.ReactNode;
-  registration: any;
+  registration: ReturnType<ReturnType<typeof useForm<SignupFormData>>["register"]>;
   placeholder?: string;
 }) {
   return (
     <div className="space-y-1.5">
       <label className="block text-[13px] font-medium text-gray-600">{label}</label>
-      <div className={`flex items-center border rounded-xl overflow-hidden transition-all ${error ? "border-red-400 bg-red-50" : "border-gray-200 bg-gray-50 focus-within:border-[#2D4D31] focus-within:bg-white"}`}>
+      <div
+        className={`flex items-center border rounded-xl overflow-hidden transition-all ${error ? "border-red-400 bg-red-50" : "border-gray-200 bg-gray-50 focus-within:border-[#2D4D31] focus-within:bg-white"}`}
+      >
         <input
           {...registration}
           type={type}
           placeholder={placeholder}
           className="flex-1 px-4 py-3.5 bg-transparent text-[15px] text-gray-900 outline-none placeholder:text-gray-400"
         />
-        {endContent && <div className="pr-3">{endContent}</div>}
+        {endContent ? <div className="pr-3">{endContent}</div> : null}
       </div>
-      {error && <p className="text-[12px] text-red-500 pl-1">{error}</p>}
+      {error ? <p className="text-[12px] text-red-500 pl-1">{error}</p> : null}
     </div>
   );
+}
+
+function applyFieldErrors(
+  fieldErrors: AuthFieldErrors | undefined,
+  setError: ReturnType<typeof useForm<SignupFormData>>["setError"],
+) {
+  if (!fieldErrors) return;
+  if (fieldErrors.fullName) {
+    setError("fullName", { type: "server", message: fieldErrors.fullName });
+  }
+  if (fieldErrors.emailOrPhone) {
+    setError("emailOrPhone", { type: "server", message: fieldErrors.emailOrPhone });
+  }
+  if (fieldErrors.password) {
+    setError("password", { type: "server", message: fieldErrors.password });
+  }
 }
 
 export function SignupForm() {
@@ -60,27 +96,32 @@ export function SignupForm() {
   useEffect(() => {
     persistReturnTo(returnTo);
   }, [returnTo]);
+
   const [apiError, setApiError] = useState<string | null>(null);
 
   const {
     register,
     handleSubmit,
+    setError,
+    clearErrors,
     formState: { errors, isSubmitting },
   } = useForm<SignupFormData>({
     resolver: zodResolver(signupSchema),
     defaultValues: {
       fullName: "",
-      phone: "",
+      emailOrPhone: "",
       password: "",
     },
   });
 
   const onSubmit = async (data: SignupFormData) => {
     setApiError(null);
+    clearErrors();
+
     const parts = data.fullName.trim().split(/\s+/);
     const firstName = parts[0] ?? "";
     const lastName = parts.slice(1).join(" ") || firstName;
-    const email = toAuthEmail(data.phone);
+    const email = toAuthEmail(data.emailOrPhone);
 
     const res = await fetch("/api/auth/signup", {
       method: "POST",
@@ -92,9 +133,13 @@ export function SignupForm() {
         password: data.password,
       }),
     });
-    const body = await res.json().catch(() => ({}));
+    const body = (await res.json().catch(() => ({}))) as {
+      message?: string;
+      fieldErrors?: AuthFieldErrors;
+    };
     if (!res.ok) {
       setApiError(body.message ?? "Could not create account.");
+      applyFieldErrors(body.fieldErrors, setError);
       return;
     }
     if (typeof sessionStorage !== "undefined") {
@@ -128,10 +173,10 @@ export function SignupForm() {
         />
 
         <Field
-          label="Phone Number"
-          error={errors.phone?.message}
-          registration={register("phone")}
-          placeholder="+234 800 000 0000"
+          label="Phone or email"
+          error={errors.emailOrPhone?.message}
+          registration={register("emailOrPhone")}
+          placeholder="+234 800 000 0000 or you@email.com"
         />
 
         <Field
@@ -139,7 +184,7 @@ export function SignupForm() {
           type={showPass ? "text" : "password"}
           error={errors.password?.message}
           registration={register("password")}
-          placeholder="At least 8 characters"
+          placeholder="Letters and numbers, 8+ characters"
           endContent={
             <button
               type="button"

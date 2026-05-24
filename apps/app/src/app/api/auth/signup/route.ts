@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { formatAuthError } from "@/lib/authApiErrors";
 import { GATEWAY_URL } from "@/lib/gateway";
 
 export async function POST(request: Request) {
@@ -22,8 +23,13 @@ export async function POST(request: Request) {
   });
   const data = await res.json().catch(() => ({}));
   if (!res.ok) {
+    const formatted = formatAuthError(data, res.status, { operation: "signup" });
     return NextResponse.json(
-      { message: data.message ?? "Signup failed", code: data.code },
+      {
+        message: formatted.message,
+        code: formatted.code,
+        fieldErrors: formatted.fieldErrors,
+      },
       { status: res.status },
     );
   }

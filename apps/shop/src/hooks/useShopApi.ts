@@ -3,10 +3,20 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { catalogApi, queryKeys, supplierApi, vetApi } from "@wafrivet/api";
 import type {
+  CreateShopperAddressDto,
   DraftCartDto,
   MasterSkuDto,
   OrderListItemDto,
   OrderListResponseDto,
+  ShopperAddressDto,
+  ShopperAddressListResponseDto,
+  ShopperProfileDto,
+  ShopperWishlistItemDto,
+  ShopperWishlistResponseDto,
+  UpdateShopperAddressDto,
+  UpdateShopperAvatarDto,
+  UpdateShopperProfileDto,
+  UpdateShopperUsernameDto,
   VetProfileDto,
 } from "@wafrivet/types";
 import { useAuth } from "@wafrivet/auth";
@@ -45,13 +55,159 @@ export function useRegions() {
 }
 
 function useGatewayRoles() {
-  const { user } = useAuth();
+  const { user, isAuthenticated } = useAuth();
   const profile = user as { id?: string; roles?: string[]; role?: string } | null;
   return {
     roles: profile?.roles,
     primary: profile?.role,
     userId: profile?.id,
+    isAuthenticated,
   };
+}
+
+function useShopperApiEnabled() {
+  const { userId, isAuthenticated } = useGatewayRoles();
+  return Boolean(isAuthenticated && userId);
+}
+
+function parseAddressList(data: ShopperAddressListResponseDto | ShopperAddressDto[]): ShopperAddressDto[] {
+  if (Array.isArray(data)) return data;
+  return data.data ?? data.addresses ?? [];
+}
+
+function parseWishlistItems(data: ShopperWishlistResponseDto | ShopperWishlistItemDto[]): ShopperWishlistItemDto[] {
+  if (Array.isArray(data)) return data;
+  return data.data ?? data.items ?? [];
+}
+
+export function useShopperProfile() {
+  const enabled = useShopperApiEnabled();
+  return useQuery({
+    queryKey: queryKeys.shopper.profile,
+    queryFn: () => shopBff<ShopperProfileDto>("/api/shopper/profile"),
+    enabled,
+  });
+}
+
+export function usePatchShopperProfile() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (body: UpdateShopperProfileDto) =>
+      shopBff<ShopperProfileDto>("/api/shopper/profile", { method: "PATCH", json: body }),
+    onSuccess: () => void qc.invalidateQueries({ queryKey: queryKeys.shopper.profile }),
+  });
+}
+
+export function usePatchShopperUsername() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (body: Pick<UpdateShopperUsernameDto, "username">) =>
+      shopBff<ShopperProfileDto>("/api/shopper/profile/username", { method: "PATCH", json: body }),
+    onSuccess: () => void qc.invalidateQueries({ queryKey: queryKeys.shopper.profile }),
+  });
+}
+
+export function usePatchShopperAvatar() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (body: Pick<UpdateShopperAvatarDto, "avatarUrl">) =>
+      shopBff<ShopperProfileDto>("/api/shopper/profile/avatar", { method: "PATCH", json: body }),
+    onSuccess: () => void qc.invalidateQueries({ queryKey: queryKeys.shopper.profile }),
+  });
+}
+
+export function useShopperAddresses() {
+  const enabled = useShopperApiEnabled();
+  return useQuery({
+    queryKey: queryKeys.shopper.addresses,
+    queryFn: async () => {
+      const data = await shopBff<ShopperAddressListResponseDto | ShopperAddressDto[]>(
+        "/api/shopper/addresses",
+      );
+      return parseAddressList(data);
+    },
+    enabled,
+  });
+}
+
+export function useCreateShopperAddress() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (body: CreateShopperAddressDto) =>
+      shopBff<ShopperAddressDto>("/api/shopper/addresses", { method: "POST", json: body }),
+    onSuccess: () => void qc.invalidateQueries({ queryKey: queryKeys.shopper.addresses }),
+  });
+}
+
+export function useUpdateShopperAddress() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: ({ id, ...body }: UpdateShopperAddressDto & { id: string }) =>
+      shopBff<ShopperAddressDto>(`/api/shopper/addresses/${id}`, { method: "PUT", json: body }),
+    onSuccess: () => void qc.invalidateQueries({ queryKey: queryKeys.shopper.addresses }),
+  });
+}
+
+export function useDeleteShopperAddress() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (id: string) =>
+      shopBff<void>(`/api/shopper/addresses/${id}`, { method: "DELETE" }),
+    onSuccess: () => void qc.invalidateQueries({ queryKey: queryKeys.shopper.addresses }),
+  });
+}
+
+export function useSetDefaultShopperAddress() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (id: string) =>
+      shopBff<ShopperAddressDto>(`/api/shopper/addresses/${id}/default`, { method: "PATCH" }),
+    onSuccess: () => void qc.invalidateQueries({ queryKey: queryKeys.shopper.addresses }),
+  });
+}
+
+export function useShopperWishlist(params?: { limit?: number; cursor?: string }) {
+  const enabled = useShopperApiEnabled();
+  return useQuery({
+    queryKey: queryKeys.shopper.wishlist(params),
+    queryFn: async () => {
+      const q = new URLSearchParams();
+      if (params?.limit) q.set("limit", String(params.limit));
+      if (params?.cursor) q.set("cursor", params.cursor);
+      const path = q.toString() ? `/api/shopper/wishlist?${q}` : "/api/shopper/wishlist";
+      const data = await shopBff<ShopperWishlistResponseDto | ShopperWishlistItemDto[]>(path);
+      return parseWishlistItems(data);
+    },
+    enabled,
+  });
+}
+
+export function useAddWishlistItem() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (masterSkuId: string) =>
+      shopBff<ShopperWishlistItemDto>("/api/shopper/wishlist", {
+        method: "POST",
+        json: { masterSkuId },
+      }),
+    onSuccess: () => void qc.invalidateQueries({ queryKey: ["shopper", "wishlist"] }),
+  });
+}
+
+export function useRemoveWishlistItem() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (masterSkuId: string) =>
+      shopBff<void>(`/api/shopper/wishlist/${encodeURIComponent(masterSkuId)}`, {
+        method: "DELETE",
+      }),
+    onSuccess: () => void qc.invalidateQueries({ queryKey: ["shopper", "wishlist"] }),
+  });
+}
+
+export function useWishlistSkuSet() {
+  const { data: items } = useShopperWishlist();
+  return new Set((items ?? []).map((i) => i.masterSkuId));
 }
 
 export function useShopperCommerceEnabled() {

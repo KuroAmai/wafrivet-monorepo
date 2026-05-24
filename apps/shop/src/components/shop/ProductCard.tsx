@@ -4,10 +4,13 @@ import { motion } from "framer-motion";
 import { Plus, ThermometerCold, Heart } from "@phosphor-icons/react";
 import Link from "next/link";
 import { useAuth } from "@wafrivet/auth";
-import { useState, useEffect } from "react";
 import { addToLocalCart } from "@/lib/localCart";
-import { isInWishlist, toggleWishlist } from "@/lib/localWishlist";
-import { useShopperCommerceEnabled } from "@/hooks/useShopApi";
+import {
+  useAddWishlistItem,
+  useRemoveWishlistItem,
+  useShopperCommerceEnabled,
+  useWishlistSkuSet,
+} from "@/hooks/useShopApi";
 
 interface ProductCardProps {
   id: string;
@@ -31,24 +34,21 @@ export function ProductCard({
   const { user, isAuthenticated } = useAuth();
   const userId = (user as { id?: string } | null)?.id;
   const vetCommerce = useShopperCommerceEnabled();
-  const [saved, setSaved] = useState(false);
+  const wishlistSkus = useWishlistSkuSet();
+  const addWishlist = useAddWishlistItem();
+  const removeWishlist = useRemoveWishlistItem();
+  const saved = wishlistSkus.has(id);
   const isLowStock = stock <= 5;
-
-  useEffect(() => {
-    if (userId) setSaved(isInWishlist(userId, id));
-  }, [userId, id]);
 
   const handleSave = (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
-    if (!userId) return;
-    toggleWishlist(userId, {
-      masterSkuId: id,
-      name,
-      price,
-      image,
-    });
-    setSaved(isInWishlist(userId, id));
+    if (!isAuthenticated) return;
+    if (saved) {
+      void removeWishlist.mutateAsync(id);
+    } else {
+      void addWishlist.mutateAsync(id);
+    }
   };
 
   const handleAdd = (e: React.MouseEvent) => {
@@ -92,7 +92,8 @@ export function ProductCard({
               <button
                 type="button"
                 onClick={handleSave}
-                className={`absolute top-3 right-3 p-2 bg-white/90 backdrop-blur-md rounded-xl transition-colors shadow-sm ${
+                disabled={addWishlist.isPending || removeWishlist.isPending}
+                className={`absolute top-3 right-3 p-2 bg-white/90 backdrop-blur-md rounded-xl transition-colors shadow-sm disabled:opacity-60 ${
                   saved ? "text-red-500" : "text-gray-400 hover:text-red-500"
                 }`}
               >

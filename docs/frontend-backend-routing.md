@@ -45,7 +45,7 @@ Frontend flow: [`onboarding-frontend.md`](./onboarding-frontend.md).
 | App | Public routes | Authenticated API |
 |-----|---------------|-------------------|
 | **app** | `/login`, `/signup`, `/onboarding`, `/welcome` (hub for pros; shoppers redirect out) | BFF under `/api/*` → gateway |
-| **shop** | catalog, chemists; **REGULAR_CUSTOMER** post-auth landing | `/vet/*`, `/supplier/*` |
+| **shop** | catalog, chemists; **REGULAR_CUSTOMER** post-auth landing | `/shopper/*` (profile, addresses, wishlist), `/vet/*`, `/supplier/*` via shop BFF |
 | **herd** | — | Core `/herd/*` (same JWT) |
 
 ## Environment variables

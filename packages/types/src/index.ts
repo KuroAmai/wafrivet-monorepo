@@ -6,3 +6,4 @@ export * from "./admin";
 export * from "./catalog";
 export * from "./herd";
 export * from "./orders";
+export * from "./shopper";

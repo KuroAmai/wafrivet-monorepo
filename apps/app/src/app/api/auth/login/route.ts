@@ -5,6 +5,7 @@ import {
   applyAuthCookie,
   getAuthCookieSetOptions,
 } from "@wafrivet/auth";
+import { formatAuthError } from "@/lib/authApiErrors";
 import { extractAccessToken } from "@/lib/extractAccessToken";
 import { GATEWAY_URL } from "@/lib/gateway";
 
@@ -26,10 +27,12 @@ export async function POST(request: Request) {
   const data = (await res.json().catch(() => ({}))) as Record<string, unknown>;
 
   if (!res.ok) {
+    const formatted = formatAuthError(data, res.status, { operation: "login" });
     return NextResponse.json(
       {
-        message: (data.message as string | undefined) ?? "Login failed",
-        code: data.code,
+        message: formatted.message,
+        code: formatted.code,
+        fieldErrors: formatted.fieldErrors,
       },
       { status: res.status },
     );

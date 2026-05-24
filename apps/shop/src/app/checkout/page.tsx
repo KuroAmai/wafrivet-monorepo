@@ -17,13 +17,14 @@ import { useShopLocation } from "@/contexts/ShopLocationContext";
 import { useShopCart } from "@/hooks/useShopCart";
 import {
   useInitializePayment,
+  useShopperAddresses,
   useShopperCommerceEnabled,
   useSubmitOrder,
   useVetProfile,
 } from "@/hooks/useShopApi";
 import { isRegularCustomerOnly } from "@/lib/shopperCapabilities";
 import { fullNameFromProfile } from "@/lib/mapAuthMe";
-import { getDefaultLocalAddress } from "@/lib/localAddresses";
+import { formatShopperAddressLine, pickDefaultShopperAddress } from "@/lib/formatShopperAddress";
 
 const APP_URL = process.env.NEXT_PUBLIC_APP_URL || "https://app.wafrivet.com";
 
@@ -40,19 +41,20 @@ export default function CheckoutPage() {
   const { region, openPicker } = useShopLocation();
   const { items, subtotal, delivery, total, vetCommerce, orderId } = useShopCart();
   const { data: vetProfile } = useVetProfile();
+  const { data: shopperAddresses } = useShopperAddresses();
   const submitOrder = useSubmitOrder();
   const initPayment = useInitializePayment();
   const [paying, setPaying] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   const customerOnly = isRegularCustomerOnly(profile?.roles, profile?.role);
-  const localAddr = profile?.id ? getDefaultLocalAddress(profile.id) : null;
+  const defaultShopperAddr = pickDefaultShopperAddress(shopperAddresses);
   const displayName = fullNameFromProfile(profile) ?? "Customer";
   const addressLine =
     vetProfile?.address ??
-    (localAddr ? `${localAddr.address}, ${localAddr.city}` : null) ??
+    (defaultShopperAddr ? formatShopperAddressLine(defaultShopperAddr) : null) ??
     `Delivery region: ${region?.regionName ?? "Not selected"}`;
-  const phone = vetProfile?.phone ?? profile?.phone ?? "—";
+  const phone = vetProfile?.phone ?? defaultShopperAddr?.phone ?? profile?.phone ?? "—";
 
   const handlePay = async () => {
     if (!vetCommerce) return;

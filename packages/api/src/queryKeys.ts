@@ -32,4 +32,10 @@ export const queryKeys = {
   notifications: {
     list: (params?: object) => ["notifications", "list", params] as const,
   },
+  shopper: {
+    profile: ["shopper", "profile"] as const,
+    addresses: ["shopper", "addresses"] as const,
+    address: (id: string) => ["shopper", "addresses", id] as const,
+    wishlist: (params?: object) => ["shopper", "wishlist", params] as const,
+  },
 };
