@@ -349,7 +349,7 @@ Single page with a 6-digit OTP input. Phone number displayed masked. Resend butt
 Not a complex page — just an overview. Shows the user's name, role badge, unread notification count, wallet balance, and two or three quick link cards pointing to herd or shop depending on role. This page exists so every user has a home base at `app.wafrivet.com` regardless of which module they use.
 
 **Admin section (`/admin`)**  
-Route-guarded to gateway **`ADMIN`** role only (not `SUPPORT`). Sign in at `/login` with seeded admin credentials; post-login redirects to `/admin`. Edge [`middleware.ts`](apps/app/src/middleware.ts) + server layout in [`(admin)/layout.tsx`](apps/app/src/app/(admin)/layout.tsx) enforce access; use `?returnTo=/admin` for deep links. Session uses the shared `jwt` cookie and [`/api/auth/me`](apps/app/src/app/api/auth/me/route.ts) BFF. All admin pages are data-heavy tables with filters and sort.
+Route-guarded to gateway **`ADMIN`** role only (not `SUPPORT`). Sign in at `/login` with seeded admin credentials; post-login redirects to `/admin`. Edge [`proxy.ts`](apps/app/src/proxy.ts) + server layout in [`(admin)/layout.tsx`](apps/app/src/app/(admin)/layout.tsx) enforce access; use `?returnTo=/admin` for deep links. Session uses the shared `jwt` cookie and [`/api/auth/me`](apps/app/src/app/api/auth/me/route.ts) BFF. All admin pages are data-heavy tables with filters and sort.
 
 ---
 

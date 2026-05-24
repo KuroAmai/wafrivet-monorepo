@@ -20,7 +20,7 @@ function decodeJwtPayload(token: string): { role?: string; roles?: string[] } | 
   }
 }
 
-export function proxy(request: NextRequest) {
+export default function proxy(request: NextRequest) {
   const token = request.cookies.get("jwt")?.value || request.cookies.get("token")?.value;
   const { pathname } = request.nextUrl;
   const isProtected =
