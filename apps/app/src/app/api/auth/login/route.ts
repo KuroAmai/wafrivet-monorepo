@@ -48,7 +48,12 @@ export async function POST(request: Request) {
     );
   }
 
-  const maxAge = typeof data.expiresIn === "number" ? data.expiresIn : 3600;
+  const maxAge =
+    typeof data.expiresIn === "number"
+      ? data.expiresIn
+      : typeof data.expires_in === "number"
+        ? data.expires_in
+        : 3600;
   const cookieStore = await cookies();
   applyAuthCookie(cookieStore, accessToken, maxAge);
 

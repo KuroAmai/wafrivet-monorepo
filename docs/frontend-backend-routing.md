@@ -65,7 +65,13 @@ Frontend flow: [`onboarding-frontend.md`](./onboarding-frontend.md).
 
 1. Sign in at `app` `/login` with the **full seeded email** (not a username).
 2. `POST /api/auth/login` proxies to `{API_URL}/auth/login`. On failure, non-production responses may include `gatewayHost` to confirm which gateway was called.
-3. Verify credentials directly:
+3. Admin accounts must exist in **Supabase Auth** and `public.users` with matching UUID and `role = ADMIN`. Bootstrap locally:
+   ```bash
+   cd Wafrivet-Backend
+   # Set ADMIN_SEED_EMAIL, ADMIN_SEED_PASSWORD, SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY, DATABASE_URL
+   npm run bootstrap:admin
+   ```
+4. Verify credentials directly:
    ```bash
    curl -s -w "\n%{http_code}" -X POST "https://wafrivet-api-gateway-wdvfp4toqa-ew.a.run.app/api/v1/auth/login" \
      -H "Content-Type: application/json" \

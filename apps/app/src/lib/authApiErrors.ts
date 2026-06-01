@@ -4,6 +4,7 @@ export type AuthErrorCode =
   | "INVALID_EMAIL"
   | "INVALID_NAME"
   | "INVALID_CREDENTIALS"
+  | "ACCOUNT_NOT_VERIFIED"
   | "VALIDATION_ERROR"
   | "SERVER_ERROR"
   | "UNKNOWN";
@@ -80,6 +81,17 @@ function formatLoginAuthError(
     return {
       code: "SERVER_ERROR",
       message: "Something went wrong. Try again in a moment.",
+    };
+  }
+
+  if (
+    body.code === "ACCOUNT_NOT_VERIFIED" ||
+    matchesAny(joined, ["email not confirmed", "confirm your email", "email not verified"])
+  ) {
+    return {
+      code: "ACCOUNT_NOT_VERIFIED",
+      message: "Please confirm your email before signing in. Check your inbox for the verification link.",
+      fieldErrors: { emailOrPhone: "Confirm your email address, then try again." },
     };
   }
 
