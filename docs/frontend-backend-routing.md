@@ -32,8 +32,10 @@ Helpers in `@wafrivet/auth`: `getCentralLoginUrl`, `getCentralSignupUrl`, `isAll
 
 | Step | Gateway |
 |------|---------|
-| Signup | `POST /auth/signup` |
-| Verify / login | `POST /auth/verify-email`, `POST /auth/login` |
+| Signup | `POST /auth/signup` (sends 6-digit email OTP) |
+| Verify | `POST /auth/verify-email` `{ email, token }` |
+| Resend OTP | `POST /auth/resend-verification-email` `{ email }` (public) |
+| Login | `POST /auth/login` |
 | Profile | `PATCH /users/profile` |
 | Role pick | `GET /roles/options`, `POST /roles/select` |
 | KYC | `POST /onboarding/start`, `POST /onboarding/:id/submit` |
@@ -59,7 +61,13 @@ Frontend flow: [`onboarding-frontend.md`](./onboarding-frontend.md).
 | `NEXT_PUBLIC_APP_URL` | App origin (central login/signup) |
 | `NEXT_PUBLIC_SHOP_URL` | Shop origin (used in `returnTo`) |
 | `NEXT_PUBLIC_HERD_URL` | Herd origin (used in `returnTo`) |
-| `NEXT_PUBLIC_ENABLE_MOCK_AUTH` | Dev mock JWT |
+| `NEXT_PUBLIC_ENABLE_MOCK_AUTH` | Dev mock JWT — **must be false** in production for live email OTP on `/verify` |
+
+## Signup email OTP (ops)
+
+1. **Redis** — Core stores hashed OTP at `auth:verify-otp:{email}` (15 min TTL; separate from password-reset `auth:otp:{email}`).
+2. **Workers** — notifications worker must run with `RESEND_API_KEY` (see `Wafrivet-Backend/Docs/INSTALL_EMAIL_PACKAGE.md`).
+3. **Supabase** — disable automatic signup confirmation email (Auth → Email templates) to avoid duplicate mail; Wafrivet OTP + admin `email_confirm` is the source of truth.
 
 ## Admin login troubleshooting
 

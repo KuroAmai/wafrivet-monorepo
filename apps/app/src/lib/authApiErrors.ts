@@ -5,6 +5,8 @@ export type AuthErrorCode =
   | "INVALID_NAME"
   | "INVALID_CREDENTIALS"
   | "ACCOUNT_NOT_VERIFIED"
+  | "OTP_INVALID"
+  | "OTP_EXPIRED"
   | "VALIDATION_ERROR"
   | "SERVER_ERROR"
   | "UNKNOWN";
@@ -31,7 +33,7 @@ type GatewayErrorBody = {
 };
 
 type FormatAuthErrorOptions = {
-  operation?: "signup" | "login";
+  operation?: "signup" | "login" | "verifyEmail" | "resendVerificationEmail";
 };
 
 function collectMessages(data: GatewayErrorBody): string[] {
@@ -68,6 +70,53 @@ function loginInvalidCredentials(
     code: "INVALID_CREDENTIALS",
     message: "Email or password is incorrect.",
     fieldErrors: { password: passwordHint },
+  };
+}
+
+function formatVerifyEmailAuthError(
+  body: GatewayErrorBody,
+  status: number,
+  joined: string,
+): FormattedAuthError {
+  if (status >= 500) {
+    return {
+      code: "SERVER_ERROR",
+      message: "Something went wrong. Try again in a moment.",
+    };
+  }
+
+  if (
+    body.code === "AUTH_009" ||
+    body.code === "OTP_EXPIRED" ||
+    matchesAny(joined, ["otp expired", "expired or not found"])
+  ) {
+    return {
+      code: "OTP_EXPIRED",
+      message: "That code has expired. Request a new one and try again.",
+    };
+  }
+
+  if (
+    body.code === "AUTH_008" ||
+    body.code === "OTP_INVALID" ||
+    matchesAny(joined, ["invalid otp", "invalid verification"])
+  ) {
+    return {
+      code: "OTP_INVALID",
+      message: "That code is incorrect. Check your email and try again.",
+    };
+  }
+
+  if (status === 401 || status === 403) {
+    return {
+      code: "OTP_INVALID",
+      message: "That code is incorrect. Check your email and try again.",
+    };
+  }
+
+  return {
+    code: "UNKNOWN",
+    message: "Verification failed. Try again.",
   };
 }
 
@@ -175,6 +224,23 @@ export function formatAuthError(
 
   if (options?.operation === "login") {
     return formatLoginAuthError(body, status, messages, joined);
+  }
+
+  if (options?.operation === "verifyEmail") {
+    return formatVerifyEmailAuthError(body, status, joined);
+  }
+
+  if (options?.operation === "resendVerificationEmail") {
+    if (status >= 500) {
+      return {
+        code: "SERVER_ERROR",
+        message: "Something went wrong. Try again in a moment.",
+      };
+    }
+    return {
+      code: "UNKNOWN",
+      message: "If an account exists, a new code was sent.",
+    };
   }
 
   if (status >= 500) {

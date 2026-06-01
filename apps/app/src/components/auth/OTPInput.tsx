@@ -17,13 +17,33 @@ function clearPendingSignup() {
 
 const LENGTH = 6;
 
+function maskEmail(email: string): string {
+  const trimmed = email.trim();
+  const at = trimmed.indexOf("@");
+  if (at <= 0) return trimmed;
+  const local = trimmed.slice(0, at);
+  const domain = trimmed.slice(at + 1);
+  if (local.length <= 2) {
+    return `${local[0] ?? ""}***@${domain}`;
+  }
+  return `${local.slice(0, 2)}***@${domain}`;
+}
+
 export function OTPInput() {
   const router = useRouter();
   const [digits, setDigits] = useState<string[]>(Array(LENGTH).fill(""));
   const [countdown, setCountdown] = useState(60);
   const [isVerifying, setIsVerifying] = useState(false);
+  const [isResending, setIsResending] = useState(false);
+  const [resendMessage, setResendMessage] = useState<string | null>(null);
   const [apiError, setApiError] = useState<string | null>(null);
+  const [pendingEmail, setPendingEmail] = useState("");
   const inputRefs = useRef<(HTMLInputElement | null)[]>([]);
+
+  useEffect(() => {
+    if (typeof sessionStorage === "undefined") return;
+    setPendingEmail(sessionStorage.getItem("wafrivet_pending_email") ?? "");
+  }, []);
 
   useEffect(() => {
     inputRefs.current[0]?.focus();
@@ -105,6 +125,8 @@ export function OTPInput() {
     if (!res.ok) {
       const body = await res.json().catch(() => ({}));
       setApiError((body as { message?: string }).message ?? "Verification failed.");
+      setDigits(Array(LENGTH).fill(""));
+      inputRefs.current[0]?.focus();
       setIsVerifying(false);
       return;
     }
@@ -133,6 +155,45 @@ export function OTPInput() {
     await navigateAfterAuth();
   };
 
+  const handleResend = async () => {
+    if (isResending || countdown > 0) return;
+
+    const email =
+      pendingEmail ||
+      (typeof sessionStorage !== "undefined"
+        ? (sessionStorage.getItem("wafrivet_pending_email") ?? "")
+        : "");
+
+    if (!email) {
+      setApiError("Missing signup email. Go back and sign up again.");
+      return;
+    }
+
+    setIsResending(true);
+    setApiError(null);
+    setResendMessage(null);
+
+    const res = await fetch("/api/auth/resend-verification-email", {
+      method: "POST",
+      credentials: "same-origin",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ email }),
+    });
+
+    setIsResending(false);
+
+    if (!res.ok) {
+      const body = await res.json().catch(() => ({}));
+      setApiError((body as { message?: string }).message ?? "Could not resend code.");
+      return;
+    }
+
+    setResendMessage("A new code was sent to your email.");
+    setCountdown(60);
+    setDigits(Array(LENGTH).fill(""));
+    inputRefs.current[0]?.focus();
+  };
+
   const code = digits.join("");
   const isComplete = code.length === LENGTH && digits.every((d) => d);
 
@@ -140,16 +201,30 @@ export function OTPInput() {
     <div>
       <div className="mb-8">
         <h1 className="text-[30px] font-semibold text-gray-900 tracking-tight leading-tight">
-          Verify your phone
+          Verify your email
         </h1>
         <p className="text-[15px] text-gray-500 mt-1.5">
-          Enter the 6-digit code we sent to your number
+          Enter the 6-digit code we sent
+          {pendingEmail ? (
+            <>
+              {" "}
+              to <span className="font-medium text-gray-700">{maskEmail(pendingEmail)}</span>
+            </>
+          ) : (
+            " to your email"
+          )}
         </p>
       </div>
 
       {apiError ? (
         <p className="mb-4 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
           {apiError}
+        </p>
+      ) : null}
+
+      {resendMessage ? (
+        <p className="mb-4 rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-800">
+          {resendMessage}
         </p>
       ) : null}
 
@@ -195,10 +270,11 @@ export function OTPInput() {
         ) : (
           <button
             type="button"
-            onClick={() => setCountdown(60)}
-            className="text-[14px] text-[#2D4D31] font-semibold hover:underline"
+            onClick={handleResend}
+            disabled={isResending}
+            className="text-[14px] text-[#2D4D31] font-semibold hover:underline disabled:opacity-50"
           >
-            Resend code
+            {isResending ? "Sending…" : "Resend code"}
           </button>
         )}
       </div>
