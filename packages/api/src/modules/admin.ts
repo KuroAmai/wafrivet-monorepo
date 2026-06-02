@@ -1,5 +1,6 @@
 import type {
   AdminOrderListResponseDto,
+  AdminUserDetailDto,
   AdminUserListResponseDto,
   AdminWarRoomSnapshotDto,
   OrderStatus,
@@ -28,8 +29,24 @@ export async function listAdminUsers(params?: {
   return data;
 }
 
-export async function getAdminUser(userId: string): Promise<unknown> {
-  const { data } = await apiClient.get(`/admin/users/${userId}`);
+export async function getAdminUser(userId: string): Promise<AdminUserDetailDto> {
+  const { data } = await apiClient.get<AdminUserDetailDto>(`/admin/users/${userId}`);
+  return data;
+}
+
+export async function deactivateAdminUser(
+  userId: string,
+  body: { reason: string },
+): Promise<{ id: string; role: string; isActive: boolean; updatedAt: string }> {
+  const { data } = await apiClient.patch(`/admin/users/${userId}/deactivate`, body);
+  return data;
+}
+
+export async function deleteAdminUser(
+  userId: string,
+  body: { reason: string },
+): Promise<{ id: string; deleted: true }> {
+  const { data } = await apiClient.delete(`/admin/users/${userId}`, { data: body });
   return data;
 }
 

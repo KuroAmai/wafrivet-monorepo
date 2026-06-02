@@ -51,11 +51,27 @@ export type AdminUserListItemDto = {
   isActive: boolean;
   isVerified: boolean;
   createdAt: string;
-  firstName?: string;
-  lastName?: string;
+  lastLoginAt?: string | null;
+  firstName?: string | null;
+  lastName?: string | null;
 };
 
 export type AdminUserListResponseDto = {
   data: AdminUserListItemDto[];
   meta: CursorMeta;
+};
+
+export type AdminUserDetailDto = {
+  id: string;
+  email: string;
+  firstName: string | null;
+  lastName: string | null;
+  phone: string | null;
+  role: string;
+  isActive: boolean;
+  isVerified: boolean;
+  createdAt: string;
+  updatedAt: string;
+  lastLoginAt: string | null;
+  emailVerifiedAt: string | null;
 };

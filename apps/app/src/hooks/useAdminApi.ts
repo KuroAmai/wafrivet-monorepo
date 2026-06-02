@@ -1,6 +1,6 @@
 "use client";
 
-import { useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { adminApi, meApi, queryKeys } from "@wafrivet/api";
 
 export function useWarRoomSnapshot() {
@@ -22,6 +22,29 @@ export function useAdminUser(userId: string) {
     queryKey: queryKeys.admin.user(userId),
     queryFn: () => adminApi.getAdminUser(userId),
     enabled: Boolean(userId),
+  });
+}
+
+export function useDeactivateAdminUser(userId: string) {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (body: { reason: string }) => adminApi.deactivateAdminUser(userId, body),
+    onSuccess: () => {
+      void queryClient.invalidateQueries({ queryKey: queryKeys.admin.user(userId) });
+      void queryClient.invalidateQueries({ queryKey: ["admin", "users"] });
+    },
+  });
+}
+
+export function useDeleteAdminUser() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({ userId, reason }: { userId: string; reason: string }) =>
+      adminApi.deleteAdminUser(userId, { reason }),
+    onSuccess: (_data, variables) => {
+      queryClient.removeQueries({ queryKey: queryKeys.admin.user(variables.userId) });
+      void queryClient.invalidateQueries({ queryKey: ["admin", "users"] });
+    },
   });
 }
 
