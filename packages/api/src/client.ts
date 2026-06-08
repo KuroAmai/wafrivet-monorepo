@@ -9,15 +9,37 @@ export type CreateApiClientOptions = {
 
 let refreshPromise: Promise<string | null> | null = null;
 
-async function refreshAccessToken(client: AxiosInstance): Promise<string | null> {
+type TokenRefreshPayload = {
+  accessToken?: string;
+  access_token?: string;
+  expiresIn?: number;
+  expires_in?: number;
+};
+
+function readAccessTokenFromPayload(data: TokenRefreshPayload): string | null {
+  const token = data.accessToken ?? data.access_token;
+  return typeof token === "string" && token.length > 0 ? token : null;
+}
+
+/** Always refresh against the gateway auth route, not a service-specific base URL. */
+async function refreshAccessToken(): Promise<string | null> {
   try {
-    const { data } = await client.post<{ accessToken: string; expiresIn: number }>(
-      "/auth/refresh",
+    const { data } = await axios.post<TokenRefreshPayload>(
+      `${API_CONFIG.gatewayUrl}/auth/refresh`,
       {},
-      { headers: { Authorization: undefined } },
+      {
+        withCredentials: true,
+        headers: { "Content-Type": "application/json", Authorization: undefined },
+      },
     );
-    setAccessToken(data.accessToken, data.expiresIn);
-    return data.accessToken;
+    const token = readAccessTokenFromPayload(data);
+    if (!token) {
+      clearAccessToken();
+      return null;
+    }
+    const expiresIn = data.expiresIn ?? data.expires_in ?? 3600;
+    setAccessToken(token, expiresIn);
+    return token;
   } catch {
     clearAccessToken();
     return null;
@@ -49,7 +71,7 @@ export function createApiClient(options: CreateApiClientOptions = {}): AxiosInst
       if (normalized.status === 401 && original && !original._retry) {
         original._retry = true;
         if (!refreshPromise) {
-          refreshPromise = refreshAccessToken(client).finally(() => {
+          refreshPromise = refreshAccessToken().finally(() => {
             refreshPromise = null;
           });
         }

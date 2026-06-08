@@ -8,10 +8,24 @@ import type {
 import { apiClient } from "../client";
 import { clearAccessToken, setAccessToken } from "../tokenStore";
 
+function persistTokenFromAuthResponse(data: AuthTokenResponseDto & { access_token?: string; expires_in?: number }) {
+  const token = data.accessToken ?? data.access_token;
+  const expiresIn = data.expiresIn ?? data.expires_in ?? 3600;
+  if (token) {
+    setAccessToken(token, expiresIn);
+  }
+}
+
 export async function login(credentials: LoginDto): Promise<AuthTokenResponseDto> {
-  const { data } = await apiClient.post<AuthTokenResponseDto>("/auth/login", credentials);
-  setAccessToken(data.accessToken, data.expiresIn);
-  return data;
+  const { data } = await apiClient.post<AuthTokenResponseDto & { access_token?: string; expires_in?: number }>(
+    "/auth/login",
+    credentials,
+  );
+  persistTokenFromAuthResponse(data);
+  return {
+    accessToken: data.accessToken ?? data.access_token ?? "",
+    expiresIn: data.expiresIn ?? data.expires_in ?? 3600,
+  };
 }
 
 export async function signup(body: SignupDto): Promise<AuthUserProfileDto> {
@@ -20,9 +34,15 @@ export async function signup(body: SignupDto): Promise<AuthUserProfileDto> {
 }
 
 export async function refresh(body: RefreshTokenDto = {}): Promise<AuthTokenResponseDto> {
-  const { data } = await apiClient.post<AuthTokenResponseDto>("/auth/refresh", body);
-  setAccessToken(data.accessToken, data.expiresIn);
-  return data;
+  const { data } = await apiClient.post<AuthTokenResponseDto & { access_token?: string; expires_in?: number }>(
+    "/auth/refresh",
+    body,
+  );
+  persistTokenFromAuthResponse(data);
+  return {
+    accessToken: data.accessToken ?? data.access_token ?? "",
+    expiresIn: data.expiresIn ?? data.expires_in ?? 3600,
+  };
 }
 
 export async function logout(userId?: string): Promise<void> {

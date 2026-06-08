@@ -1,10 +1,8 @@
 import type { AnimalResponseDto, FarmSnapshotDto } from "@wafrivet/types";
 import { API_CONFIG } from "../config";
-import { createApiClient } from "../client";
+import { apiClient } from "../client";
 
-const herdClient = createApiClient({
-  baseURL: `${API_CONFIG.gatewayUrl}${API_CONFIG.herdBasePath}`,
-});
+const herdBase = API_CONFIG.herdBasePath.replace(/\/$/, "");
 
 type ApiEnvelope<T> = {
   success?: boolean;
@@ -33,21 +31,21 @@ function asArray<T>(value: unknown): T[] {
 }
 
 export async function listAnimals(params?: { farmId?: string }): Promise<AnimalResponseDto[]> {
-  const { data } = await herdClient.get<unknown>("/animals", { params });
+  const { data } = await apiClient.get<unknown>(`${herdBase}/animals`, { params });
   return asArray<AnimalResponseDto>(data);
 }
 
 export async function getAnimal(animalUid: string): Promise<AnimalResponseDto> {
-  const { data } = await herdClient.get<unknown>(`/animals/${animalUid}`);
+  const { data } = await apiClient.get<unknown>(`${herdBase}/animals/${animalUid}`);
   return unwrapData<AnimalResponseDto>(data);
 }
 
 export async function listFarms(): Promise<FarmSnapshotDto[]> {
-  const { data } = await herdClient.get<unknown>("/farms");
+  const { data } = await apiClient.get<unknown>(`${herdBase}/farms`);
   return asArray<FarmSnapshotDto>(data);
 }
 
 export async function postAiContext(animalUid: string, body: Record<string, unknown> = {}) {
-  const { data } = await herdClient.post<unknown>(`/ai-context/${animalUid}`, body);
+  const { data } = await apiClient.post<unknown>(`${herdBase}/ai-context/${animalUid}`, body);
   return unwrapData<unknown>(data);
 }

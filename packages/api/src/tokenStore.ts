@@ -10,11 +10,20 @@ function getClientCookieDomain(): string | undefined {
   }
   try {
     const im = import.meta as unknown as {
-      env?: { NEXT_PUBLIC_AUTH_COOKIE_DOMAIN?: string };
+      env?: { NEXT_PUBLIC_AUTH_COOKIE_DOMAIN?: string; VITE_AUTH_COOKIE_DOMAIN?: string };
     };
-    return im.env?.NEXT_PUBLIC_AUTH_COOKIE_DOMAIN?.trim();
+    const fromVite = im.env?.NEXT_PUBLIC_AUTH_COOKIE_DOMAIN?.trim();
+    if (fromVite) return fromVite;
+    const viteAuthDomain = im.env?.VITE_AUTH_COOKIE_DOMAIN?.trim();
+    if (viteAuthDomain) return viteAuthDomain;
   } catch {
     /* noop */
+  }
+  if (typeof location !== "undefined") {
+    const host = location.hostname.toLowerCase();
+    if (host === "wafrivet.com" || host.endsWith(".wafrivet.com")) {
+      return ".wafrivet.com";
+    }
   }
   return undefined;
 }
