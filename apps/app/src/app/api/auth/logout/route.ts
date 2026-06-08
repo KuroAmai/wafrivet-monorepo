@@ -1,6 +1,6 @@
 import { cookies } from "next/headers";
 import { NextResponse } from "next/server";
-import { clearAuthCookiesOnStore } from "@wafrivet/auth";
+import { clearAuthCookiesOnStore, clearRefreshCookiesOnStore } from "@wafrivet/auth";
 import { GATEWAY_URL } from "@/lib/gateway";
 
 export async function POST() {
@@ -23,6 +23,7 @@ export async function POST() {
   }
 
   clearAuthCookiesOnStore(cookieStore);
+  clearRefreshCookiesOnStore(cookieStore);
 
   return NextResponse.json({ ok: true });
 }

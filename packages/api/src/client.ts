@@ -21,11 +21,11 @@ function readAccessTokenFromPayload(data: TokenRefreshPayload): string | null {
   return typeof token === "string" && token.length > 0 ? token : null;
 }
 
-/** Always refresh against the gateway auth route, not a service-specific base URL. */
+/** Refresh via app BFF so HttpOnly refresh cookie on `.wafrivet.com` is used. */
 async function refreshAccessToken(): Promise<string | null> {
   try {
     const { data } = await axios.post<TokenRefreshPayload>(
-      `${API_CONFIG.gatewayUrl}/auth/refresh`,
+      `${API_CONFIG.authBffUrl}/api/auth/refresh`,
       {},
       {
         withCredentials: true,

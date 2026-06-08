@@ -13,6 +13,16 @@ export {
   getCookieOptions,
 } from "./authCookie";
 export {
+  REFRESH_COOKIE_NAME,
+  applyRefreshCookie,
+  applyRefreshCookieOnResponse,
+  clearRefreshCookiesOnResponse,
+  clearRefreshCookiesOnStore,
+  getRefreshCookieSetOptions,
+  parseRefreshCookieFromSetCookies,
+  readGatewaySetCookies,
+} from "./gatewayAuthSession";
+export {
   getAppBaseUrl,
   getCentralLoginUrl,
   getCentralSignupUrl,

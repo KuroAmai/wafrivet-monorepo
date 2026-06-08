@@ -3,7 +3,11 @@ import { NextResponse } from "next/server";
 import {
   AUTH_COOKIE_NAME,
   applyAuthCookie,
+  applyRefreshCookie,
+  applyRefreshCookieOnResponse,
   getAuthCookieSetOptions,
+  parseRefreshCookieFromSetCookies,
+  readGatewaySetCookies,
 } from "@wafrivet/auth";
 import { formatAuthError } from "@/lib/authApiErrors";
 import { extractAccessToken } from "@/lib/extractAccessToken";
@@ -57,11 +61,19 @@ export async function POST(request: Request) {
   const cookieStore = await cookies();
   applyAuthCookie(cookieStore, accessToken, maxAge);
 
+  const refreshCookie = parseRefreshCookieFromSetCookies(readGatewaySetCookies(res));
+  if (refreshCookie) {
+    applyRefreshCookie(cookieStore, refreshCookie.value, refreshCookie.maxAge);
+  }
+
   const response = NextResponse.json({
     ok: true,
     expiresIn: maxAge,
     accessToken,
   });
   response.cookies.set(AUTH_COOKIE_NAME, accessToken, getAuthCookieSetOptions(maxAge));
+  if (refreshCookie) {
+    applyRefreshCookieOnResponse(response, refreshCookie.value, refreshCookie.maxAge);
+  }
   return response;
 }

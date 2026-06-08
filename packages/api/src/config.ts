@@ -23,11 +23,19 @@ function readEnv(key: string): string | undefined {
   return undefined;
 }
 
+const DEFAULT_APP_URL = "https://app.wafrivet.com";
+
 export const API_CONFIG = {
   gatewayUrl: (
     readEnv("NEXT_PUBLIC_API_URL") ??
     readEnv("VITE_API_URL") ??
     DEFAULT_GATEWAY
+  ).replace(/\/$/, ""),
+  /** Same-origin auth BFF for refresh (shared *.wafrivet.com session cookies). */
+  authBffUrl: (
+    readEnv("NEXT_PUBLIC_APP_URL") ??
+    readEnv("VITE_APP_URL") ??
+    DEFAULT_APP_URL
   ).replace(/\/$/, ""),
   coreUrl: (
     readEnv("NEXT_PUBLIC_CORE_URL") ??
