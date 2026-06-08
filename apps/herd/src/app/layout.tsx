@@ -5,6 +5,14 @@ export const metadata: Metadata = {
   title: "Wafrivet Herd | Operational Console",
   description: "Livestock Management & NFC Sync",
   manifest: "/manifest.json",
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: "black-translucent",
+    title: "Wafrivet Herd",
+  },
+  other: {
+    "mobile-web-app-capable": "yes",
+  },
 };
 
 export const viewport: Viewport = {

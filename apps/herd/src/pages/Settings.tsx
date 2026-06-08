@@ -16,6 +16,7 @@ import {
 import { cn } from "@/lib/utils";
 import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
+import { triggerInstall } from "@/lib/pwaInstall";
 import { logoutClient } from "@wafrivet/auth";
 import { useDocumentTitle } from "@/lib/useDocumentTitle";
 
@@ -179,12 +180,16 @@ export default function Settings() {
            <h3 className="px-4 text-[12px] font-black text-gray-300 uppercase tracking-[0.2em]">PWA Console</h3>
            <div className="bg-white rounded-[40px] border border-gray-100 shadow-sm overflow-hidden divide-y divide-gray-50">
               <button 
-                onClick={() => {
-                  const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !(window as any).MSStream;
+                onClick={async () => {
+                  const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !(window as Window & { MSStream?: unknown }).MSStream;
                   if (isIOS) {
                     alert("To install Herd on your iPhone:\n\n1. Tap the 'Share' icon in Safari\n2. Scroll down and tap 'Add to Home Screen'\n3. Tap 'Add' in the top right");
-                  } else {
-                    window.dispatchEvent(new Event('beforeinstallprompt'));
+                    return;
+                  }
+
+                  const outcome = await triggerInstall();
+                  if (outcome === "unavailable") {
+                    alert("Install is not available yet. Try again after interacting with the app, or use your browser menu to install.");
                   }
                 }}
                 className="w-full flex items-center justify-between p-5 hover:bg-gray-50 transition-all group active:scale-[0.99]"

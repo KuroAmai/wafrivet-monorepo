@@ -6,64 +6,48 @@ const herdClient = createApiClient({
   baseURL: `${API_CONFIG.gatewayUrl}${API_CONFIG.herdBasePath}`,
 });
 
-const coreHerdClient = createApiClient({ baseURL: API_CONFIG.coreUrl });
+type ApiEnvelope<T> = {
+  success?: boolean;
+  data?: T;
+};
 
-async function tryGateway<T>(fn: () => Promise<T>, fallback: () => Promise<T>): Promise<T> {
-  try {
-    return await fn();
-  } catch {
-    return fallback();
+function unwrapData<T>(payload: unknown): T {
+  if (payload && typeof payload === "object" && "data" in payload) {
+    const envelope = payload as ApiEnvelope<T>;
+    if (envelope.data !== undefined) {
+      return envelope.data;
+    }
   }
+  return payload as T;
+}
+
+function asArray<T>(value: unknown): T[] {
+  const unwrapped = unwrapData<T[] | { items?: T[] }>(value);
+  if (Array.isArray(unwrapped)) {
+    return unwrapped;
+  }
+  if (unwrapped && typeof unwrapped === "object" && Array.isArray(unwrapped.items)) {
+    return unwrapped.items;
+  }
+  return [];
 }
 
 export async function listAnimals(params?: { farmId?: string }): Promise<AnimalResponseDto[]> {
-  return tryGateway(
-    async () => {
-      const { data } = await herdClient.get<AnimalResponseDto[]>("/animals", { params });
-      return Array.isArray(data) ? data : (data as { data?: AnimalResponseDto[] }).data ?? [];
-    },
-    async () => {
-      const { data } = await coreHerdClient.get<AnimalResponseDto[]>("/animals", { params });
-      return Array.isArray(data) ? data : [];
-    },
-  );
+  const { data } = await herdClient.get<unknown>("/animals", { params });
+  return asArray<AnimalResponseDto>(data);
 }
 
 export async function getAnimal(animalUid: string): Promise<AnimalResponseDto> {
-  return tryGateway(
-    async () => {
-      const { data } = await herdClient.get<AnimalResponseDto>(`/animals/${animalUid}`);
-      return data;
-    },
-    async () => {
-      const { data } = await coreHerdClient.get<AnimalResponseDto>(`/animals/${animalUid}`);
-      return data;
-    },
-  );
+  const { data } = await herdClient.get<unknown>(`/animals/${animalUid}`);
+  return unwrapData<AnimalResponseDto>(data);
 }
 
 export async function listFarms(): Promise<FarmSnapshotDto[]> {
-  return tryGateway(
-    async () => {
-      const { data } = await herdClient.get<FarmSnapshotDto[]>("/farms");
-      return Array.isArray(data) ? data : [];
-    },
-    async () => {
-      const { data } = await coreHerdClient.get<FarmSnapshotDto[]>("/farms");
-      return Array.isArray(data) ? data : [];
-    },
-  );
+  const { data } = await herdClient.get<unknown>("/farms");
+  return asArray<FarmSnapshotDto>(data);
 }
 
 export async function postAiContext(animalUid: string, body: Record<string, unknown> = {}) {
-  return tryGateway(
-    async () => {
-      const { data } = await herdClient.post(`/ai-context/${animalUid}`, body);
-      return data;
-    },
-    async () => {
-      const { data } = await coreHerdClient.post(`/ai-context/${animalUid}`, body);
-      return data;
-    },
-  );
+  const { data } = await herdClient.post<unknown>(`/ai-context/${animalUid}`, body);
+  return unwrapData<unknown>(data);
 }
