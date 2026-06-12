@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
+import { useSearchParams } from "next/navigation";
 import { ArrowLeft, ArrowRight } from "@phosphor-icons/react";
 import type {
   GatewayOnboardingRole,
@@ -10,7 +11,7 @@ import type {
 import { RoleSelector } from "@/components/auth/RoleSelector";
 import { StepTransition } from "@/components/auth/FormAnimations";
 import { AVATAR_SEEDS, dicebearAvatarUrl } from "@/lib/dicebear";
-import { markRolesConfirmed } from "@/lib/onboardingSession";
+import { clearRolesConfirmed, markRolesConfirmed } from "@/lib/onboardingSession";
 import { FALLBACK_ROLE_OPTIONS } from "@/lib/roleOptionsFallback";
 import {
   platformRoleToKycRole,
@@ -34,6 +35,10 @@ function filterProfessionalRoleOptions(options: RoleOptionDto[]): RoleOptionDto[
   return options.filter((r) => r.id !== "REGULAR_CUSTOMER");
 }
 
+async function refreshAuthSession() {
+  await fetch("/api/auth/refresh", { method: "POST", credentials: "same-origin" });
+}
+
 async function navigateAfterOnboarding() {
   const destination = await resolvePostAuthDestination(readStoredReturnTo());
   if (destination.startsWith("http")) {
@@ -44,6 +49,12 @@ async function navigateAfterOnboarding() {
 }
 
 export function OnboardingWizard() {
+  const searchParams = useSearchParams();
+  const changeRole = searchParams.get("changeRole") === "1";
+  const preselectedRole = searchParams.get("role")?.toUpperCase() as
+    | PlatformSelectableRole
+    | undefined;
+
   const [step, setStep] = useState(1);
   const [direction, setDirection] = useState(1);
   const [avatarSeed, setAvatarSeed] = useState<string>(AVATAR_SEEDS[0]);
@@ -116,6 +127,7 @@ export function OnboardingWizard() {
     }
 
     markRolesConfirmed();
+    await refreshAuthSession();
 
     const kycRequired: GatewayOnboardingRole[] = selectBody.user?.kyc_required_for ?? [];
 
@@ -132,6 +144,23 @@ export function OnboardingWizard() {
   };
 
   useEffect(() => {
+    if (!changeRole) return;
+    clearRolesConfirmed();
+    if (
+      preselectedRole &&
+      preselectedRole !== "REGULAR_CUSTOMER" &&
+      filterProfessionalRoleOptions(FALLBACK_ROLE_OPTIONS).some((r) => r.id === preselectedRole)
+    ) {
+      setSelectedRole(preselectedRole);
+    }
+    setStep(3);
+    setBootstrapping(false);
+    void loadRoleOptions();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [changeRole, preselectedRole]);
+
+  useEffect(() => {
+    if (changeRole) return;
     let cancelled = false;
     (async () => {
       try {
@@ -303,6 +332,13 @@ export function OnboardingWizard() {
         total={progressTotal}
         labels={PROGRESS_LABELS}
       />
+
+      {changeRole ? (
+        <p className="mb-4 rounded-xl border border-[#2D4D31]/15 bg-[#f7faf7] px-4 py-3 text-sm text-[#2D4D31]">
+          You can add or switch your professional role here. Your shopper account stays active unless
+          you replace it with a different role.
+        </p>
+      ) : null}
 
       {apiError ? (
         <p className="mb-4 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">

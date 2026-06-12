@@ -15,9 +15,27 @@ export function extractRolesFromMe(me: AuthMeDto): string[] {
   return [...top, ...fromUser, ...single];
 }
 
+const ROLE_PRIORITY = [
+  "ADMIN",
+  "SUPPORT",
+  "RIDER",
+  "SUPPLIER",
+  "MANUFACTURER",
+  "VET",
+  "FARMER",
+  "REGULAR_CUSTOMER",
+  "PERSON",
+];
+
 export function resolvePrimaryRole(roles: (string | undefined)[]): string | undefined {
   if (hasAdminAccess(roles)) return "ADMIN";
-  return roles.find(Boolean);
+  const normalized = roles
+    .filter(Boolean)
+    .map((role) => String(role).toUpperCase());
+  for (const candidate of ROLE_PRIORITY) {
+    if (normalized.includes(candidate)) return candidate;
+  }
+  return normalized[0];
 }
 
 export function extractRolesFromJwt(payload: {

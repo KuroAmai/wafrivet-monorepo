@@ -1,3 +1,4 @@
+import { Suspense } from "react";
 import { OnboardingWizard } from "@/components/onboarding/OnboardingWizard";
 
 export const metadata = {
@@ -5,5 +6,15 @@ export const metadata = {
 };
 
 export default function OnboardingPage() {
-  return <OnboardingWizard />;
+  return (
+    <Suspense
+      fallback={
+        <div className="flex items-center justify-center py-16 text-[15px] text-gray-500">
+          Loading…
+        </div>
+      }
+    >
+      <OnboardingWizard />
+    </Suspense>
+  );
 }

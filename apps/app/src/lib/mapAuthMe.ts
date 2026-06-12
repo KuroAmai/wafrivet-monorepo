@@ -1,9 +1,12 @@
 import type { AuthMeDto, AuthUserProfileDto, UserRole } from "@wafrivet/types";
 import { extractRolesFromMe, resolvePrimaryRole } from "@wafrivet/auth";
+import { pickPrimaryPlatformRole } from "@/lib/platformRoles";
 
 export function mapAuthMeToProfile(me: AuthMeDto): AuthUserProfileDto {
   const mergedRoles = extractRolesFromMe(me);
-  const role = (resolvePrimaryRole(mergedRoles) ?? "REGULAR_CUSTOMER") as UserRole;
+  const role = (resolvePrimaryRole(mergedRoles) ??
+    pickPrimaryPlatformRole(mergedRoles) ??
+    "REGULAR_CUSTOMER") as UserRole;
   const roles = (me.roles ?? me.user?.roles ?? mergedRoles) as UserRole[] | undefined;
   const now = new Date().toISOString();
 

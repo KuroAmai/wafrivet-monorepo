@@ -24,6 +24,15 @@ export function ShopRoleGuard({ allowed, children }: ShopRoleGuardProps) {
       return;
     }
     if (productRole && !allowed.includes(productRole)) {
+      const appUrl = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3001";
+      if (allowed.includes("chemist") && productRole === "customer") {
+        window.location.assign(`${appUrl}/onboarding?changeRole=1&role=SUPPLIER`);
+        return;
+      }
+      if (allowed.includes("distributor") && productRole === "customer") {
+        window.location.assign(`${appUrl}/onboarding?changeRole=1&role=MANUFACTURER`);
+        return;
+      }
       const fallback =
         productRole === "distributor"
           ? "/distributor"

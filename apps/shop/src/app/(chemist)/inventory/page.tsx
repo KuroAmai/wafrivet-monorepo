@@ -82,7 +82,7 @@ export default function InventoryPage() {
       const msg = e instanceof Error ? e.message : "Failed to create offer";
       if (msg.toLowerCase().includes("kyc")) {
         toast.error("KYC approval required before listing products");
-        window.location.href = `${APP_URL}/onboarding`;
+        window.location.href = `${APP_URL}/onboarding?changeRole=1&role=SUPPLIER`;
         return;
       }
       toast.error(msg);
