@@ -427,15 +427,33 @@ export function useVetOrders() {
   });
 }
 
+function normalizeSupplierOffersList(
+  data: { data?: SupplierOfferDto[] } | SupplierOfferDto[] | unknown,
+): SupplierOfferDto[] {
+  if (Array.isArray(data)) return data;
+  if (data && typeof data === "object" && Array.isArray((data as { data?: SupplierOfferDto[] }).data)) {
+    return (data as { data: SupplierOfferDto[] }).data;
+  }
+  return [];
+}
+
+function normalizeSupplierOrdersList(
+  data: { data?: SupplierSubOrderDto[] } | SupplierSubOrderDto[] | unknown,
+): SupplierSubOrderDto[] {
+  if (Array.isArray(data)) return data;
+  if (data && typeof data === "object" && Array.isArray((data as { data?: SupplierSubOrderDto[] }).data)) {
+    return (data as { data: SupplierSubOrderDto[] }).data;
+  }
+  return [];
+}
+
+/** Gateway via @wafrivet/api (works before shop BFF routes are deployed). */
 export function useSupplierOffers(params?: { limit?: number }) {
   return useQuery({
     queryKey: queryKeys.supplier.offers(params),
     queryFn: async () => {
-      const data = await shopBff<{ data?: SupplierOfferDto[] } | SupplierOfferDto[]>(
-        `/api/supplier/offers?limit=${params?.limit ?? 50}`,
-      );
-      if (Array.isArray(data)) return data;
-      return data.data ?? [];
+      const data = await supplierApi.listSupplierOffers({ limit: params?.limit ?? 50 });
+      return normalizeSupplierOffersList(data);
     },
   });
 }
@@ -443,8 +461,7 @@ export function useSupplierOffers(params?: { limit?: number }) {
 export function useCreateSupplierOffer() {
   const qc = useQueryClient();
   return useMutation({
-    mutationFn: (body: OfferCreateDto) =>
-      shopBff<SupplierOfferDto>("/api/supplier/offers", { method: "POST", json: body }),
+    mutationFn: (body: OfferCreateDto) => supplierApi.createSupplierOffer(body),
     onSuccess: () => void qc.invalidateQueries({ queryKey: ["supplier", "offers"] }),
   });
 }
@@ -453,10 +470,7 @@ export function useUpdateSupplierOffer() {
   const qc = useQueryClient();
   return useMutation({
     mutationFn: ({ offerId, ...body }: OfferUpdateDto & { offerId: string }) =>
-      shopBff<SupplierOfferDto>(`/api/supplier/offers/${offerId}`, {
-        method: "PATCH",
-        json: body,
-      }),
+      supplierApi.updateSupplierOffer(offerId, body),
     onSuccess: () => void qc.invalidateQueries({ queryKey: ["supplier", "offers"] }),
   });
 }
@@ -464,8 +478,7 @@ export function useUpdateSupplierOffer() {
 export function useDeleteSupplierOffer() {
   const qc = useQueryClient();
   return useMutation({
-    mutationFn: (offerId: string) =>
-      shopBff<void>(`/api/supplier/offers/${offerId}`, { method: "DELETE" }),
+    mutationFn: (offerId: string) => supplierApi.deleteSupplierOffer(offerId),
     onSuccess: () => void qc.invalidateQueries({ queryKey: ["supplier", "offers"] }),
   });
 }
@@ -474,10 +487,8 @@ export function useSupplierOrders(params?: { limit?: number }) {
   return useQuery({
     queryKey: queryKeys.supplier.orders(params),
     queryFn: async () => {
-      const data = await shopBff<{ data?: SupplierSubOrderDto[] }>(
-        `/api/supplier/orders?limit=${params?.limit ?? 30}`,
-      );
-      return data.data ?? [];
+      const data = await supplierApi.listSupplierOrders({ limit: params?.limit ?? 30 });
+      return normalizeSupplierOrdersList(data);
     },
   });
 }
