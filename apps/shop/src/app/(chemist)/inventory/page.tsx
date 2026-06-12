@@ -7,7 +7,11 @@ import {
   Plus,
   X,
 } from "@phosphor-icons/react";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
+import {
+  isSupplierProfileMissingError,
+  SUPPLIER_ONBOARDING_URL,
+} from "@/lib/supplierOnboarding";
 import { toast } from "sonner";
 import { isMockDataEnabled } from "@wafrivet/api";
 import { ApiQueryFeedback } from "@wafrivet/ui";
@@ -42,6 +46,12 @@ export default function InventoryPage() {
   });
 
   const { data: offers, isLoading, isError, error, refetch } = useSupplierOffers({ limit: 100 });
+
+  useEffect(() => {
+    if (isError && isSupplierProfileMissingError(error)) {
+      window.location.href = SUPPLIER_ONBOARDING_URL;
+    }
+  }, [isError, error]);
   const { data: catalog } = useCatalog(catalogSearch || undefined);
   const createOffer = useCreateSupplierOffer();
   const updateOffer = useUpdateSupplierOffer();

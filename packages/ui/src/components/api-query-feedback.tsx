@@ -37,6 +37,11 @@ export function ApiQueryFeedback({
       >
         <p className="font-medium">Could not load live data</p>
         <p className="mt-1 text-red-700/90">{errorMessage ?? "Check login, CORS, and API URL."}</p>
+        {errorMessage?.toLowerCase().includes("supplier profile not found") ? (
+          <p className="mt-2 text-red-700/90">
+            Complete supplier onboarding in the main app, then return here.
+          </p>
+        ) : null}
         {onRetry ? (
           <button
             type="button"
