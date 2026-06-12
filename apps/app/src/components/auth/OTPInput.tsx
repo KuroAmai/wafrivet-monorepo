@@ -16,6 +16,7 @@ function clearPendingSignup() {
 }
 
 const LENGTH = 6;
+const skipEmailOtp = process.env.NEXT_PUBLIC_AUTH_SKIP_EMAIL_OTP === "true";
 
 function maskEmail(email: string): string {
   const trimmed = email.trim();
@@ -216,6 +217,12 @@ export function OTPInput() {
         </p>
       </div>
 
+      {skipEmailOtp ? (
+        <p className="mb-4 rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-900">
+          Email OTP is temporarily disabled. Use the button below to continue without a code.
+        </p>
+      ) : null}
+
       {apiError ? (
         <p className="mb-4 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
           {apiError}
@@ -249,15 +256,16 @@ export function OTPInput() {
       </div>
 
       <Button
-        onPress={() => isComplete && handleVerify(code)}
-        isDisabled={!isComplete || isVerifying}
+        onPress={() => handleVerify(skipEmailOtp ? "000000" : code)}
+        isDisabled={skipEmailOtp ? isVerifying : !isComplete || isVerifying}
         className="w-full h-[52px] flex items-center justify-center gap-2 bg-[#2D4D31] text-white font-semibold text-[15px] rounded-xl hover:bg-[#243f28] transition-all disabled:opacity-40"
       >
         {isVerifying ? (
           "Verifying…"
         ) : (
           <>
-            Verify code <ArrowRight size={17} className="ml-1" />
+            {skipEmailOtp ? "Continue without code" : "Verify code"}{" "}
+            <ArrowRight size={17} className="ml-1" />
           </>
         )}
       </Button>

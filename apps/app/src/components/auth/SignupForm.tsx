@@ -136,6 +136,7 @@ export function SignupForm() {
     const body = (await res.json().catch(() => ({}))) as {
       message?: string;
       fieldErrors?: AuthFieldErrors;
+      emailVerificationRequired?: boolean;
     };
     if (!res.ok) {
       setApiError(body.message ?? "Could not create account.");
@@ -145,6 +146,10 @@ export function SignupForm() {
     if (typeof sessionStorage !== "undefined") {
       sessionStorage.setItem("wafrivet_pending_email", email);
       sessionStorage.setItem("wafrivet_pending_password", data.password);
+    }
+    if (body.emailVerificationRequired === false) {
+      router.push("/login?verified=1");
+      return;
     }
     router.push("/verify");
   };

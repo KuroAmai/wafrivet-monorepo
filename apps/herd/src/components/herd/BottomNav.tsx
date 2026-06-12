@@ -10,7 +10,7 @@ import { Link, useLocation } from "react-router-dom";
 import { cn } from "@/lib/utils";
 
 const NAV_ITEMS = [
-  { label: "Registry", icon: Users, path: "/" },
+  { label: "Registry", icon: Users, path: "/animals", matchPrefix: "/animal" },
   { label: "Farms", icon: MapPin, path: "/farms" },
   { label: "Sync", icon: WifiHigh, path: "/scan" },
   { label: "AI", icon: Sparkle, path: "/ai" },
@@ -23,7 +23,10 @@ export function BottomNav() {
   return (
     <div className="fixed bottom-0 left-0 right-0 z-50 bg-white/80 backdrop-blur-xl border-t border-gray-100 px-6 pb-10 pt-4 flex items-center justify-between shadow-[0_-20px_50px_rgba(0,0,0,0.05)] rounded-t-[40px]">
       {NAV_ITEMS.map((item) => {
-        const isActive = pathname === item.path;
+        const isActive =
+          "matchPrefix" in item && item.matchPrefix
+            ? pathname === item.path || pathname.startsWith(item.matchPrefix)
+            : pathname === item.path;
         const Icon = item.icon as any;
         
         return (

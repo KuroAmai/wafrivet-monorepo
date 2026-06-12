@@ -5,6 +5,7 @@ import {
   Tag,
   IdentificationBadge,
   Warning,
+  Plus,
 } from "@phosphor-icons/react";
 import { Link } from "react-router-dom";
 import { isMockDataEnabled } from "@wafrivet/api";
@@ -44,6 +45,14 @@ export default function Dashboard() {
           <span className="text-gray-400">Herd Manager</span>
         </h1>
       </div>
+
+      <Link
+        to="/animals/add"
+        className="flex items-center justify-center gap-3 w-full py-4 bg-[#2D4D31] text-white rounded-[24px] font-black text-[13px] uppercase tracking-[0.15em] shadow-lg shadow-[#2D4D31]/20 hover:bg-[#243f28] active:scale-[0.98] transition-all"
+      >
+        <Plus size={20} weight="bold" />
+        Register Animal
+      </Link>
 
       <section className="bg-white border border-gray-100 rounded-[32px] p-1 flex items-center shadow-sm focus-within:ring-4 focus-within:ring-[#2D4D31]/5 focus-within:border-[#2D4D31]/20 transition-all">
         <div className="pl-5 pr-3">
