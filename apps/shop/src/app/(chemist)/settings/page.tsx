@@ -10,7 +10,7 @@ export default function SettingsPage() {
     <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-700">
       <div>
         <h1 className="text-[28px] font-black text-gray-900 tracking-tight leading-none mb-2">Branch Settings</h1>
-        <p className="text-[11px] text-gray-400 font-bold uppercase tracking-[0.2em]">Configure your branch profile and preferences</p>
+        <p className="text-[11px] text-gray-600 font-bold uppercase tracking-[0.2em]">Configure your branch profile and preferences</p>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-10">
@@ -60,7 +60,7 @@ export default function SettingsPage() {
                        </div>
                        <div>
                           <p className="font-bold text-gray-900 text-[14px]">Update Password</p>
-                          <p className="text-[11px] text-gray-400 font-bold uppercase tracking-widest">Last changed 3 months ago</p>
+                          <p className="text-[11px] text-gray-600 font-bold uppercase tracking-widest">Last changed 3 months ago</p>
                        </div>
                     </div>
                     <ArrowRight size={20} className="text-gray-300 group-hover:text-gray-900 transition-all" />

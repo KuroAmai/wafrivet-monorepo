@@ -319,7 +319,7 @@ export function OnboardingWizard() {
 
   if (bootstrapping) {
     return (
-      <div className="flex items-center justify-center py-16 text-[15px] text-gray-500">
+      <div className="flex items-center justify-center py-16 text-[15px] text-gray-600">
         Loading…
       </div>
     );
@@ -352,7 +352,7 @@ export function OnboardingWizard() {
             <h1 className="text-[30px] font-semibold text-gray-900 tracking-tight leading-tight">
               Pick your avatar
             </h1>
-            <p className="text-[15px] text-gray-500 mt-1.5 mb-6">
+            <p className="text-[15px] text-gray-600 mt-1.5 mb-6">
               Choose a look for your Wafrivet profile
             </p>
             <AvatarPicker selectedSeed={avatarSeed} onSelect={setAvatarSeed} />
@@ -364,7 +364,7 @@ export function OnboardingWizard() {
             <h1 className="text-[30px] font-semibold text-gray-900 tracking-tight leading-tight">
               What should we call you?
             </h1>
-            <p className="text-[15px] text-gray-500 mt-1.5 mb-6">
+            <p className="text-[15px] text-gray-600 mt-1.5 mb-6">
               This is how you&apos;ll appear across Wafrivet
             </p>
             <div className="flex justify-center mb-6">
@@ -396,7 +396,7 @@ export function OnboardingWizard() {
             <h1 className="text-[30px] font-semibold text-gray-900 tracking-tight leading-tight">
               How will you use Wafrivet?
             </h1>
-            <p className="text-[15px] text-gray-500 mt-1.5 mb-6">
+            <p className="text-[15px] text-gray-600 mt-1.5 mb-6">
               Choose a professional role below, or skip to browse the shop as a customer.
             </p>
             <RoleSelector
@@ -420,7 +420,7 @@ export function OnboardingWizard() {
             <h1 className="text-[30px] font-semibold text-gray-900 tracking-tight leading-tight">
               Business details
             </h1>
-            <p className="text-[15px] text-gray-500 mt-1.5 mb-6">
+            <p className="text-[15px] text-gray-600 mt-1.5 mb-6">
               Required to complete your professional profile
             </p>
             <BusinessOnboardingForm

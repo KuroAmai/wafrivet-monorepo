@@ -60,7 +60,7 @@ export function RoleSelector({
             >
               {role.label}
             </h4>
-            <p className="text-[12px] text-gray-500 mt-0.5 leading-snug">{role.description}</p>
+            <p className="text-[12px] text-gray-600 mt-0.5 leading-snug">{role.description}</p>
           </button>
         );
       })}

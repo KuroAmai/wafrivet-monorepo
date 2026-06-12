@@ -160,7 +160,7 @@ export function SignupForm() {
         <h1 className="text-[30px] font-semibold text-gray-900 tracking-tight leading-tight">
           Create an account
         </h1>
-        <p className="text-[15px] text-gray-500 mt-1.5">Join Wafrivet — it&apos;s free to get started</p>
+        <p className="text-[15px] text-gray-600 mt-1.5">Join Wafrivet — it&apos;s free to get started</p>
       </div>
 
       {apiError ? (

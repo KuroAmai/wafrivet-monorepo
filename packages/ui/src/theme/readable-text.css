@@ -1,0 +1,24 @@
+/**
+ * Darker muted grays for light backgrounds (~WCAG AA for small body text).
+ * Import after `tailwindcss` in each app globals.css.
+ *
+ * Shifts the gray-400/500/600 scale one step darker so existing
+ * `text-gray-400` / `text-gray-500` classes stay readable on white.
+ */
+@theme inline {
+  --color-gray-400: #6b7280;
+  --color-gray-500: #4b5563;
+  --color-gray-600: #374151;
+  --color-slate-400: #6b7280;
+  --color-slate-500: #4b5563;
+  --color-slate-600: #374151;
+  --color-muted-foreground: #4b5563;
+}
+
+@layer base {
+  input::placeholder,
+  textarea::placeholder {
+    color: #6b7280;
+    opacity: 1;
+  }
+}

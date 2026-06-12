@@ -66,7 +66,7 @@ export default function AuthLayout({ children }: { children: ReactNode }) {
 
         {/* Footer */}
         <div className="px-6 pb-8 text-center">
-          <p className="text-xs text-gray-400">
+          <p className="text-xs text-gray-600">
             © {new Date().getFullYear()} Wafrivet &nbsp;·&nbsp;
             <Link href="#" className="hover:text-gray-600 transition-colors">Privacy</Link>
             &nbsp;·&nbsp;

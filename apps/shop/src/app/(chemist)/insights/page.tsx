@@ -21,7 +21,7 @@ export default function InsightsPage() {
       <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-700">
          <div>
             <h1 className="text-[28px] font-black text-gray-900 tracking-tight leading-none mb-2">Operational Insights</h1>
-            <p className="text-[11px] text-gray-400 font-bold uppercase tracking-[0.2em]">Deep analytics and demand forecasting for your branch</p>
+            <p className="text-[11px] text-gray-600 font-bold uppercase tracking-[0.2em]">Deep analytics and demand forecasting for your branch</p>
          </div>
 
          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
@@ -118,7 +118,7 @@ export default function InsightsPage() {
                      </div>
                      <div>
                         <h4 className="font-bold text-gray-900 text-[15px] mb-0.5">{product.name}</h4>
-                        <p className="text-[11px] text-gray-400 font-bold uppercase tracking-widest">{product.sales} Sales this month</p>
+                        <p className="text-[11px] text-gray-600 font-bold uppercase tracking-widest">{product.sales} Sales this month</p>
                      </div>
                   </div>
                ))}

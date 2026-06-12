@@ -84,7 +84,7 @@ export function IncomingOrders() {
                     <h3 className="font-black text-gray-900 text-[18px] tracking-tight mb-1">
                       {order.customer}
                     </h3>
-                    <div className="flex items-center gap-4 text-[11px] text-gray-400 font-bold uppercase tracking-wider">
+                    <div className="flex items-center gap-4 text-[11px] text-gray-600 font-bold uppercase tracking-wider">
                       <span className="flex items-center gap-1">
                         <Clock size={14} /> {order.time}
                       </span>

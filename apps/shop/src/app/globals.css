@@ -1,4 +1,5 @@
 @import "tailwindcss";
+@import "@wafrivet/ui/readable-text.css";
 @import "@heroui/styles";
 
 :root {

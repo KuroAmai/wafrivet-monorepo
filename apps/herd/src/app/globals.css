@@ -1,5 +1,6 @@
 @import url('https://fonts.googleapis.com/css2?family=Quicksand:wght@300;400;500;600;700;800;900&display=swap');
 @import "tailwindcss";
+@import "@wafrivet/ui/readable-text.css";
 
 @theme {
   --color-background: #F9FAFB;
@@ -7,7 +8,7 @@
   --color-primary: #2D4D31;
   --color-primary-foreground: #FFFFFF;
   --color-muted: #F3F4F6;
-  --color-muted-foreground: #6B7280;
+  --color-muted-foreground: #4b5563;
   --color-border: #E5E7EB;
 }
 

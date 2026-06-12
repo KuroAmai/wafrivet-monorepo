@@ -70,7 +70,7 @@ export function ResetPasswordForm() {
           </div>
         </div>
         <h1 className="text-[30px] font-semibold text-gray-900 tracking-tight leading-tight mb-2">Password reset</h1>
-        <p className="text-[15px] text-gray-500 mb-8">
+        <p className="text-[15px] text-gray-600 mb-8">
           Your password has been successfully reset. You can now sign in with your new password.
         </p>
         <Link 
@@ -87,7 +87,7 @@ export function ResetPasswordForm() {
     <div>
       <div className="mb-8">
         <h1 className="text-[30px] font-semibold text-gray-900 tracking-tight leading-tight">Create new password</h1>
-        <p className="text-[15px] text-gray-500 mt-1.5">Please enter your new password below</p>
+        <p className="text-[15px] text-gray-600 mt-1.5">Please enter your new password below</p>
       </div>
 
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">

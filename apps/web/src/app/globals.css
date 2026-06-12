@@ -1,6 +1,7 @@
 @import url("https://fonts.googleapis.com/css2?family=Quicksand:wght@400;500;600;700&display=swap");
 @config "../../tailwind.config.ts";
 @import "tailwindcss";
+@import "@wafrivet/ui/readable-text.css";
 @import "@heroui/styles";
 
 /* Definition of the design system. All colors, gradients, fonts, etc should be defined here. 

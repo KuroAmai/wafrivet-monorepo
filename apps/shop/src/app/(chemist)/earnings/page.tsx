@@ -25,7 +25,7 @@ export default function EarningsPage() {
       <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
         <div>
           <h1 className="text-[28px] font-black text-gray-900 tracking-tight leading-none mb-2">Earnings & Payouts</h1>
-          <p className="text-[11px] text-gray-400 font-bold uppercase tracking-[0.2em]">Manage your branch revenue and financial status</p>
+          <p className="text-[11px] text-gray-600 font-bold uppercase tracking-[0.2em]">Manage your branch revenue and financial status</p>
         </div>
         <div className="flex items-center gap-3">
            <button className="flex items-center gap-2 px-5 py-3 bg-white border border-gray-100 rounded-2xl font-black text-[11px] uppercase tracking-widest text-gray-400 hover:text-gray-900 transition-all">
@@ -40,7 +40,7 @@ export default function EarningsPage() {
           <div className="flex items-center justify-between mb-8">
              <div>
                 <h3 className="text-[18px] font-black text-gray-900 tracking-tight">Revenue Overview</h3>
-                <p className="text-[11px] text-gray-400 font-bold uppercase tracking-widest mt-1">Weekly sales performance</p>
+                <p className="text-[11px] text-gray-600 font-bold uppercase tracking-widest mt-1">Weekly sales performance</p>
              </div>
              <div className="flex items-center gap-2 px-4 py-2 bg-gray-50 rounded-xl">
                 <Calendar size={16} className="text-[#2D4D31]" />
@@ -106,7 +106,7 @@ export default function EarningsPage() {
                 </div>
                 <div>
                    <h4 className="font-bold text-gray-900 text-[14px]">Settlement Account</h4>
-                   <p className="text-[11px] text-gray-400 font-bold uppercase">Zenith Bank · ***9281</p>
+                   <p className="text-[11px] text-gray-600 font-bold uppercase">Zenith Bank · ***9281</p>
                 </div>
              </div>
              <button className="text-[11px] font-black text-[#2D4D31] uppercase tracking-widest hover:underline">
@@ -133,7 +133,7 @@ export default function EarningsPage() {
                       <h4 className="font-black text-gray-900 text-[16px] tracking-tight">{payout.amount}</h4>
                       <span className="text-[10px] font-black text-emerald-500 bg-emerald-50 px-2.5 py-0.5 rounded-full uppercase tracking-widest">{payout.status}</span>
                    </div>
-                   <p className="text-[11px] text-gray-400 font-bold uppercase tracking-wider">{payout.date} · {payout.bank}</p>
+                   <p className="text-[11px] text-gray-600 font-bold uppercase tracking-wider">{payout.date} · {payout.bank}</p>
                 </div>
               </div>
               <button className="w-10 h-10 bg-gray-50 rounded-xl flex items-center justify-center text-gray-300 group-hover:bg-gray-900 group-hover:text-white transition-all">

@@ -204,7 +204,7 @@ export function OTPInput() {
         <h1 className="text-[30px] font-semibold text-gray-900 tracking-tight leading-tight">
           Verify your email
         </h1>
-        <p className="text-[15px] text-gray-500 mt-1.5">
+        <p className="text-[15px] text-gray-600 mt-1.5">
           Enter the 6-digit code we sent
           {pendingEmail ? (
             <>

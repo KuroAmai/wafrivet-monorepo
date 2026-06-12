@@ -107,8 +107,8 @@ export function LoginForm() {
     <div>
       <div className="mb-8">
         <h1 className="text-[30px] font-semibold text-gray-900 tracking-tight leading-tight">Welcome back</h1>
-        <p className="text-[15px] text-gray-500 mt-1.5">Sign in to your Wafrivet account</p>
-        <p className="text-[12px] text-gray-400 mt-2">
+        <p className="text-[15px] text-gray-600 mt-1.5">Sign in to your Wafrivet account</p>
+        <p className="text-[12px] text-gray-600 mt-2">
           Admin accounts: use your full seeded email address, not a username.
         </p>
       </div>
@@ -171,11 +171,11 @@ export function LoginForm() {
 
       <div className="flex items-center gap-3 my-6">
         <div className="flex-1 h-px bg-gray-200" />
-        <span className="text-[12px] text-gray-400 font-medium uppercase tracking-wide">or</span>
+        <span className="text-[12px] text-gray-600 font-medium uppercase tracking-wide">or</span>
         <div className="flex-1 h-px bg-gray-200" />
       </div>
 
-      <p className="text-center text-[14px] text-gray-500">
+      <p className="text-center text-[14px] text-gray-600">
         Don&apos;t have an account?{" "}
         <a
           href={getCentralSignupUrl(returnTo)}

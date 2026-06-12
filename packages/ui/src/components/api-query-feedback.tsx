@@ -24,7 +24,7 @@ export function ApiQueryFeedback({
 }: ApiQueryFeedbackProps) {
   if (isLoading) {
     return (
-      <p className={cn("text-sm text-gray-500 py-4", className)}>Loading live data…</p>
+      <p className={cn("text-sm text-gray-600 py-4", className)}>Loading live data…</p>
     );
   }
   if (isError) {
@@ -51,7 +51,7 @@ export function ApiQueryFeedback({
   }
   if (isEmpty) {
     return (
-      <p className={cn("text-sm text-gray-500 py-4", className)}>{emptyMessage}</p>
+      <p className={cn("text-sm text-gray-600 py-4", className)}>{emptyMessage}</p>
     );
   }
   return <>{children}</>;

@@ -12,7 +12,7 @@ export function ChemistDashboardView() {
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
         <div>
           <h1 className="text-[28px] font-black text-gray-900 tracking-tight leading-none mb-2">Operations Console</h1>
-          <p className="text-[11px] text-gray-400 font-bold uppercase tracking-[0.2em]">Lagos Island Branch · <span className="text-emerald-500">Online</span></p>
+          <p className="text-[11px] text-gray-600 font-bold uppercase tracking-[0.2em]">Lagos Island Branch · <span className="text-emerald-500">Online</span></p>
         </div>
         
         <div className="flex items-center gap-3">

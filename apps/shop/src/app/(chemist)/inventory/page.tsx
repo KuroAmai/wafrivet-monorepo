@@ -117,7 +117,7 @@ export default function InventoryPage() {
           <h1 className="text-[28px] font-black text-gray-900 tracking-tight leading-none mb-2">
             Inventory Management
           </h1>
-          <p className="text-[11px] text-gray-400 font-bold uppercase tracking-[0.2em]">
+          <p className="text-[11px] text-gray-600 font-bold uppercase tracking-[0.2em]">
             Live supplier offers from the marketplace API
           </p>
         </div>
@@ -181,7 +181,7 @@ export default function InventoryPage() {
                         <p className="font-bold text-gray-900 text-[14px]">
                           {item.skuName ?? item.productName ?? item.masterSkuId}
                         </p>
-                        <p className="text-[11px] text-gray-400 font-medium">Offer {item.id.slice(0, 8)}</p>
+                        <p className="text-[11px] text-gray-600 font-medium">Offer {item.id.slice(0, 8)}</p>
                       </div>
                     </div>
                   </td>
