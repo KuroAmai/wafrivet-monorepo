@@ -91,3 +91,39 @@ export async function removeShopperWishlistItem(masterSkuId: string): Promise<vo
 export async function clearShopperWishlist(): Promise<void> {
   await apiClient.delete("/shopper/wishlist");
 }
+
+export async function listShopperOrders(params?: { cursor?: string; limit?: number }) {
+  const { data } = await apiClient.get("/shopper/orders", { params });
+  return data;
+}
+
+export async function getShopperOrder(orderId: string) {
+  const { data } = await apiClient.get(`/shopper/orders/${orderId}`);
+  return data;
+}
+
+export async function getShopperProcurementDraft() {
+  const { data } = await apiClient.get("/shopper/procurement/draft");
+  return data;
+}
+
+export async function upsertShopperProcurementDraft(body: {
+  items: { offerId: string; quantity: number }[];
+}) {
+  const { data } = await apiClient.post("/shopper/procurement/draft", body);
+  return data;
+}
+
+export async function clearShopperProcurementDraft() {
+  await apiClient.delete("/shopper/procurement/draft");
+}
+
+export async function submitShopperProcurement(body: unknown = {}) {
+  const { data } = await apiClient.post("/shopper/procurement", body);
+  return data;
+}
+
+export async function cancelShopperOrder(orderId: string) {
+  const { data } = await apiClient.patch(`/shopper/orders/${orderId}/cancel`, {});
+  return data;
+}

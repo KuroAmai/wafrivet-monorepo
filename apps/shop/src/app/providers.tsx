@@ -3,6 +3,7 @@
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { AuthProvider } from "@wafrivet/auth";
 import { useState, type ReactNode } from "react";
+import { Toaster } from "sonner";
 import { ShopLocationProvider } from "@/contexts/ShopLocationContext";
 import { LocationPicker } from "@/components/shop/LocationPicker";
 
@@ -22,6 +23,7 @@ export function ShopProviders({ children }: { children: ReactNode }) {
         <ShopLocationProvider>
           {children as never}
           <LocationPicker />
+          <Toaster richColors position="top-center" />
         </ShopLocationProvider>
       </AuthProvider>
     </QueryClientProvider>

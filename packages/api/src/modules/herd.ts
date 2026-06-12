@@ -1,4 +1,9 @@
-import type { AnimalResponseDto, FarmSnapshotDto } from "@wafrivet/types";
+import type {
+  AnimalResponseDto,
+  CreateAnimalDto,
+  FarmSnapshotDto,
+  UpdateAnimalDto,
+} from "@wafrivet/types";
 import { API_CONFIG } from "../config";
 import { apiClient } from "../client";
 
@@ -48,4 +53,17 @@ export async function listFarms(): Promise<FarmSnapshotDto[]> {
 export async function postAiContext(animalUid: string, body: Record<string, unknown> = {}) {
   const { data } = await apiClient.post<unknown>(`${herdBase}/ai-context/${animalUid}`, body);
   return unwrapData<unknown>(data);
+}
+
+export async function createAnimal(body: CreateAnimalDto): Promise<AnimalResponseDto> {
+  const { data } = await apiClient.post<unknown>(`${herdBase}/animals`, body);
+  return unwrapData<AnimalResponseDto>(data);
+}
+
+export async function updateAnimal(
+  animalUid: string,
+  body: UpdateAnimalDto,
+): Promise<AnimalResponseDto> {
+  const { data } = await apiClient.patch<unknown>(`${herdBase}/animals/${animalUid}`, body);
+  return unwrapData<AnimalResponseDto>(data);
 }

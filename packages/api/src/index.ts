@@ -20,3 +20,5 @@ export * as supplierApi from "./modules/supplier";
 export * as herdApi from "./modules/herd";
 export * as meApi from "./modules/me";
 export * as shopperApi from "./modules/shopper";
+export * as marketApi from "./modules/market";
+export { pickCheapestOffer } from "./modules/market";

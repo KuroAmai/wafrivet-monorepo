@@ -14,10 +14,18 @@ import {
   Star,
 } from "@phosphor-icons/react";
 import Link from "next/link";
-import { use, useState } from "react";
+import { use, useMemo, useState } from "react";
+import { useRouter } from "next/navigation";
+import { toast } from "sonner";
 import { isMockDataEnabled } from "@wafrivet/api";
 import { ApiQueryFeedback } from "@wafrivet/ui";
-import { useCatalogItem } from "@/hooks/useShopApi";
+import {
+  useAddToCart,
+  useCatalogItem,
+  useCatalogCompare,
+  useMarketRange,
+  useServerCommerceEnabled,
+} from "@/hooks/useShopApi";
 
 export default function ProductDetailPage({
   params,
@@ -25,10 +33,34 @@ export default function ProductDetailPage({
   params: Promise<{ id: string }>;
 }) {
   const { id } = use(params);
+  const router = useRouter();
   const [quantity, setQuantity] = useState(1);
   const { data: product, isLoading, isError, error, refetch } = useCatalogItem(id);
+  const serverCommerce = useServerCommerceEnabled();
+  const { data: marketRange } = useMarketRange(id);
+  const { data: compare } = useCatalogCompare(id);
+  const addToCart = useAddToCart();
 
-  const price = 6500;
+  const price = useMemo(() => {
+    const fromCompare = compare?.offers?.find((o) => o.stockQuantity > 0)?.unitPrice;
+    if (typeof fromCompare === "number") return fromCompare;
+    if (typeof marketRange?.floorPrice === "number") return marketRange.floorPrice;
+    return 0;
+  }, [compare, marketRange]);
+
+  const handleAddToCart = async () => {
+    if (!serverCommerce) {
+      toast.message("Sign in as a customer or clinic to add items to your cart");
+      return;
+    }
+    try {
+      await addToCart.mutateAsync({ masterSkuId: id, quantity });
+      toast.success("Added to cart");
+      router.push("/checkout");
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : "Could not add to cart");
+    }
+  };
 
   return (
     <div className="min-h-screen bg-white pb-32">
@@ -155,9 +187,16 @@ export default function ProductDetailPage({
                 +
               </button>
             </div>
-            <button className="flex-1 bg-[#2D4D31] text-white h-16 rounded-2xl flex items-center justify-center gap-3 font-black text-[16px] hover:bg-[#243f28] transition-all shadow-xl shadow-[#2D4D31]/20">
+            <button
+              type="button"
+              disabled={addToCart.isPending || price <= 0}
+              onClick={() => void handleAddToCart()}
+              className="flex-1 bg-[#2D4D31] text-white h-16 rounded-2xl flex items-center justify-center gap-3 font-black text-[16px] hover:bg-[#243f28] transition-all shadow-xl shadow-[#2D4D31]/20 disabled:opacity-50"
+            >
               <ShoppingCart size={24} weight="bold" />
-              Add to Cart — ₦{(price * quantity).toLocaleString()}
+              {price > 0
+                ? `Add to Cart — ₦${(price * quantity).toLocaleString()}`
+                : "No offers available"}
             </button>
           </div>
         </div>

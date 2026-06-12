@@ -16,10 +16,20 @@ export const queryKeys = {
     order: (id: string) => ["vet", "order", id] as const,
     draft: ["vet", "procurement", "draft"] as const,
   },
+  shopperCommerce: {
+    orders: (params?: object) => ["shopper", "orders", params] as const,
+    order: (id: string) => ["shopper", "order", id] as const,
+    draft: ["shopper", "procurement", "draft"] as const,
+  },
+  market: {
+    range: (masterSkuId: string) => ["market", "range", masterSkuId] as const,
+    compare: (masterSkuId: string) => ["market", "compare", masterSkuId] as const,
+  },
   supplier: {
     offers: (params?: object) => ["supplier", "offers", params] as const,
     profile: ["supplier", "profile"] as const,
     wallet: ["supplier", "wallet"] as const,
+    orders: (params?: object) => ["supplier", "orders", params] as const,
   },
   herd: {
     animals: (params?: object) => ["herd", "animals", params] as const,

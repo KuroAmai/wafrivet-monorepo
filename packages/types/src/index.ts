@@ -7,3 +7,5 @@ export * from "./catalog";
 export * from "./herd";
 export * from "./orders";
 export * from "./shopper";
+export * from "./market";
+export * from "./offers";

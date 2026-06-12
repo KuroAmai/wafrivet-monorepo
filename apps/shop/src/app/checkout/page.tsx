@@ -18,11 +18,11 @@ import { useShopCart } from "@/hooks/useShopCart";
 import {
   useInitializePayment,
   useShopperAddresses,
-  useShopperCommerceEnabled,
+  useServerCommerceEnabled,
   useSubmitOrder,
   useVetProfile,
 } from "@/hooks/useShopApi";
-import { isRegularCustomerOnly } from "@/lib/shopperCapabilities";
+import { canUseShopperCommerce, canUseVetCommerce } from "@/lib/shopperCapabilities";
 import { fullNameFromProfile } from "@/lib/mapAuthMe";
 import { formatShopperAddressLine, pickDefaultShopperAddress } from "@/lib/formatShopperAddress";
 
@@ -39,7 +39,7 @@ export default function CheckoutPage() {
     phone?: string;
   } | null;
   const { region, openPicker } = useShopLocation();
-  const { items, subtotal, delivery, total, vetCommerce, orderId } = useShopCart();
+  const { items, subtotal, delivery, total, serverCommerce, orderId } = useShopCart();
   const { data: vetProfile } = useVetProfile();
   const { data: shopperAddresses } = useShopperAddresses();
   const submitOrder = useSubmitOrder();
@@ -47,7 +47,8 @@ export default function CheckoutPage() {
   const [paying, setPaying] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const customerOnly = isRegularCustomerOnly(profile?.roles, profile?.role);
+  const isVetBuyer = canUseVetCommerce(profile?.roles, profile?.role);
+  const isShopperBuyer = canUseShopperCommerce(profile?.roles, profile?.role);
   const defaultShopperAddr = pickDefaultShopperAddress(shopperAddresses);
   const displayName = fullNameFromProfile(profile) ?? "Customer";
   const addressLine =
@@ -57,7 +58,7 @@ export default function CheckoutPage() {
   const phone = vetProfile?.phone ?? defaultShopperAddr?.phone ?? profile?.phone ?? "—";
 
   const handlePay = async () => {
-    if (!vetCommerce) return;
+    if (!serverCommerce) return;
     setPaying(true);
     setError(null);
     try {
@@ -69,7 +70,11 @@ export default function CheckoutPage() {
       if (!oid) throw new Error("Could not create order");
       const payment = await initPayment.mutateAsync({ orderId: oid });
       if (payment.authorizationUrl) {
-        window.location.href = payment.authorizationUrl;
+        const returnUrl = new URL("/checkout/payment", window.location.origin);
+        returnUrl.searchParams.set("paymentId", payment.paymentId);
+        returnUrl.searchParams.set("orderId", oid);
+        const separator = payment.authorizationUrl.includes("?") ? "&" : "?";
+        window.location.href = `${payment.authorizationUrl}${separator}callback_url=${encodeURIComponent(returnUrl.toString())}`;
         return;
       }
       router.push(`/profile/orders/${oid}`);
@@ -173,7 +178,7 @@ export default function CheckoutPage() {
 
               {error ? <p className="text-[13px] text-red-600 mb-4 font-medium">{error}</p> : null}
 
-              {vetCommerce ? (
+              {serverCommerce ? (
                 <button
                   type="button"
                   disabled={paying || items.length === 0}
@@ -186,16 +191,20 @@ export default function CheckoutPage() {
               ) : (
                 <div className="space-y-3">
                   <p className="text-[13px] text-gray-500 text-center">
-                    {customerOnly
-                      ? "Checkout is available for verified clinic accounts."
-                      : "Sign in to complete your purchase."}
+                    Sign in with a customer or clinic account to complete your purchase.
                   </p>
-                  {customerOnly ? (
+                  <a
+                    href={`${APP_URL}/login`}
+                    className="w-full h-14 bg-[#2D4D31] text-white rounded-2xl flex items-center justify-center font-black text-[15px]"
+                  >
+                    Sign in
+                  </a>
+                  {!isVetBuyer && !isShopperBuyer ? (
                     <a
                       href={`${APP_URL}/onboarding`}
-                      className="w-full h-14 bg-[#2D4D31] text-white rounded-2xl flex items-center justify-center font-black text-[15px]"
+                      className="w-full h-12 border border-gray-200 text-gray-700 rounded-2xl flex items-center justify-center font-bold text-[14px]"
                     >
-                      Register as a clinic
+                      Create an account
                     </a>
                   ) : null}
                 </div>

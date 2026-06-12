@@ -9,7 +9,7 @@ import { useState, useEffect, useMemo } from "react";
 import { getAccessToken, isMockDataEnabled } from "@wafrivet/api";
 import { getCentralLoginUrl } from "@wafrivet/auth";
 import { ApiQueryFeedback } from "@wafrivet/ui";
-import { formatOrderDisplay, useCatalog, useShopperCommerceEnabled, useShopperOrders } from "@/hooks/useShopApi";
+import { formatOrderDisplay, useCatalog, useServerCommerceEnabled, useShopperOrders } from "@/hooks/useShopApi";
 
 const ANIMALS = ["Cattle", "Poultry", "Pigs", "Goats", "Sheep"];
 
@@ -18,17 +18,17 @@ export function MarketplaceView() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
 
   const { data: catalogItems, isLoading, isError, error, refetch } = useCatalog(search);
-  const vetCommerce = useShopperCommerceEnabled();
+  const serverCommerce = useServerCommerceEnabled();
   const { data: orders } = useShopperOrders({ limit: 5 });
 
   const activeOrder = useMemo(() => {
-    if (!vetCommerce || !orders?.length) return null;
+    if (!serverCommerce || !orders?.length) return null;
     const inTransit = orders.find((o) =>
       ["OUT_FOR_DELIVERY", "PROCESSING", "CONFIRMED"].includes(String(o.status).toUpperCase()),
     );
     const target = inTransit ?? orders[0];
     return target ? formatOrderDisplay(target) : null;
-  }, [vetCommerce, orders]);
+  }, [serverCommerce, orders]);
 
   useEffect(() => {
     setIsLoggedIn(Boolean(getAccessToken()));
@@ -61,7 +61,7 @@ export function MarketplaceView() {
           </div>
         </section>
 
-        {isLoggedIn && vetCommerce && activeOrder ? (
+        {isLoggedIn && serverCommerce && activeOrder ? (
           <section className="mb-10 flex gap-4 overflow-x-auto no-scrollbar py-2 px-2">
             <Link
               href={`/profile/orders/${activeOrder.id}`}

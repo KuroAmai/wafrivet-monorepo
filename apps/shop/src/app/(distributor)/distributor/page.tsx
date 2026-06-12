@@ -8,9 +8,7 @@ export default function DistributorDashboardPage() {
   const { data: offers, isLoading, isError, error, refetch } = useSupplierOffers();
   const { data: profile } = useSupplierProfile();
 
-  const offerRows = Array.isArray(offers)
-    ? offers
-    : (offers as { data?: unknown[] })?.data ?? [];
+  const offerRows = offers ?? [];
 
   return (
     <div className="space-y-6">

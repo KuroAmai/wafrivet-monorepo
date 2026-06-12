@@ -6,9 +6,10 @@ import Link from "next/link";
 import { useAuth } from "@wafrivet/auth";
 import { addToLocalCart } from "@/lib/localCart";
 import {
+  useAddToCart,
   useAddWishlistItem,
   useRemoveWishlistItem,
-  useShopperCommerceEnabled,
+  useServerCommerceEnabled,
   useWishlistSkuSet,
 } from "@/hooks/useShopApi";
 
@@ -33,7 +34,8 @@ export function ProductCard({
 }: ProductCardProps) {
   const { user, isAuthenticated } = useAuth();
   const userId = (user as { id?: string } | null)?.id;
-  const vetCommerce = useShopperCommerceEnabled();
+  const serverCommerce = useServerCommerceEnabled();
+  const addToCart = useAddToCart();
   const wishlistSkus = useWishlistSkuSet();
   const addWishlist = useAddWishlistItem();
   const removeWishlist = useRemoveWishlistItem();
@@ -54,7 +56,11 @@ export function ProductCard({
   const handleAdd = (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
-    if (!userId || vetCommerce) return;
+    if (!userId) return;
+    if (serverCommerce) {
+      void addToCart.mutateAsync({ masterSkuId: id, quantity: 1 });
+      return;
+    }
     const numericPrice = Number(price.replace(/[^\d.]/g, "")) || 0;
     addToLocalCart(userId, {
       masterSkuId: id,
@@ -123,11 +129,12 @@ export function ProductCard({
 
           <div className="flex items-center justify-between">
             <span className="text-[18px] font-black text-gray-900 tracking-tight">₦{price}</span>
-            {isAuthenticated && !vetCommerce ? (
+            {isAuthenticated ? (
               <button
                 type="button"
                 onClick={handleAdd}
-                className="w-10 h-10 bg-[#2D4D31] text-white rounded-xl flex items-center justify-center hover:bg-[#243f28] transition-all shadow-lg shadow-[#2D4D31]/10 active:scale-95"
+                disabled={addToCart.isPending}
+                className="w-10 h-10 bg-[#2D4D31] text-white rounded-xl flex items-center justify-center hover:bg-[#243f28] transition-all shadow-lg shadow-[#2D4D31]/10 active:scale-95 disabled:opacity-50"
                 aria-label="Add to cart"
               >
                 <Plus size={22} weight="bold" />

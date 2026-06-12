@@ -1,18 +1,24 @@
 "use client";
 
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { catalogApi, queryKeys, supplierApi, vetApi } from "@wafrivet/api";
+import { catalogApi, pickCheapestOffer, queryKeys, supplierApi, vetApi } from "@wafrivet/api";
 import type {
   CreateShopperAddressDto,
   DraftCartDto,
+  MarketRangeDto,
   MasterSkuDto,
+  OfferCreateDto,
+  OfferUpdateDto,
   OrderListItemDto,
   OrderListResponseDto,
+  PriceComparisonResponseDto,
   ShopperAddressDto,
   ShopperAddressListResponseDto,
   ShopperProfileDto,
   ShopperWishlistItemDto,
   ShopperWishlistResponseDto,
+  SupplierOfferDto,
+  SupplierSubOrderDto,
   UpdateShopperAddressDto,
   UpdateShopperAvatarDto,
   UpdateShopperProfileDto,
@@ -22,7 +28,11 @@ import type {
 import { useAuth } from "@wafrivet/auth";
 import { parseRegionList } from "@/lib/shopLocation";
 import { shopBff } from "@/lib/shopBff";
-import { canUseNotifications, canUseVetCommerce } from "@/lib/shopperCapabilities";
+import {
+  canUseNotifications,
+  canUseServerCommerce,
+  canUseVetCommerce,
+} from "@/lib/shopperCapabilities";
 
 export function useCatalog(search?: string) {
   return useQuery({
@@ -210,15 +220,20 @@ export function useWishlistSkuSet() {
   return new Set((items ?? []).map((i) => i.masterSkuId));
 }
 
-export function useShopperCommerceEnabled() {
+export function useServerCommerceEnabled() {
   const { roles, primary } = useGatewayRoles();
-  return canUseVetCommerce(roles, primary);
+  return canUseServerCommerce(roles, primary);
+}
+
+/** @deprecated Use useServerCommerceEnabled */
+export function useShopperCommerceEnabled() {
+  return useServerCommerceEnabled();
 }
 
 export function useShopperOrders(params?: { limit?: number }) {
-  const enabled = useShopperCommerceEnabled();
+  const enabled = useServerCommerceEnabled();
   return useQuery({
-    queryKey: queryKeys.vet.orders(params),
+    queryKey: queryKeys.shopperCommerce.orders(params),
     queryFn: async () => {
       const q = new URLSearchParams();
       if (params?.limit) q.set("limit", String(params.limit));
@@ -230,9 +245,9 @@ export function useShopperOrders(params?: { limit?: number }) {
 }
 
 export function useShopperOrder(orderId: string) {
-  const enabled = useShopperCommerceEnabled() && Boolean(orderId);
+  const enabled = useServerCommerceEnabled() && Boolean(orderId);
   return useQuery({
-    queryKey: queryKeys.vet.order(orderId),
+    queryKey: queryKeys.shopperCommerce.order(orderId),
     queryFn: () => shopBff<Record<string, unknown>>(`/api/orders/${orderId}`),
     enabled,
   });
@@ -248,9 +263,9 @@ export function useShopperOrderStats() {
 }
 
 export function useShopperDraft() {
-  const enabled = useShopperCommerceEnabled();
+  const enabled = useServerCommerceEnabled();
   return useQuery({
-    queryKey: queryKeys.vet.draft,
+    queryKey: queryKeys.shopperCommerce.draft,
     queryFn: () => shopBff<DraftCartDto>("/api/procurement/draft"),
     enabled,
     retry: false,
@@ -262,7 +277,7 @@ export function useUpsertDraft() {
   return useMutation({
     mutationFn: (body: { items: { offerId: string; quantity: number }[] }) =>
       shopBff<DraftCartDto>("/api/procurement/draft", { method: "POST", json: body }),
-    onSuccess: () => void qc.invalidateQueries({ queryKey: queryKeys.vet.draft }),
+    onSuccess: () => void qc.invalidateQueries({ queryKey: queryKeys.shopperCommerce.draft }),
   });
 }
 
@@ -271,8 +286,8 @@ export function useSubmitOrder() {
   return useMutation({
     mutationFn: () => shopBff<Record<string, unknown>>("/api/procurement/submit", { method: "POST" }),
     onSuccess: () => {
-      void qc.invalidateQueries({ queryKey: queryKeys.vet.draft });
-      void qc.invalidateQueries({ queryKey: ["vet", "orders"] });
+      void qc.invalidateQueries({ queryKey: queryKeys.shopperCommerce.draft });
+      void qc.invalidateQueries({ queryKey: ["shopper", "orders"] });
     },
   });
 }
@@ -287,8 +302,64 @@ export function useInitializePayment() {
   });
 }
 
+export function useMarketRange(masterSkuId: string) {
+  return useQuery({
+    queryKey: queryKeys.market.range(masterSkuId),
+    queryFn: () => shopBff<MarketRangeDto>(`/api/market/range/${masterSkuId}`),
+    enabled: Boolean(masterSkuId),
+  });
+}
+
+export function useCatalogCompare(masterSkuId: string) {
+  const enabled = useServerCommerceEnabled() && Boolean(masterSkuId);
+  return useQuery({
+    queryKey: queryKeys.market.compare(masterSkuId),
+    queryFn: () => shopBff<PriceComparisonResponseDto>(`/api/catalog/${masterSkuId}/compare`),
+    enabled,
+  });
+}
+
+export function useAddToCart() {
+  const qc = useQueryClient();
+  const upsertDraft = useUpsertDraft();
+  const { data: draft } = useShopperDraft();
+
+  return useMutation({
+    mutationFn: async ({
+      masterSkuId,
+      quantity,
+    }: {
+      masterSkuId: string;
+      quantity: number;
+    }) => {
+      const comparison = await shopBff<PriceComparisonResponseDto>(
+        `/api/catalog/${masterSkuId}/compare`,
+      );
+      const offer = pickCheapestOffer(comparison);
+      if (!offer) {
+        throw new Error("No in-stock offers available for this product");
+      }
+
+      const existing =
+        draft?.supplierGroups?.flatMap((g) => g.items ?? []).map((i) => ({
+          offerId: i.offerId,
+          quantity: i.quantity,
+        })) ?? [];
+
+      const merged = new Map(existing.map((i) => [i.offerId, i.quantity]));
+      merged.set(offer.id, (merged.get(offer.id) ?? 0) + quantity);
+
+      return upsertDraft.mutateAsync({
+        items: [...merged.entries()].map(([offerId, qty]) => ({ offerId, quantity: qty })),
+      });
+    },
+    onSuccess: () => void qc.invalidateQueries({ queryKey: queryKeys.shopperCommerce.draft }),
+  });
+}
+
 export function useVetProfile() {
-  const enabled = useShopperCommerceEnabled();
+  const { roles, primary } = useGatewayRoles();
+  const enabled = canUseVetCommerce(roles, primary);
   return useQuery({
     queryKey: ["vet", "profile"],
     queryFn: () => shopBff<VetProfileDto>("/api/vet/profile"),
@@ -356,10 +427,58 @@ export function useVetOrders() {
   });
 }
 
-export function useSupplierOffers() {
+export function useSupplierOffers(params?: { limit?: number }) {
   return useQuery({
-    queryKey: queryKeys.supplier.offers(),
-    queryFn: () => supplierApi.listSupplierOffers({ limit: 20 }),
+    queryKey: queryKeys.supplier.offers(params),
+    queryFn: async () => {
+      const data = await shopBff<{ data?: SupplierOfferDto[] } | SupplierOfferDto[]>(
+        `/api/supplier/offers?limit=${params?.limit ?? 50}`,
+      );
+      if (Array.isArray(data)) return data;
+      return data.data ?? [];
+    },
+  });
+}
+
+export function useCreateSupplierOffer() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (body: OfferCreateDto) =>
+      shopBff<SupplierOfferDto>("/api/supplier/offers", { method: "POST", json: body }),
+    onSuccess: () => void qc.invalidateQueries({ queryKey: ["supplier", "offers"] }),
+  });
+}
+
+export function useUpdateSupplierOffer() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: ({ offerId, ...body }: OfferUpdateDto & { offerId: string }) =>
+      shopBff<SupplierOfferDto>(`/api/supplier/offers/${offerId}`, {
+        method: "PATCH",
+        json: body,
+      }),
+    onSuccess: () => void qc.invalidateQueries({ queryKey: ["supplier", "offers"] }),
+  });
+}
+
+export function useDeleteSupplierOffer() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (offerId: string) =>
+      shopBff<void>(`/api/supplier/offers/${offerId}`, { method: "DELETE" }),
+    onSuccess: () => void qc.invalidateQueries({ queryKey: ["supplier", "offers"] }),
+  });
+}
+
+export function useSupplierOrders(params?: { limit?: number }) {
+  return useQuery({
+    queryKey: queryKeys.supplier.orders(params),
+    queryFn: async () => {
+      const data = await shopBff<{ data?: SupplierSubOrderDto[] }>(
+        `/api/supplier/orders?limit=${params?.limit ?? 30}`,
+      );
+      return data.data ?? [];
+    },
   });
 }
 

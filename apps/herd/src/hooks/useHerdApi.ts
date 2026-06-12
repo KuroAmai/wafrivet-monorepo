@@ -1,5 +1,6 @@
-import { useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { herdApi, queryKeys } from "@wafrivet/api";
+import type { CreateAnimalDto } from "@wafrivet/types";
 import { useAuth } from "@wafrivet/auth";
 
 export function useAnimals() {
@@ -33,5 +34,13 @@ export function useAiContext(animalUid: string) {
     queryKey: ["herd", "ai-context", animalUid] as const,
     queryFn: () => herdApi.postAiContext(animalUid),
     enabled: Boolean(animalUid),
+  });
+}
+
+export function useCreateAnimal() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (body: CreateAnimalDto) => herdApi.createAnimal(body),
+    onSuccess: () => void qc.invalidateQueries({ queryKey: queryKeys.herd.animals() }),
   });
 }
