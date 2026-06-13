@@ -61,6 +61,47 @@ export type AdminUserListResponseDto = {
   meta: CursorMeta;
 };
 
+export type AdminUserRoleAssignmentDto = {
+  role: string;
+  status: string;
+};
+
+export type AdminUserStatItemDto = {
+  key: string;
+  label: string;
+  value: string | number;
+  hint?: string;
+};
+
+export type AdminUserEntityKind =
+  | "admin"
+  | "support"
+  | "farmer"
+  | "vet"
+  | "supplier"
+  | "manufacturer"
+  | "customer"
+  | "rider"
+  | "generic";
+
+export type AdminUserEntitySummaryDto = {
+  kind: AdminUserEntityKind;
+  title: string;
+  subtitle: string | null;
+  address: string | null;
+  regionName: string | null;
+  kycStatus: string | null;
+  verificationLabel: string | null;
+  stats: AdminUserStatItemDto[];
+};
+
+export type AdminUserActivityItemDto = {
+  id: string;
+  text: string;
+  time: string;
+  type: string;
+};
+
 export type AdminUserDetailDto = {
   id: string;
   email: string;
@@ -68,10 +109,15 @@ export type AdminUserDetailDto = {
   lastName: string | null;
   phone: string | null;
   role: string;
+  roles: string[];
+  roleAssignments: AdminUserRoleAssignmentDto[];
   isActive: boolean;
   isVerified: boolean;
+  mfaEnabled: boolean;
   createdAt: string;
   updatedAt: string;
   lastLoginAt: string | null;
   emailVerifiedAt: string | null;
+  entity: AdminUserEntitySummaryDto;
+  recentActivity: AdminUserActivityItemDto[];
 };
