@@ -1,7 +1,7 @@
 import type { UserRole } from "@wafrivet/types";
 
 const VET_COMMERCE_ROLES: UserRole[] = ["VET"];
-const SHOPPER_COMMERCE_ROLES: UserRole[] = ["REGULAR_CUSTOMER", "FARMER"];
+const SHOPPER_COMMERCE_ROLES: UserRole[] = ["REGULAR_CUSTOMER", "FARMER", "SECURITY_COMPANY"];
 const SERVER_COMMERCE_ROLES: UserRole[] = [...VET_COMMERCE_ROLES, ...SHOPPER_COMMERCE_ROLES];
 const NOTIFICATION_ROLES: UserRole[] = ["VET", "SUPPLIER", "RIDER"];
 
@@ -45,7 +45,18 @@ export function canUseNotifications(roles?: (UserRole | string)[] | null, primar
   return normalized.some((r) => NOTIFICATION_ROLES.includes(r));
 }
 
-export function isRegularCustomerOnly(roles?: (UserRole | string)[] | null, primary?: UserRole | string | null): boolean {
+export function isSecurityCompanyBuyer(
+  roles?: (UserRole | string)[] | null,
+  primary?: UserRole | string | null,
+): boolean {
+  const normalized = normalizeGatewayRoles(roles, primary);
+  return normalized.includes("SECURITY_COMPANY");
+}
+
+export function isRegularCustomerOnly(
+  roles?: (UserRole | string)[] | null,
+  primary?: UserRole | string | null,
+): boolean {
   const normalized = normalizeGatewayRoles(roles, primary);
   return normalized.length > 0 && normalized.every((r) => r === "REGULAR_CUSTOMER" || r === "PERSON");
 }

@@ -19,10 +19,12 @@ import {
   useInitializePayment,
   useShopperAddresses,
   useServerCommerceEnabled,
+  useSecurityDogs,
   useSubmitOrder,
+  useUpsertDraft,
   useVetProfile,
 } from "@/hooks/useShopApi";
-import { canUseShopperCommerce, canUseVetCommerce } from "@/lib/shopperCapabilities";
+import { canUseShopperCommerce, canUseVetCommerce, isSecurityCompanyBuyer } from "@/lib/shopperCapabilities";
 import { fullNameFromProfile } from "@/lib/mapAuthMe";
 import { formatShopperAddressLine, pickDefaultShopperAddress } from "@/lib/formatShopperAddress";
 
@@ -42,13 +44,17 @@ export default function CheckoutPage() {
   const { items, subtotal, delivery, total, serverCommerce, orderId } = useShopCart();
   const { data: vetProfile } = useVetProfile();
   const { data: shopperAddresses } = useShopperAddresses();
+  const { data: dogs } = useSecurityDogs();
+  const upsertDraft = useUpsertDraft();
   const submitOrder = useSubmitOrder();
   const initPayment = useInitializePayment();
   const [paying, setPaying] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [linkedAnimalIds, setLinkedAnimalIds] = useState<string[]>([]);
 
   const isVetBuyer = canUseVetCommerce(profile?.roles, profile?.role);
   const isShopperBuyer = canUseShopperCommerce(profile?.roles, profile?.role);
+  const isSecurityBuyer = isSecurityCompanyBuyer(profile?.roles, profile?.role);
   const defaultShopperAddr = pickDefaultShopperAddress(shopperAddresses);
   const displayName = fullNameFromProfile(profile) ?? "Customer";
   const addressLine =
@@ -57,14 +63,31 @@ export default function CheckoutPage() {
     `Delivery region: ${region?.regionName ?? "Not selected"}`;
   const phone = vetProfile?.phone ?? defaultShopperAddr?.phone ?? profile?.phone ?? "—";
 
+  const toggleDog = (animalUid: string) => {
+    setLinkedAnimalIds((current) =>
+      current.includes(animalUid)
+        ? current.filter((id) => id !== animalUid)
+        : [...current, animalUid],
+    );
+  };
+
   const handlePay = async () => {
     if (!serverCommerce) return;
     setPaying(true);
     setError(null);
     try {
+      if (items.length > 0) {
+        await upsertDraft.mutateAsync({
+          items: items.map((item) => ({ offerId: item.offerId, quantity: item.quantity })),
+          linkedAnimalIds: isSecurityBuyer ? linkedAnimalIds : undefined,
+        });
+      }
+
       let oid = orderId;
       if (!oid) {
-        const submitted = await submitOrder.mutateAsync();
+        const submitted = await submitOrder.mutateAsync({
+          linkedAnimalIds: isSecurityBuyer ? linkedAnimalIds : undefined,
+        });
         oid = String((submitted as { id?: string }).id ?? (submitted as { orderId?: string }).orderId ?? "");
       }
       if (!oid) throw new Error("Could not create order");
@@ -128,6 +151,42 @@ export default function CheckoutPage() {
                 </p>
               </div>
             </section>
+
+            {isSecurityBuyer ? (
+              <section className="bg-white p-8 rounded-[40px] border border-gray-100 shadow-sm">
+                <div className="flex items-center gap-3 mb-6">
+                  <div className="w-10 h-10 bg-[#2D4D31]/5 rounded-xl flex items-center justify-center text-[#2D4D31]">
+                    <SealCheck size={22} weight="fill" />
+                  </div>
+                  <h2 className="text-[18px] font-black text-gray-900">Link to dogs</h2>
+                </div>
+                <p className="text-[14px] text-gray-500 mb-4">
+                  Select which dogs this order is for. Treatments will be logged to their records on delivery.
+                </p>
+                <div className="space-y-2 max-h-48 overflow-y-auto">
+                  {(dogs ?? []).length ? (
+                    (dogs ?? []).map((dog) => (
+                      <label
+                        key={dog.animalUid}
+                        className="flex items-center gap-3 p-3 rounded-xl border border-gray-100 bg-gray-50 cursor-pointer"
+                      >
+                        <input
+                          type="checkbox"
+                          checked={linkedAnimalIds.includes(dog.animalUid)}
+                          onChange={() => toggleDog(dog.animalUid)}
+                        />
+                        <span className="text-[14px] font-semibold text-gray-900">
+                          {dog.name ?? dog.animalUid}
+                          {dog.breed ? ` · ${dog.breed}` : ""}
+                        </span>
+                      </label>
+                    ))
+                  ) : (
+                    <p className="text-[13px] text-gray-400">No dogs registered yet. You can still checkout.</p>
+                  )}
+                </div>
+              </section>
+            ) : null}
 
             <section className="bg-white p-8 rounded-[40px] border border-gray-100 shadow-sm">
               <div className="flex items-center gap-3 mb-6">

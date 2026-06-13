@@ -21,6 +21,8 @@ export async function resolveProcurementPrefix(): Promise<ProcurementPrefix | nu
   }
 
   if (roles.has("VET")) return "/vet";
-  if (roles.has("REGULAR_CUSTOMER") || roles.has("FARMER")) return "/shopper";
+  if (roles.has("REGULAR_CUSTOMER") || roles.has("FARMER") || roles.has("SECURITY_COMPANY")) {
+    return "/shopper";
+  }
   return null;
 }

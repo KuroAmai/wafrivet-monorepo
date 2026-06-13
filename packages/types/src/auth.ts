@@ -9,7 +9,8 @@ export type UserRole =
   | "RIDER"
   | "FARMER"
   | "REGULAR_CUSTOMER"
-  | "PERSON";
+  | "PERSON"
+  | "SECURITY_COMPANY";
 
 export type HerdRole = "FARMER" | "VETERINARIAN" | "FIELD_AGENT" | "ADMIN" | "SUPPORT";
 

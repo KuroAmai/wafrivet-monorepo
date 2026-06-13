@@ -21,6 +21,12 @@ import AnimalList from "./pages/AnimalList";
 import AddAnimal from "./pages/AddAnimal";
 import FarmPortal from "./pages/FarmPortal";
 import Login from "./pages/Login";
+import SecurityLanding from "./pages/SecurityLanding";
+import SecurityOnboarding from "./pages/SecurityOnboarding";
+import KennelDashboard from "./pages/KennelDashboard";
+import KennelBilling from "./pages/KennelBilling";
+import DogProfile from "./pages/DogProfile";
+import PublicDogProfile from "./pages/PublicDogProfile";
 import { RequireAuth } from "@/components/RequireAuth";
 
 function AppContent() {
@@ -33,12 +39,17 @@ function AppContent() {
 
   if (!mounted) return null;
 
-  const isLogin = location.pathname === "/login";
+  const isPublicRoute =
+    location.pathname === "/login" ||
+    location.pathname === "/security" ||
+    location.pathname.startsWith("/k/");
 
-  if (isLogin) {
+  if (isPublicRoute) {
     return (
       <Routes>
         <Route path="/login" element={<Login />} />
+        <Route path="/security" element={<SecurityLanding />} />
+        <Route path="/k/:kId" element={<PublicDogProfile />} />
       </Routes>
     );
   }
@@ -63,6 +74,13 @@ function AppContent() {
           <Route path="/animals" element={<AnimalList />} />
           <Route path="/animals/add" element={<AddAnimal />} />
           <Route path="/farms/:id/portal" element={<FarmPortal />} />
+          <Route path="/security" element={<SecurityLanding />} />
+          <Route path="/onboarding/security" element={<SecurityOnboarding />} />
+          <Route path="/kennel" element={<KennelDashboard />} />
+          <Route path="/kennel/billing" element={<KennelBilling />} />
+          <Route path="/dogs/:id" element={<DogProfile />} />
+          <Route path="/dogs/add" element={<AddAnimal />} />
+          <Route path="/k/:kId" element={<PublicDogProfile />} />
           {/* Fallback for other routes */}
           <Route path="*" element={<Dashboard />} />
         </Routes>

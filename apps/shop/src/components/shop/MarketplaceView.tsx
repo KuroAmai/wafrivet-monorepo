@@ -10,12 +10,19 @@ import { getAccessToken, isMockDataEnabled } from "@wafrivet/api";
 import { getCentralLoginUrl } from "@wafrivet/auth";
 import { ApiQueryFeedback } from "@wafrivet/ui";
 import { formatOrderDisplay, useCatalog, useServerCommerceEnabled, useShopperOrders } from "@/hooks/useShopApi";
+import { useAuth } from "@wafrivet/auth";
+import { isSecurityCompanyBuyer } from "@/lib/shopperCapabilities";
 
 const ANIMALS = ["Cattle", "Poultry", "Pigs", "Goats", "Sheep"];
+const DOG_CATEGORIES = ["Dewormers", "Flea & tick", "Vitamins", "Wound care", "Training aids"];
 
 export function MarketplaceView() {
   const [search, setSearch] = useState("");
   const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const { user } = useAuth();
+  const profile = user as { roles?: string[]; role?: string } | null;
+  const dogMode = isSecurityCompanyBuyer(profile?.roles, profile?.role);
+  const categoryChips = dogMode ? DOG_CATEGORIES : ANIMALS;
 
   const { data: catalogItems, isLoading, isError, error, refetch } = useCatalog(search);
   const serverCommerce = useServerCommerceEnabled();
@@ -55,7 +62,7 @@ export function MarketplaceView() {
               type="text"
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              placeholder="Search..."
+              placeholder={dogMode ? "Search dog supplies..." : "Search..."}
               className="w-full h-14 md:h-20 text-center bg-white rounded-xl md:rounded-[32px] text-[15px] md:text-[20px] font-medium outline-none focus:ring-4 focus:ring-[#2D4D31]/5 transition-all border border-gray-100 text-gray-900 placeholder:text-gray-300"
             />
           </div>
@@ -85,7 +92,11 @@ export function MarketplaceView() {
                    </div>
                    <div className="flex flex-col">
                       <h2 className="text-[16px] md:text-[18px] font-bold text-gray-900 leading-tight">Sign in for a personalized experience</h2>
-                      <p className="text-[13px] text-gray-500 mt-1">Track orders and see recommendations for your animals</p>
+                      <p className="text-[13px] text-gray-500 mt-1">
+                        {dogMode
+                          ? "Track orders and shop supplies tailored for your kennel"
+                          : "Track orders and see recommendations for your animals"}
+                      </p>
                    </div>
                 </div>
                 <button onClick={handleProtectedAction} className="w-full sm:w-auto bg-[#2D4D31] text-white px-8 py-3.5 rounded-xl font-bold text-[14px] hover:bg-[#243f28] transition-colors shrink-0">
@@ -97,7 +108,7 @@ export function MarketplaceView() {
 
         <section className="mb-12">
           <div className="flex items-center gap-3 overflow-x-auto no-scrollbar py-4 px-2">
-            {ANIMALS.map((animal) => (
+            {categoryChips.map((animal) => (
               <button key={animal} className="flex-shrink-0 flex items-center gap-2 px-6 py-3.5 bg-white border border-gray-100 rounded-2xl group transition-all">
                 <PawPrint size={18} className="text-gray-300 group-hover:text-[#2D4D31]" />
                 <span className="font-bold text-[14px] text-gray-600 group-hover:text-[#2D4D31]">{animal}</span>
@@ -120,7 +131,9 @@ export function MarketplaceView() {
 
         <section>
           <div className="flex flex-col items-center justify-center mb-12 px-2 text-center">
-            <h2 className="text-[22px] font-black text-gray-900 tracking-tight">Recommended for you</h2>
+            <h2 className="text-[22px] font-black text-gray-900 tracking-tight">
+              {dogMode ? "Recommended for your kennel" : "Recommended for you"}
+            </h2>
           </div>
           
           <ApiQueryFeedback

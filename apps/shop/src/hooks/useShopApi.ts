@@ -32,6 +32,7 @@ import {
   canUseNotifications,
   canUseServerCommerce,
   canUseVetCommerce,
+  isSecurityCompanyBuyer,
 } from "@/lib/shopperCapabilities";
 
 export function useCatalog(search?: string) {
@@ -275,8 +276,10 @@ export function useShopperDraft() {
 export function useUpsertDraft() {
   const qc = useQueryClient();
   return useMutation({
-    mutationFn: (body: { items: { offerId: string; quantity: number }[] }) =>
-      shopBff<DraftCartDto>("/api/procurement/draft", { method: "POST", json: body }),
+    mutationFn: (body: {
+      items: { offerId: string; quantity: number }[];
+      linkedAnimalIds?: string[];
+    }) => shopBff<DraftCartDto>("/api/procurement/draft", { method: "POST", json: body }),
     onSuccess: () => void qc.invalidateQueries({ queryKey: queryKeys.shopperCommerce.draft }),
   });
 }
@@ -284,11 +287,32 @@ export function useUpsertDraft() {
 export function useSubmitOrder() {
   const qc = useQueryClient();
   return useMutation({
-    mutationFn: () => shopBff<Record<string, unknown>>("/api/procurement/submit", { method: "POST" }),
+    mutationFn: (body?: { linkedAnimalIds?: string[] }) =>
+      shopBff<Record<string, unknown>>("/api/procurement/submit", {
+        method: "POST",
+        json: body ?? {},
+      }),
     onSuccess: () => {
       void qc.invalidateQueries({ queryKey: queryKeys.shopperCommerce.draft });
       void qc.invalidateQueries({ queryKey: ["shopper", "orders"] });
     },
+  });
+}
+
+export type HerdDogListItem = {
+  animalUid: string;
+  name?: string | null;
+  breed?: string | null;
+  species?: string;
+};
+
+export function useSecurityDogs() {
+  const { roles, primary } = useGatewayRoles();
+  const enabled = isSecurityCompanyBuyer(roles, primary);
+  return useQuery({
+    queryKey: ["shop", "security-dogs"],
+    queryFn: () => shopBff<HerdDogListItem[]>("/api/herd/animals"),
+    enabled,
   });
 }
 

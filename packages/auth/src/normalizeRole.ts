@@ -17,6 +17,7 @@ export function normalizeUserRole(role?: string | null): UserRole | null {
     regular_customer: "customer",
     customer: "customer",
     admin: "admin",
+    security_company: "security_company",
   };
   return map[key] ?? null;
 }

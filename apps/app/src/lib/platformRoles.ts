@@ -65,6 +65,10 @@ export function pickPrimaryPlatformRole(
 }
 
 export function pickPrimaryProductRole(roles: (string | undefined)[]): UserRole | null {
+  const upper = roles.map((role) => role?.toUpperCase()).filter(Boolean) as string[];
+  if (upper.includes("SECURITY_COMPANY")) {
+    return "security_company";
+  }
   const platform = pickPrimaryPlatformRole(roles);
   if (!platform) return null;
   return platformRoleToProductRole(platform);

@@ -6,7 +6,8 @@ export type UserRole =
   | "chemist"
   | "distributor"
   | "customer"
-  | "admin";
+  | "admin"
+  | "security_company";
 
 export function redirectByRole(role: UserRole): string {
   const appUrl = process.env.NEXT_PUBLIC_APP_URL || "https://app.wafrivet.com";
@@ -16,6 +17,8 @@ export function redirectByRole(role: UserRole): string {
     case "farmer":
     case "vet":
       return herdUrl;
+    case "security_company":
+      return `${herdUrl}/onboarding/security`;
     case "chemist":
     case "distributor":
       return getShopEntryUrl(role);

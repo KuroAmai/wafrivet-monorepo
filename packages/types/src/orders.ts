@@ -59,6 +59,7 @@ export type DraftCartDto = {
   }>;
   totalAmount?: number;
   updatedAt?: string;
+  linkedAnimalIds?: string[];
 };
 
 export type VetProfileDto = {

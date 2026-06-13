@@ -25,7 +25,7 @@ const emailOrPhoneSchema = z
     { message: "Enter a valid phone number (10+ digits) or email address" },
   );
 
-const signupSchema = z.object({
+const baseSignupSchema = z.object({
   fullName: z.string().min(2, "Full name is required"),
   emailOrPhone: emailOrPhoneSchema,
   password: z
@@ -35,7 +35,14 @@ const signupSchema = z.object({
     .regex(/[0-9]/, "Password must include at least one number"),
 });
 
-type SignupFormData = z.infer<typeof signupSchema>;
+const securitySignupSchema = baseSignupSchema.extend({
+  companyName: z.string().min(2, "Company name is required"),
+  state: z.string().min(2, "State is required"),
+  lga: z.string().optional(),
+  estimatedDogCount: z.coerce.number().min(0, "Enter estimated dog count"),
+});
+
+type SignupFormData = z.infer<typeof securitySignupSchema>;
 
 function Field({
   label,
@@ -76,21 +83,19 @@ function applyFieldErrors(
   setError: ReturnType<typeof useForm<SignupFormData>>["setError"],
 ) {
   if (!fieldErrors) return;
-  if (fieldErrors.fullName) {
-    setError("fullName", { type: "server", message: fieldErrors.fullName });
-  }
+  if (fieldErrors.fullName) setError("fullName", { type: "server", message: fieldErrors.fullName });
   if (fieldErrors.emailOrPhone) {
     setError("emailOrPhone", { type: "server", message: fieldErrors.emailOrPhone });
   }
-  if (fieldErrors.password) {
-    setError("password", { type: "server", message: fieldErrors.password });
-  }
+  if (fieldErrors.password) setError("password", { type: "server", message: fieldErrors.password });
 }
 
 export function SignupForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const returnTo = searchParams.get("returnTo");
+  const signupType = searchParams.get("type");
+  const isSecurityCompany = signupType === "security_company";
   const [showPass, setShowPass] = useState(false);
 
   useEffect(() => {
@@ -106,11 +111,15 @@ export function SignupForm() {
     clearErrors,
     formState: { errors, isSubmitting },
   } = useForm<SignupFormData>({
-    resolver: zodResolver(signupSchema),
+    resolver: zodResolver(isSecurityCompany ? securitySignupSchema : baseSignupSchema),
     defaultValues: {
       fullName: "",
       emailOrPhone: "",
       password: "",
+      companyName: "",
+      state: "",
+      lga: "",
+      estimatedDogCount: 0,
     },
   });
 
@@ -122,16 +131,33 @@ export function SignupForm() {
     const firstName = parts[0] ?? "";
     const lastName = parts.slice(1).join(" ") || firstName;
     const email = toAuthEmail(data.emailOrPhone);
+    const phone = data.emailOrPhone.includes("@")
+      ? data.emailOrPhone
+      : data.emailOrPhone.replace(/\D/g, "");
 
-    const res = await fetch("/api/auth/signup", {
+    const endpoint = isSecurityCompany ? "/api/auth/register-security-company" : "/api/auth/signup";
+    const payload = isSecurityCompany
+      ? {
+          email,
+          password: data.password,
+          ownerName: data.fullName.trim(),
+          companyName: data.companyName,
+          phone,
+          state: data.state,
+          lga: data.lga || undefined,
+          estimatedDogCount: data.estimatedDogCount,
+        }
+      : {
+          firstName,
+          lastName,
+          email,
+          password: data.password,
+        };
+
+    const res = await fetch(endpoint, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        firstName,
-        lastName,
-        email,
-        password: data.password,
-      }),
+      body: JSON.stringify(payload),
     });
     const body = (await res.json().catch(() => ({}))) as {
       message?: string;
@@ -146,6 +172,9 @@ export function SignupForm() {
     if (typeof sessionStorage !== "undefined") {
       sessionStorage.setItem("wafrivet_pending_email", email);
       sessionStorage.setItem("wafrivet_pending_password", data.password);
+      if (isSecurityCompany) {
+        sessionStorage.setItem("wafrivet_signup_type", "security_company");
+      }
     }
     if (body.emailVerificationRequired === false) {
       router.push("/login?verified=1");
@@ -158,9 +187,13 @@ export function SignupForm() {
     <div>
       <div className="mb-8">
         <h1 className="text-[30px] font-semibold text-gray-900 tracking-tight leading-tight">
-          Create an account
+          {isSecurityCompany ? "Register your security company" : "Create an account"}
         </h1>
-        <p className="text-[15px] text-gray-600 mt-1.5">Join Wafrivet — it&apos;s free to get started</p>
+        <p className="text-[15px] text-gray-600 mt-1.5">
+          {isSecurityCompany
+            ? "Manage your kennel, dogs, and supplies on Wafrivet"
+            : "Join Wafrivet — it's free to get started"}
+        </p>
       </div>
 
       {apiError ? (
@@ -170,8 +203,38 @@ export function SignupForm() {
       ) : null}
 
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
+        {isSecurityCompany ? (
+          <>
+            <Field
+              label="Company name"
+              error={errors.companyName?.message}
+              registration={register("companyName")}
+              placeholder="e.g. Apex Guard Services"
+            />
+            <Field
+              label="State"
+              error={errors.state?.message}
+              registration={register("state")}
+              placeholder="e.g. Lagos"
+            />
+            <Field
+              label="LGA (optional)"
+              error={errors.lga?.message}
+              registration={register("lga")}
+              placeholder="e.g. Ikeja"
+            />
+            <Field
+              label="Estimated number of dogs"
+              type="number"
+              error={errors.estimatedDogCount?.message}
+              registration={register("estimatedDogCount")}
+              placeholder="0"
+            />
+          </>
+        ) : null}
+
         <Field
-          label="Full Name"
+          label={isSecurityCompany ? "Owner full name" : "Full Name"}
           error={errors.fullName?.message}
           registration={register("fullName")}
           placeholder="e.g. Emeka Okafor"
