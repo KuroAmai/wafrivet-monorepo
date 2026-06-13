@@ -1,9 +1,12 @@
 import type {
+  AdminCatalogListResponseDto,
   AdminOrderListResponseDto,
   AdminUserDetailDto,
   AdminUserListResponseDto,
   AdminWarRoomSnapshotDto,
+  EntityLifecycleStatus,
   OrderStatus,
+  OversightSupplierListResponseDto,
 } from "@wafrivet/types";
 import { apiClient } from "../client";
 
@@ -60,12 +63,35 @@ export async function updateOrderStatus(
   return data;
 }
 
-export async function listAdminCatalog(params?: { limit?: number; cursor?: string }) {
-  const { data } = await apiClient.get("/admin/catalog", { params });
+export async function listAdminCatalog(params?: {
+  limit?: number;
+  cursor?: string;
+  isActive?: boolean;
+  categoryId?: string;
+}): Promise<AdminCatalogListResponseDto> {
+  const { data } = await apiClient.get<AdminCatalogListResponseDto>("/admin/catalog", { params });
   return data;
 }
 
-export async function listOversightSuppliers(params?: { limit?: number; cursor?: string }) {
-  const { data } = await apiClient.get("/admin/oversight/suppliers", { params });
+export async function listOversightSuppliers(params?: {
+  limit?: number;
+  cursor?: string;
+  status?: EntityLifecycleStatus;
+}): Promise<OversightSupplierListResponseDto> {
+  const { data } = await apiClient.get<OversightSupplierListResponseDto>(
+    "/admin/oversight/suppliers",
+    { params },
+  );
+  return data;
+}
+
+export async function verifyOversightSupplier(
+  supplierId: string,
+  body: { action: "approve" | "reject"; notes?: string },
+): Promise<unknown> {
+  const { data } = await apiClient.patch(
+    `/admin/oversight/verify/supplier/${supplierId}`,
+    body,
+  );
   return data;
 }

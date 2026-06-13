@@ -53,17 +53,55 @@ export function useDeleteAdminUser() {
   });
 }
 
-export function useAdminOrders(params?: { limit?: number; cursor?: string }) {
+export function useAdminOrders(params?: {
+  limit?: number;
+  cursor?: string;
+  status?: import("@wafrivet/types").OrderStatus;
+}) {
   return useQuery({
     queryKey: queryKeys.admin.orders(params),
     queryFn: () => adminApi.listAdminOrders(params),
   });
 }
 
-export function useAdminCatalog(params?: { limit?: number; cursor?: string }) {
+export function useAdminCatalog(params?: {
+  limit?: number;
+  cursor?: string;
+  isActive?: boolean;
+  categoryId?: string;
+}) {
   return useQuery({
     queryKey: ["admin", "catalog", params] as const,
     queryFn: () => adminApi.listAdminCatalog(params),
+  });
+}
+
+export function useAdminOversightSuppliers(params?: {
+  limit?: number;
+  cursor?: string;
+  status?: import("@wafrivet/types").EntityLifecycleStatus;
+}) {
+  return useQuery({
+    queryKey: ["admin", "oversight", "suppliers", params] as const,
+    queryFn: () => adminApi.listOversightSuppliers(params),
+  });
+}
+
+export function useVerifyOversightSupplier() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({
+      supplierId,
+      action,
+      notes,
+    }: {
+      supplierId: string;
+      action: "approve" | "reject";
+      notes?: string;
+    }) => adminApi.verifyOversightSupplier(supplierId, { action, notes }),
+    onSuccess: () => {
+      void queryClient.invalidateQueries({ queryKey: ["admin", "oversight", "suppliers"] });
+    },
   });
 }
 

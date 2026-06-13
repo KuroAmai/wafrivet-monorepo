@@ -26,6 +26,8 @@ export type AdminOrderListItemDto = {
   status: OrderStatus;
   clinicId: string;
   clinicName: string;
+  supplierNames: string[];
+  paymentMethod: string | null;
   requiresColdChain: boolean;
   routeOptimizationFailed: boolean;
   itemCount: number;
@@ -120,4 +122,53 @@ export type AdminUserDetailDto = {
   emailVerifiedAt: string | null;
   entity: AdminUserEntitySummaryDto;
   recentActivity: AdminUserActivityItemDto[];
+};
+
+export type EntityLifecycleStatus = "pending" | "active" | "rejected";
+
+export type OversightSupplierListItemDto = {
+  id: string;
+  userId: string;
+  regionId: string;
+  name: string;
+  ownerName: string | null;
+  regionName: string;
+  phone: string;
+  address: string;
+  status: EntityLifecycleStatus;
+  isVerified: boolean;
+  nafdacLicense: string | null;
+  cacNumber: string | null;
+  verificationNotes: string | null;
+  kycVerifiedAt: string | null;
+  submittedAt: string;
+  createdAt: string;
+};
+
+export type OversightSupplierListResponseDto = {
+  data: OversightSupplierListItemDto[];
+  meta: CursorMeta;
+};
+
+export type AdminCatalogCategoryDto = {
+  id: string;
+  name: string;
+  slug: string;
+};
+
+export type AdminCatalogSkuListItemDto = {
+  id: string;
+  skuCode: string;
+  name: string;
+  genericName: string;
+  manufacturer: string;
+  nafdacRegNo: string | null;
+  isActive: boolean;
+  createdAt: string;
+  category: AdminCatalogCategoryDto;
+};
+
+export type AdminCatalogListResponseDto = {
+  data: AdminCatalogSkuListItemDto[];
+  meta: CursorMeta;
 };
