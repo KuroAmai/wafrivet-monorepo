@@ -14,6 +14,7 @@ export * as onboardingApi from "./modules/onboarding";
 export * as rolesApi from "./modules/roles";
 export * as regionsApi from "./modules/regions";
 export * as adminApi from "./modules/admin";
+export * as adminLivestockApi from "./modules/adminLivestock";
 export * as catalogApi from "./modules/catalog";
 export * as vetApi from "./modules/vet";
 export * as supplierApi from "./modules/supplier";

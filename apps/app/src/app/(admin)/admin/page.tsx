@@ -3,7 +3,7 @@
 import { useMemo, useState } from "react";
 import Link from "next/link";
 import { isMockDataEnabled } from "@wafrivet/api";
-import { useAdminOrders, useAdminUsers, useWarRoomSnapshot } from "@/hooks/useAdminApi";
+import { useAdminLivestockSummary, useAdminOrders, useAdminUsers, useWarRoomSnapshot } from "@/hooks/useAdminApi";
 import { cn } from "@/lib/utils";
 import { 
   Users, 
@@ -99,6 +99,7 @@ export default function AdminDashboard() {
   const { data: snapshot } = useWarRoomSnapshot();
   const { data: usersResponse } = useAdminUsers({ limit: 1 });
   const { data: ordersResponse } = useAdminOrders({ limit: 20 });
+  const { data: livestockSummary } = useAdminLivestockSummary();
 
   const statCards = useMemo(() => {
     if (!snapshot) return null;
@@ -421,22 +422,33 @@ export default function AdminDashboard() {
           <div className="bg-white p-10 rounded-[40px] border border-gray-100 shadow-sm">
             <h3 className="text-[18px] font-black text-gray-900 tracking-tight mb-8">Critical Vitals</h3>
             <div className="space-y-6">
-              {[
-                { id: "WAF-992", issue: "High Fever" },
-              ].map((alert, i) => (
-                <div key={i} className="flex items-center justify-between p-6 bg-orange-50 rounded-[32px] border border-orange-100">
-                  <div className="flex flex-col">
-                    <span className="text-[15px] font-bold text-gray-900">{alert.id}</span>
-                    <span className="text-[10px] font-black text-orange-400 uppercase tracking-widest mt-0.5">{alert.issue} Alert</span>
-                  </div>
-                  <Link 
-                    href={`/admin/livestock/vitals/${alert.id}`}
-                    className="bg-white text-orange-500 px-6 py-3 rounded-2xl text-[11px] font-black uppercase tracking-widest shadow-sm hover:bg-orange-50 transition-colors"
+              {(livestockSummary?.criticalAlerts ?? []).length > 0 ? (
+                livestockSummary!.criticalAlerts.map((alert) => (
+                  <div
+                    key={`${alert.animalUid}-${alert.message}`}
+                    className="flex items-center justify-between p-6 bg-orange-50 rounded-[32px] border border-orange-100"
                   >
-                    Escalate
-                  </Link>
+                    <div className="flex flex-col">
+                      <span className="text-[15px] font-bold text-gray-900">{alert.animalUid}</span>
+                      <span className="text-[10px] font-black text-orange-400 uppercase tracking-widest mt-0.5">
+                        {alert.message}
+                      </span>
+                    </div>
+                    <Link
+                      href={`/admin/livestock/vitals/${alert.animalUid}`}
+                      className="bg-white text-orange-500 px-6 py-3 rounded-2xl text-[11px] font-black uppercase tracking-widest shadow-sm hover:bg-orange-50 transition-colors"
+                    >
+                      Escalate
+                    </Link>
+                  </div>
+                ))
+              ) : (
+                <div className="p-6 bg-gray-50 rounded-[32px] border border-gray-100 text-center">
+                  <span className="text-[13px] font-bold text-gray-400">
+                    No high-severity livestock alerts
+                  </span>
                 </div>
-              ))}
+              )}
             </div>
           </div>
         </div>

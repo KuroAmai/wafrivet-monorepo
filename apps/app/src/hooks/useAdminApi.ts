@@ -1,7 +1,7 @@
 "use client";
 
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { adminApi, meApi, queryKeys } from "@wafrivet/api";
+import { adminApi, adminLivestockApi, meApi, queryKeys } from "@wafrivet/api";
 
 export function useWarRoomSnapshot() {
   return useQuery({
@@ -71,5 +71,87 @@ export function useDashboardLayout() {
   return useQuery({
     queryKey: ["me", "dashboard-layout"] as const,
     queryFn: () => meApi.getDashboardLayout(),
+  });
+}
+
+export function useAdminLivestockSummary() {
+  return useQuery({
+    queryKey: queryKeys.admin.livestockSummary,
+    queryFn: () => adminLivestockApi.getLivestockSummary(),
+  });
+}
+
+export function useAdminAnimals(params?: {
+  limit?: number;
+  cursor?: string;
+  search?: string;
+  species?: string;
+  status?: string;
+  farmId?: string;
+}) {
+  return useQuery({
+    queryKey: queryKeys.admin.livestockAnimals(params),
+    queryFn: () => adminLivestockApi.listAnimals(params),
+  });
+}
+
+export function useAdminAnimal(animalUid: string) {
+  return useQuery({
+    queryKey: queryKeys.admin.livestockAnimal(animalUid),
+    queryFn: () => adminLivestockApi.getAnimal(animalUid),
+    enabled: Boolean(animalUid),
+  });
+}
+
+export function useAdminAnimalClinical(animalUid: string) {
+  return useQuery({
+    queryKey: queryKeys.admin.livestockAnimalClinical(animalUid),
+    queryFn: () => adminLivestockApi.getAnimalClinical(animalUid),
+    enabled: Boolean(animalUid),
+  });
+}
+
+export function useAdminAnimalVitals(animalUid: string) {
+  return useQuery({
+    queryKey: queryKeys.admin.livestockAnimalVitals(animalUid),
+    queryFn: () => adminLivestockApi.getAnimalVitals(animalUid),
+    enabled: Boolean(animalUid),
+  });
+}
+
+export function useAdminHealthEvents(params?: {
+  limit?: number;
+  cursor?: string;
+  search?: string;
+  eventType?: string;
+  species?: string;
+}) {
+  return useQuery({
+    queryKey: queryKeys.admin.livestockHealthEvents(params),
+    queryFn: () => adminLivestockApi.listHealthEvents(params),
+  });
+}
+
+export function useAdminDiagnoses(params?: {
+  limit?: number;
+  cursor?: string;
+  search?: string;
+  status?: string;
+}) {
+  return useQuery({
+    queryKey: queryKeys.admin.livestockDiagnoses(params),
+    queryFn: () => adminLivestockApi.listDiagnoses(params),
+  });
+}
+
+export function useAdminValuations(params?: {
+  limit?: number;
+  cursor?: string;
+  search?: string;
+  species?: string;
+}) {
+  return useQuery({
+    queryKey: queryKeys.admin.livestockValuations(params),
+    queryFn: () => adminLivestockApi.listValuations(params),
   });
 }
