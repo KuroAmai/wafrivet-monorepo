@@ -10,7 +10,12 @@ export function useWarRoomSnapshot() {
   });
 }
 
-export function useAdminUsers(params?: { limit?: number; cursor?: string }) {
+export function useAdminUsers(params?: {
+  limit?: number;
+  cursor?: string;
+  role?: string;
+  isActive?: boolean;
+}) {
   return useQuery({
     queryKey: queryKeys.admin.users(params),
     queryFn: () => adminApi.listAdminUsers(params),

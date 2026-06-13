@@ -1,7 +1,13 @@
 "use client";
 
-import AllUsersPage from "../page";
+import { AdminUsersList } from "@/components/admin/AdminUsersList";
 
 export default function ChemistsPage() {
-  return <AllUsersPage />;
+  return (
+    <AdminUsersList
+      title="Chemists"
+      subtitle="Marketplace suppliers and chemist storefronts"
+      roleFilter="SUPPLIER"
+    />
+  );
 }

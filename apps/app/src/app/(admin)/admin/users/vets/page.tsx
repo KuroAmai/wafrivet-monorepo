@@ -1,7 +1,13 @@
 "use client";
 
-import AllUsersPage from "../page";
+import { AdminUsersList } from "@/components/admin/AdminUsersList";
 
 export default function VetsPage() {
-  return <AllUsersPage />;
+  return (
+    <AdminUsersList
+      title="Vets"
+      subtitle="Veterinary clinics and procurement accounts"
+      roleFilter="VET"
+    />
+  );
 }

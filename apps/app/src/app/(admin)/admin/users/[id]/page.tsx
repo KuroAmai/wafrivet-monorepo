@@ -27,6 +27,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { UserActivityFeed, UserRoleAssignments } from "@/components/admin/UserActivityFeed";
 import { UserEntityDetails, UserRoleStats } from "@/components/admin/UserRoleProfile";
+import { formatAdminUserRole } from "@/lib/adminUserRoles";
 
 function formatRelativeTime(iso: string | null | undefined): string {
   if (!iso) return "—";
@@ -236,7 +237,7 @@ export default function UserProfilePage({ params }: { params: Promise<{ id: stri
                 {user.isActive ? "Active" : "Inactive"}
               </span>
               <span className="px-4 py-1.5 bg-blue-50 text-blue-500 border border-blue-100 rounded-xl text-[11px] font-black uppercase tracking-wider">
-                {user.role.replace(/_/g, " ")}
+                {formatAdminUserRole(user.role)}
               </span>
               {user.isVerified ? (
                 <span className="px-4 py-1.5 bg-emerald-50 text-emerald-600 border border-emerald-100 rounded-xl text-[11px] font-black uppercase tracking-wider">

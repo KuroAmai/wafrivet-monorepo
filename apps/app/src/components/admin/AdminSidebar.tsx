@@ -33,6 +33,7 @@ import {
   Eye
 } from "@phosphor-icons/react";
 import { cn } from "@/lib/utils";
+import { ADMIN_USER_ROLE_NAV } from "@/lib/adminUserRoles";
 
 const NAV_STRUCTURE = [
   {
@@ -43,13 +44,19 @@ const NAV_STRUCTURE = [
   },
   {
     group: "USERS",
-    items: [
-      { label: "All Users", href: "/admin/users", icon: Users },
-      { label: "Farmers", href: "/admin/users/farmers", icon: UserCircle },
-      { label: "Vets", href: "/admin/users/vets", icon: Stethoscope },
-      { label: "Chemists", href: "/admin/users/chemists", icon: Storefront },
-      { label: "Distributors", href: "/admin/users/distributors", icon: Buildings },
-    ]
+    items: ADMIN_USER_ROLE_NAV.map((item) => ({
+      label: item.label,
+      href: item.href,
+      icon:
+        item.label === "All Users" ? Users :
+        item.label === "Admins" ? ShieldCheck :
+        item.label === "Farmers" ? UserCircle :
+        item.label === "Vets" ? Stethoscope :
+        item.label === "Chemists" ? Storefront :
+        item.label === "Distributors" ? Buildings :
+        item.label === "Customers" ? Users :
+        Truck,
+    })),
   },
   {
     group: "LIVESTOCK",
@@ -164,7 +171,14 @@ export function AdminSidebar() {
             </h4>
             <div className="bg-white rounded-[32px] border border-gray-100 shadow-sm overflow-hidden divide-y divide-gray-50">
               {group.items.map((item) => {
-                const isActive = pathname === item.href;
+                const isActive =
+                  pathname === item.href ||
+                  (item.href !== "/admin/users" && pathname.startsWith(`${item.href}/`)) ||
+                  (item.href === "/admin/users" &&
+                    pathname.startsWith("/admin/users") &&
+                    !ADMIN_USER_ROLE_NAV.some(
+                      (nav) => nav.href !== "/admin/users" && pathname.startsWith(nav.href),
+                    ));
                 return (
                   <Link
                     key={item.href}

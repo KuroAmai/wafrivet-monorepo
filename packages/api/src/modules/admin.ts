@@ -24,6 +24,8 @@ export async function listAdminOrders(params?: {
 export async function listAdminUsers(params?: {
   limit?: number;
   cursor?: string;
+  role?: string;
+  isActive?: boolean;
 }): Promise<AdminUserListResponseDto> {
   const { data } = await apiClient.get<AdminUserListResponseDto>("/admin/users", { params });
   return data;

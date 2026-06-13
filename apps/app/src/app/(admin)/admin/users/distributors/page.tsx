@@ -1,7 +1,13 @@
 "use client";
 
-import AllUsersPage from "../page";
+import { AdminUsersList } from "@/components/admin/AdminUsersList";
 
 export default function DistributorsPage() {
-  return <AllUsersPage />;
+  return (
+    <AdminUsersList
+      title="Distributors"
+      subtitle="Manufacturers and wholesale distributors"
+      roleFilter="MANUFACTURER"
+    />
+  );
 }
