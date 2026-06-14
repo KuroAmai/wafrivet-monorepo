@@ -9,7 +9,7 @@ import { useState, useEffect, useMemo } from "react";
 import { getAccessToken, isMockDataEnabled } from "@wafrivet/api";
 import { getCentralLoginUrl } from "@wafrivet/auth";
 import { ApiQueryFeedback } from "@wafrivet/ui";
-import { formatOrderDisplay, useCatalog, useServerCommerceEnabled, useShopperOrders } from "@/hooks/useShopApi";
+import { formatOrderDisplay, useCatalog, usePublicChemists, useServerCommerceEnabled, useShopperOrders } from "@/hooks/useShopApi";
 import { useAuth } from "@wafrivet/auth";
 import { isSecurityCompanyBuyer } from "@/lib/shopperCapabilities";
 
@@ -25,6 +25,13 @@ export function MarketplaceView() {
   const categoryChips = dogMode ? DOG_CATEGORIES : ANIMALS;
 
   const { data: catalogItems, isLoading, isError, error, refetch } = useCatalog(search);
+  const {
+    data: chemists,
+    isLoading: chemistsLoading,
+    isError: chemistsError,
+    error: chemistsQueryError,
+    refetch: refetchChemists,
+  } = usePublicChemists({ limit: 6 });
   const serverCommerce = useServerCommerceEnabled();
   const { data: orders } = useShopperOrders({ limit: 5 });
 
@@ -123,9 +130,24 @@ export function MarketplaceView() {
             <Link href="/chemists" className="text-[14px] font-bold text-[#2D4D31] hover:underline">View Map</Link>
           </div>
           <div className="flex gap-5 overflow-x-auto no-scrollbar pb-4">
-            <ChemistCard name="Health First Agro" rating={4.8} isOpen={true} image="https://images.unsplash.com/photo-1584308666744-24d5c474f2ae?auto=format&fit=crop&q=80&w=400" />
-            <ChemistCard name="Lagos Vet Hub" rating={4.9} isOpen={true} image="https://images.unsplash.com/photo-1516467508483-a7212febe31a?auto=format&fit=crop&q=80&w=400" />
-            <ChemistCard name="FarmSafe Pharma" rating={4.5} isOpen={false} image="https://images.unsplash.com/photo-1595079676339-1534801ad6cf?auto=format&fit=crop&q=80&w=400" />
+            <ApiQueryFeedback
+              isLoading={chemistsLoading}
+              isError={chemistsError}
+              errorMessage={(chemistsQueryError as Error)?.message}
+              isEmpty={!chemistsLoading && !chemistsError && !chemists?.length}
+              onRetry={() => refetchChemists()}
+            />
+            {(chemists ?? []).map((chemist) => (
+              <ChemistCard
+                key={chemist.id}
+                supplierId={chemist.id}
+                name={chemist.name}
+                verified={chemist.isVerified}
+                isOpen={chemist.isOpenNow}
+                bannerUrl={chemist.bannerUrl}
+                logoUrl={chemist.logoUrl}
+              />
+            ))}
           </div>
         </section>
 

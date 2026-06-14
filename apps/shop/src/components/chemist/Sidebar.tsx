@@ -38,8 +38,12 @@ export function Sidebar() {
       <div className="bg-white p-8 rounded-[40px] border border-gray-100 shadow-sm flex flex-col items-center text-center transition-all hover:border-[#2D4D31]/20">
         <div className="relative mb-6">
           <img
-            src={`https://api.dicebear.com/7.x/shapes/svg?seed=${encodeURIComponent(branchName)}&backgroundColor=b6e3f4`}
-            className="w-24 h-24 rounded-[32px] border-4 border-white shadow-xl shadow-gray-200/50"
+            src={
+              profile?.logoUrl
+                ? profile.logoUrl
+                : `https://api.dicebear.com/7.x/shapes/svg?seed=${encodeURIComponent(branchName)}&backgroundColor=b6e3f4`
+            }
+            className="w-24 h-24 rounded-[32px] border-4 border-white shadow-xl shadow-gray-200/50 object-cover"
             alt="Branch"
           />
           <div className="absolute -bottom-1 -right-1 w-8 h-8 bg-[#2D4D31] rounded-xl flex items-center justify-center text-white border-2 border-white">

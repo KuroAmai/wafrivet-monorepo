@@ -1,22 +1,35 @@
 "use client";
 
-import { Gear, User, Bell, ShieldCheck, ArrowRight } from "@phosphor-icons/react";
-import { useEffect, useState } from "react";
+import { Gear, User, Bell, ShieldCheck, ArrowRight, Storefront, Image as ImageIcon } from "@phosphor-icons/react";
+import Link from "next/link";
+import { useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
 import { ApiQueryFeedback } from "@wafrivet/ui";
 import type { SupplierProfileDto, UpdateSupplierProfileDto } from "@wafrivet/types";
-import { useSupplierProfile, useUpdateSupplierProfile } from "@/hooks/useShopApi";
+import {
+  useSupplierProfile,
+  useUpdateSupplierProfile,
+  useUploadSupplierBranding,
+} from "@/hooks/useShopApi";
+import {
+  CHEMIST_BANNER_PLACEHOLDER,
+  CHEMIST_PLACEHOLDER_IMAGE,
+} from "@/lib/chemistUtils";
 
 export default function SettingsPage() {
   const { data: profileRaw, isLoading, isError, error, refetch } = useSupplierProfile();
   const updateProfile = useUpdateSupplierProfile();
+  const uploadBranding = useUploadSupplierBranding();
   const profile = profileRaw as SupplierProfileDto | undefined;
+  const logoInputRef = useRef<HTMLInputElement>(null);
+  const bannerInputRef = useRef<HTMLInputElement>(null);
 
   const [form, setForm] = useState({
     name: "",
     phone: "",
     address: "",
     workingHours: "",
+    publicBio: "",
   });
   const [notifs, setNotifs] = useState({ orders: true, stock: true, marketing: false });
 
@@ -27,6 +40,7 @@ export default function SettingsPage() {
       phone: profile.phone ?? "",
       address: profile.address ?? "",
       workingHours: profile.workingHours ?? "",
+      publicBio: profile.publicBio ?? "",
     });
   }, [profile]);
 
@@ -36,6 +50,7 @@ export default function SettingsPage() {
       phone: form.phone.trim() || undefined,
       address: form.address.trim() || undefined,
       workingHours: form.workingHours.trim() || undefined,
+      publicBio: form.publicBio.trim() || undefined,
     };
     try {
       await updateProfile.mutateAsync(body);
@@ -44,6 +59,18 @@ export default function SettingsPage() {
       toast.error((e as Error).message ?? "Failed to save profile");
     }
   };
+
+  const handleBrandUpload = async (file: File, kind: "logo" | "banner") => {
+    try {
+      await uploadBranding.mutateAsync({ file, kind });
+      toast.success(kind === "logo" ? "Logo updated" : "Banner updated");
+    } catch (e) {
+      toast.error((e as Error).message ?? "Upload failed");
+    }
+  };
+
+  const previewBanner = profile?.bannerUrl ?? CHEMIST_BANNER_PLACEHOLDER;
+  const previewLogo = profile?.logoUrl ?? CHEMIST_PLACEHOLDER_IMAGE;
 
   return (
     <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-700">
@@ -139,6 +166,104 @@ export default function SettingsPage() {
             >
               {updateProfile.isPending ? "Saving…" : "Save Changes"}
             </button>
+          </div>
+
+          <div className="bg-white rounded-[40px] border border-gray-100 shadow-sm p-8">
+            <div className="flex items-center gap-3 mb-8">
+              <div className="w-10 h-10 bg-gray-50 rounded-xl flex items-center justify-center text-gray-900">
+                <Storefront size={22} weight="bold" />
+              </div>
+              <div>
+                <h3 className="text-[18px] font-black text-gray-900 tracking-tight">Public Storefront</h3>
+                <p className="text-[12px] text-gray-500">Logo, banner, and bio shown on your public chemist profile</p>
+              </div>
+            </div>
+
+            <div className="space-y-8">
+              <div>
+                <p className="text-[11px] font-black text-gray-400 uppercase tracking-widest ml-1 mb-3">
+                  Banner (max 5MB)
+                </p>
+                <div className="relative h-40 rounded-3xl overflow-hidden border border-gray-100">
+                  <img src={previewBanner} alt="Storefront banner preview" className="w-full h-full object-cover" />
+                </div>
+                <input
+                  ref={bannerInputRef}
+                  type="file"
+                  accept="image/jpeg,image/png,image/webp"
+                  className="hidden"
+                  onChange={(e) => {
+                    const file = e.target.files?.[0];
+                    if (file) void handleBrandUpload(file, "banner");
+                    e.target.value = "";
+                  }}
+                />
+                <button
+                  type="button"
+                  onClick={() => bannerInputRef.current?.click()}
+                  disabled={uploadBranding.isPending}
+                  className="mt-3 inline-flex items-center gap-2 px-5 py-3 bg-gray-50 rounded-2xl text-[13px] font-bold text-gray-700 hover:bg-gray-100 disabled:opacity-50"
+                >
+                  <ImageIcon size={18} weight="bold" />
+                  Upload banner
+                </button>
+              </div>
+
+              <div>
+                <p className="text-[11px] font-black text-gray-400 uppercase tracking-widest ml-1 mb-3">
+                  Logo (max 2MB)
+                </p>
+                <div className="flex items-center gap-4">
+                  <img
+                    src={previewLogo}
+                    alt="Storefront logo preview"
+                    className="w-24 h-24 rounded-3xl object-cover border border-gray-100"
+                  />
+                  <input
+                    ref={logoInputRef}
+                    type="file"
+                    accept="image/jpeg,image/png,image/webp"
+                    className="hidden"
+                    onChange={(e) => {
+                      const file = e.target.files?.[0];
+                      if (file) void handleBrandUpload(file, "logo");
+                      e.target.value = "";
+                    }}
+                  />
+                  <button
+                    type="button"
+                    onClick={() => logoInputRef.current?.click()}
+                    disabled={uploadBranding.isPending}
+                    className="inline-flex items-center gap-2 px-5 py-3 bg-gray-50 rounded-2xl text-[13px] font-bold text-gray-700 hover:bg-gray-100 disabled:opacity-50"
+                  >
+                    <ImageIcon size={18} weight="bold" />
+                    Upload logo
+                  </button>
+                </div>
+              </div>
+
+              <div className="space-y-2">
+                <label className="text-[11px] font-black text-gray-400 uppercase tracking-widest ml-4">
+                  Public bio
+                </label>
+                <textarea
+                  value={form.publicBio}
+                  onChange={(e) => setForm((f) => ({ ...f, publicBio: e.target.value }))}
+                  placeholder="Tell farmers about your branch, specialties, and services..."
+                  className="w-full px-6 py-4 bg-gray-50 border-none rounded-2xl text-[14px] font-bold h-32"
+                />
+              </div>
+
+              {profile?.id ? (
+                <Link
+                  href={`/chemists/${profile.id}`}
+                  className="inline-flex items-center gap-2 text-[13px] font-bold text-[#2D4D31] hover:underline"
+                >
+                  Preview public profile
+                  <ArrowRight size={16} weight="bold" />
+                </Link>
+              ) : null}
+            </div>
           </div>
 
           <div className="bg-white rounded-[40px] border border-gray-100 shadow-sm p-8">

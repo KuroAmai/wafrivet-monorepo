@@ -17,3 +17,18 @@ export async function shopBff<T>(path: string, init?: RequestInit & { json?: unk
   }
   return data as T;
 }
+
+export async function shopBffForm<T>(path: string, formData: FormData): Promise<T> {
+  const res = await fetch(path, {
+    method: "POST",
+    body: formData,
+    credentials: "same-origin",
+  });
+  const data = await res.json().catch(() => ({}));
+  if (!res.ok) {
+    const raw = (data as { message?: string | string[] }).message;
+    const message = Array.isArray(raw) ? raw.join(", ") : raw ?? `Request failed (${res.status})`;
+    throw new Error(message);
+  }
+  return data as T;
+}

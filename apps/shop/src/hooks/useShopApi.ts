@@ -1,6 +1,7 @@
 "use client";
 
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useEffect, useState } from "react";
 import { catalogApi, pickCheapestOffer, queryKeys, vetApi } from "@wafrivet/api";
 import type {
   CreateShopperAddressDto,
@@ -21,6 +22,11 @@ import type {
   SupplierProfileDto,
   SupplierSubOrderDto,
   SupplierWalletDto,
+  PublicChemistListResponseDto,
+  PublicChemistDetailDto,
+  PublicChemistOffersResponseDto,
+  PublicChemistOfferDto,
+  SupplierBrandingUploadResponseDto,
   UpdateShopperAddressDto,
   UpdateShopperAvatarDto,
   UpdateShopperProfileDto,
@@ -30,7 +36,7 @@ import type {
 } from "@wafrivet/types";
 import { useAuth } from "@wafrivet/auth";
 import { parseRegionList } from "@/lib/shopLocation";
-import { shopBff } from "@/lib/shopBff";
+import { shopBff, shopBffForm } from "@/lib/shopBff";
 import {
   canUseNotifications,
   canUseServerCommerce,
@@ -587,5 +593,106 @@ export function countLowStockOffers(offers: SupplierOfferDto[], threshold = 10):
     const stock = Number(offer.stockQuantity ?? 0);
     const min = Number(offer.minOrderQty ?? 1);
     return stock <= Math.max(min, threshold);
+  });
+}
+
+export type PublicChemistsParams = {
+  lat?: number;
+  lng?: number;
+  search?: string;
+  limit?: number;
+  radiusKm?: number;
+};
+
+function buildChemistsQuery(params?: PublicChemistsParams): string {
+  const query = new URLSearchParams();
+  if (params?.lat !== undefined) query.set("lat", String(params.lat));
+  if (params?.lng !== undefined) query.set("lng", String(params.lng));
+  if (params?.search) query.set("search", params.search);
+  if (params?.limit !== undefined) query.set("limit", String(params.limit));
+  if (params?.radiusKm !== undefined) query.set("radiusKm", String(params.radiusKm));
+  const serialized = query.toString();
+  return serialized ? `?${serialized}` : "";
+}
+
+export function useBrowserGeolocation() {
+  const [coords, setCoords] = useState<{ lat: number; lng: number } | null>(null);
+
+  useEffect(() => {
+    if (typeof window === "undefined" || !navigator.geolocation) {
+      return;
+    }
+
+    navigator.geolocation.getCurrentPosition(
+      (position) => {
+        setCoords({
+          lat: position.coords.latitude,
+          lng: position.coords.longitude,
+        });
+      },
+      () => {
+        setCoords(null);
+      },
+      { enableHighAccuracy: false, timeout: 8000, maximumAge: 300_000 },
+    );
+  }, []);
+
+  return coords;
+}
+
+export function usePublicChemists(params?: PublicChemistsParams) {
+  const coords = useBrowserGeolocation();
+  const mergedParams = {
+    ...params,
+    ...(coords && params?.lat === undefined && params?.lng === undefined
+      ? { lat: coords.lat, lng: coords.lng }
+      : {}),
+  };
+
+  return useQuery({
+    queryKey: ["public-chemists", mergedParams],
+    queryFn: async () => {
+      const data = await shopBff<PublicChemistListResponseDto>(
+        `/api/chemists${buildChemistsQuery(mergedParams)}`,
+      );
+      return data.data ?? [];
+    },
+  });
+}
+
+export function usePublicChemist(supplierId: string) {
+  return useQuery({
+    queryKey: ["public-chemist", supplierId],
+    queryFn: () => shopBff<PublicChemistDetailDto>(`/api/chemists/${supplierId}`),
+    enabled: Boolean(supplierId),
+  });
+}
+
+export function usePublicChemistOffers(supplierId: string, params?: { limit?: number }) {
+  return useQuery({
+    queryKey: ["public-chemist-offers", supplierId, params?.limit ?? 24],
+    queryFn: async () => {
+      const limit = params?.limit ?? 24;
+      const data = await shopBff<PublicChemistOffersResponseDto>(
+        `/api/chemists/${supplierId}/offers?limit=${limit}`,
+      );
+      return (data.data ?? []) as PublicChemistOfferDto[];
+    },
+    enabled: Boolean(supplierId),
+  });
+}
+
+export function useUploadSupplierBranding() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async ({ file, kind }: { file: File; kind: "logo" | "banner" }) => {
+      const formData = new FormData();
+      formData.append("file", file);
+      formData.append("kind", kind);
+      return shopBffForm<SupplierBrandingUploadResponseDto>("/api/supplier/branding", formData);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: queryKeys.supplier.profile });
+    },
   });
 }

@@ -1,51 +1,60 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useMemo, useState } from "react";
 import Map, { Marker, Popup, NavigationControl, FullscreenControl } from "react-map-gl/mapbox";
 import "mapbox-gl/dist/mapbox-gl.css";
-import { MapPin, Star, X, WarningCircle } from "@phosphor-icons/react";
-
-// Mock Data for Chemists
-const CHEMISTS = [
-  { id: 1, name: "Health First Agro", lat: 6.4549, lng: 3.4246, rating: 4.8, address: "12 Marina Road, Lagos Island" },
-  { id: 2, name: "Lagos Vet Hub", lat: 6.4485, lng: 3.4180, rating: 4.9, address: "5 Broad Street, Lagos" },
-  { id: 3, name: "FarmSafe Pharma", lat: 6.4620, lng: 3.4350, rating: 4.5, address: "8 Ikoyi Way, Lagos" },
-];
+import { MapPin, SealCheck, X, WarningCircle } from "@phosphor-icons/react";
+import Link from "next/link";
+import type { PublicChemistListItemDto } from "@wafrivet/types";
 
 const MAPBOX_TOKEN = process.env.NEXT_PUBLIC_MAPBOX_TOKEN;
 
-export function MapboxView() {
-  const [popupInfo, setPopupInfo] = useState<any>(null);
+type MapboxViewProps = {
+  chemists: PublicChemistListItemDto[];
+  selectedId?: string | null;
+};
+
+export function MapboxView({ chemists, selectedId }: MapboxViewProps) {
+  const [popupInfo, setPopupInfo] = useState<PublicChemistListItemDto | null>(null);
+
+  const defaultCenter = useMemo(() => {
+    if (chemists.length > 0) {
+      return { latitude: chemists[0].lat, longitude: chemists[0].lng };
+    }
+    return { latitude: 6.4549, longitude: 3.4246 };
+  }, [chemists]);
+
   const [viewState, setViewState] = useState({
-    latitude: 6.4549,
-    longitude: 3.4246,
-    zoom: 13
+    latitude: defaultCenter.latitude,
+    longitude: defaultCenter.longitude,
+    zoom: 13,
   });
 
   const pins = useMemo(
     () =>
-      CHEMISTS.map((chemist) => (
+      chemists.map((chemist) => (
         <Marker
           key={`marker-${chemist.id}`}
           longitude={chemist.lng}
           latitude={chemist.lat}
           anchor="bottom"
-          onClick={e => {
+          onClick={(e) => {
             e.originalEvent.stopPropagation();
             setPopupInfo(chemist);
           }}
         >
           <div className="cursor-pointer group flex flex-col items-center">
-             <div className="bg-white px-2 py-1 rounded-lg border border-gray-100 text-[10px] font-bold mb-1 opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap text-gray-900">
-                {chemist.name}
-             </div>
-             <div className="w-10 h-10 bg-[#2D4D31] rounded-2xl flex items-center justify-center text-white border-4 border-white transition-transform hover:scale-110">
-                <MapPin size={20} weight="fill" />
-             </div>
+            <div
+              className={`w-10 h-10 rounded-2xl flex items-center justify-center text-white border-4 border-white transition-transform hover:scale-110 ${
+                selectedId === chemist.id ? "bg-[#1f3d24]" : "bg-[#2D4D31]"
+              }`}
+            >
+              <MapPin size={20} weight="fill" />
+            </div>
           </div>
         </Marker>
       )),
-    []
+    [chemists, selectedId],
   );
 
   if (!MAPBOX_TOKEN) {
@@ -54,7 +63,8 @@ export function MapboxView() {
         <WarningCircle size={48} className="text-gray-300 mb-4" />
         <h3 className="text-[18px] font-bold text-gray-900 mb-2">Mapbox Token Missing</h3>
         <p className="text-[14px] text-gray-500 max-w-xs">
-          Please add <code>NEXT_PUBLIC_MAPBOX_TOKEN</code> to your environment variables to enable the map feature.
+          Please add <code>NEXT_PUBLIC_MAPBOX_TOKEN</code> to your environment variables to enable
+          the map feature.
         </p>
       </div>
     );
@@ -64,7 +74,7 @@ export function MapboxView() {
     <div className="w-full h-full rounded-[40px] overflow-hidden border border-gray-100 relative bg-gray-100">
       <Map
         {...viewState}
-        onMove={evt => setViewState(evt.viewState)}
+        onMove={(evt) => setViewState(evt.viewState)}
         mapStyle="mapbox://styles/mapbox/light-v11"
         mapboxAccessToken={MAPBOX_TOKEN}
       >
@@ -72,7 +82,7 @@ export function MapboxView() {
         <FullscreenControl position="top-right" />
         {pins}
 
-        {popupInfo && (
+        {popupInfo ? (
           <Popup
             anchor="top"
             longitude={Number(popupInfo.lng)}
@@ -83,38 +93,59 @@ export function MapboxView() {
           >
             <div className="p-3 max-w-[200px]">
               <div className="flex items-center justify-between mb-2">
-                 <h3 className="font-bold text-[14px] text-gray-900">{popupInfo.name}</h3>
-                 <button onClick={() => setPopupInfo(null)} className="text-gray-400 hover:text-gray-600">
-                    <X size={14} weight="bold" />
-                 </button>
+                <h3 className="font-bold text-[14px] text-gray-900">{popupInfo.name}</h3>
+                <button
+                  type="button"
+                  onClick={() => setPopupInfo(null)}
+                  className="text-gray-400 hover:text-gray-600"
+                >
+                  <X size={14} weight="bold" />
+                </button>
               </div>
               <p className="text-[11px] text-gray-500 mb-2">{popupInfo.address}</p>
-              <div className="flex items-center gap-1 bg-[#2D4D31]/5 w-fit px-2 py-1 rounded-lg">
-                <Star size={12} weight="fill" className="text-yellow-400" />
-                <span className="text-[11px] font-bold text-[#2D4D31]">{popupInfo.rating}</span>
-              </div>
-              <button className="w-full mt-3 bg-[#2D4D31] text-white py-2 rounded-xl text-[12px] font-bold hover:bg-[#243f28] transition-colors">
+              {popupInfo.isVerified ? (
+                <div className="flex items-center gap-1 bg-[#2D4D31]/5 w-fit px-2 py-1 rounded-lg">
+                  <SealCheck size={12} weight="fill" className="text-blue-500" />
+                  <span className="text-[11px] font-bold text-[#2D4D31]">Verified</span>
+                </div>
+              ) : null}
+              <Link
+                href={`/chemists/${popupInfo.id}`}
+                className="block w-full mt-3 bg-[#2D4D31] text-white py-2 rounded-xl text-[12px] font-bold hover:bg-[#243f28] transition-colors text-center"
+              >
                 View Products
-              </button>
+              </Link>
             </div>
           </Popup>
-        )}
+        ) : null}
       </Map>
 
-      {/* Floating Info Card */}
       <div className="absolute bottom-6 left-6 right-6 bg-white/80 backdrop-blur-md p-4 rounded-3xl border border-white/20 flex items-center justify-between">
-         <div className="flex items-center gap-3">
-            <div className="w-10 h-10 bg-[#2D4D31] rounded-xl flex items-center justify-center text-white">
-               <MapPin size={22} weight="fill" />
-            </div>
-            <div>
-               <h4 className="text-[13px] font-bold text-gray-900">Lagos Island</h4>
-               <p className="text-[11px] text-gray-500">12 chemists verified in this area</p>
-            </div>
-         </div>
-         <button className="bg-white px-4 py-2 rounded-xl text-[12px] font-bold border border-gray-100">
-            Recenter
-         </button>
+        <div className="flex items-center gap-3">
+          <div className="w-10 h-10 bg-[#2D4D31] rounded-xl flex items-center justify-center text-white">
+            <MapPin size={22} weight="fill" />
+          </div>
+          <div>
+            <h4 className="text-[13px] font-bold text-gray-900">Verified chemists</h4>
+            <p className="text-[11px] text-gray-500">
+              {chemists.length} chemist{chemists.length === 1 ? "" : "s"} on the map
+            </p>
+          </div>
+        </div>
+        <button
+          type="button"
+          onClick={() =>
+            setViewState((state) => ({
+              ...state,
+              latitude: defaultCenter.latitude,
+              longitude: defaultCenter.longitude,
+              zoom: 13,
+            }))
+          }
+          className="bg-white px-4 py-2 rounded-xl text-[12px] font-bold border border-gray-100"
+        >
+          Recenter
+        </button>
       </div>
     </div>
   );
