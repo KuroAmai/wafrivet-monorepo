@@ -19,6 +19,7 @@ import {
   Warning,
 } from "@phosphor-icons/react/dist/ssr";
 import { getServerAuth } from "@wafrivet/auth/server";
+import { normalizeUserRole } from "@wafrivet/auth";
 
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
@@ -35,13 +36,7 @@ export default async function DashboardPage() {
   }
 
   const user = (auth as { user?: { name?: string; location?: string } }).user;
-  const role = (auth as { role?: string }).role as
-    | "farmer"
-    | "vet"
-    | "chemist"
-    | "distributor"
-    | "admin"
-    | undefined;
+  const role = normalizeUserRole((auth as { role?: string }).role) ?? undefined;
 
   const fullName = user?.name?.trim() || "there";
   const firstName = fullName.split(" ")[0] || fullName;

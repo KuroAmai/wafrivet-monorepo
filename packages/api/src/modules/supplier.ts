@@ -1,4 +1,4 @@
-import type { OfferCreateDto, OfferUpdateDto } from "@wafrivet/types";
+import type { OfferCreateDto, OfferUpdateDto, UpdateSupplierProfileDto } from "@wafrivet/types";
 import { apiClient } from "../client";
 
 export async function listSupplierOffers(params?: {
@@ -31,8 +31,13 @@ export async function getSupplierProfile() {
   return data;
 }
 
-export async function getSupplierWallet() {
-  const { data } = await apiClient.get("/supplier/wallet");
+export async function getSupplierWallet(params?: { cursor?: string; limit?: number }) {
+  const { data } = await apiClient.get("/supplier/wallet", { params });
+  return data;
+}
+
+export async function updateSupplierProfile(body: UpdateSupplierProfileDto) {
+  const { data } = await apiClient.patch("/supplier/profile", body);
   return data;
 }
 

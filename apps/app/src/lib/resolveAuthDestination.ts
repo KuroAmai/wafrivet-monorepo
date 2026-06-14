@@ -1,10 +1,12 @@
 import type { AuthMeDto } from "@wafrivet/types";
-import { redirectByRole, extractRolesFromMe, hasAdminAccess } from "@wafrivet/auth";
-import { hasRolesConfirmed } from "@/lib/onboardingSession";
 import {
-  normalizePlatformRoles,
-  pickPrimaryProductRole,
-} from "@/lib/platformRoles";
+  redirectByRole,
+  extractRolesFromMe,
+  hasAdminAccess,
+  resolveProductRoleFromRoles,
+} from "@wafrivet/auth";
+import { hasRolesConfirmed } from "@/lib/onboardingSession";
+import { normalizePlatformRoles } from "@/lib/platformRoles";
 
 function extractKycRequired(me: AuthMeDto): string[] {
   return me.kyc_required_for ?? me.user?.kyc_required_for ?? [];
@@ -42,7 +44,7 @@ export async function resolveAuthDestination(): Promise<string> {
     return "/onboarding";
   }
 
-  const productRole = pickPrimaryProductRole(extractRolesFromMe(me));
+  const productRole = resolveProductRoleFromRoles(extractRolesFromMe(me));
   if (!productRole) {
     return "/onboarding";
   }

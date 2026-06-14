@@ -32,15 +32,18 @@ export default function SupportPage() {
            </div>
 
            <div className="bg-white rounded-[40px] border border-gray-100 shadow-sm p-8 space-y-6">
-              <div className="flex items-center gap-4 group cursor-pointer">
+              <a
+                href="mailto:support@wafrivet.com"
+                className="flex items-center gap-4 group cursor-pointer"
+              >
                  <div className="w-10 h-10 bg-gray-50 rounded-xl flex items-center justify-center text-gray-400 group-hover:bg-[#2D4D31] group-hover:text-white transition-all">
                     <Envelope size={22} weight="bold" />
                  </div>
                  <div>
                     <p className="font-bold text-gray-900 text-[14px]">Email Support</p>
-                    <p className="text-[11px] text-gray-600 font-bold uppercase">ops@wafrivet.com</p>
+                    <p className="text-[11px] text-gray-600 font-bold uppercase">support@wafrivet.com</p>
                  </div>
-              </div>
+              </a>
               <div className="flex items-center gap-4 group cursor-pointer">
                  <div className="w-10 h-10 bg-gray-50 rounded-xl flex items-center justify-center text-gray-400 group-hover:bg-[#2D4D31] group-hover:text-white transition-all">
                     <ChatCircleText size={22} weight="bold" />

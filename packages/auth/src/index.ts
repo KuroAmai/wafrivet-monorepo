@@ -54,4 +54,9 @@ export {
   resolvePostLoginPathFromJwt,
   sanitizeShopRedirect,
 } from "./shopAuth";
+export {
+  getHerdBaseUrl,
+  resolveProductRoleFromRoles,
+  returnToMatchesRole,
+} from "./returnToRole";
 

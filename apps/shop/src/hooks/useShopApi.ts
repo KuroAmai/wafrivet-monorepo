@@ -19,10 +19,12 @@ import type {
   ShopperWishlistResponseDto,
   SupplierOfferDto,
   SupplierSubOrderDto,
+  SupplierWalletDto,
   UpdateShopperAddressDto,
   UpdateShopperAvatarDto,
   UpdateShopperProfileDto,
   UpdateShopperUsernameDto,
+  UpdateSupplierProfileDto,
   VetProfileDto,
 } from "@wafrivet/types";
 import { useAuth } from "@wafrivet/auth";
@@ -521,5 +523,45 @@ export function useSupplierProfile() {
   return useQuery({
     queryKey: queryKeys.supplier.profile,
     queryFn: () => supplierApi.getSupplierProfile(),
+  });
+}
+
+export function useUpdateSupplierProfile() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (body: UpdateSupplierProfileDto) => supplierApi.updateSupplierProfile(body),
+    onSuccess: () => void qc.invalidateQueries({ queryKey: queryKeys.supplier.profile }),
+  });
+}
+
+export function useSupplierWallet(params?: { limit?: number }) {
+  return useQuery({
+    queryKey: queryKeys.supplier.wallet,
+    queryFn: async () => {
+      const data = await supplierApi.getSupplierWallet({ limit: params?.limit ?? 50 });
+      return data as SupplierWalletDto;
+    },
+  });
+}
+
+export function formatMoneyDisplay(money?: { naira?: string; kobo?: string } | null): string {
+  if (!money) return "₦0";
+  if (money.naira) {
+    const n = Number(money.naira);
+    if (!Number.isNaN(n)) return `₦${n.toLocaleString()}`;
+    return `₦${money.naira}`;
+  }
+  if (money.kobo) {
+    const kobo = Number(money.kobo);
+    if (!Number.isNaN(kobo)) return `₦${(kobo / 100).toLocaleString()}`;
+  }
+  return "₦0";
+}
+
+export function countLowStockOffers(offers: SupplierOfferDto[], threshold = 10): SupplierOfferDto[] {
+  return offers.filter((offer) => {
+    const stock = Number(offer.stockQuantity ?? 0);
+    const min = Number(offer.minOrderQty ?? 1);
+    return stock <= Math.max(min, threshold);
   });
 }

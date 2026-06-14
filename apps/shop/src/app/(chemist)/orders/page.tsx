@@ -2,24 +2,34 @@
 
 import { ShoppingCart, Clock, Package } from "@phosphor-icons/react";
 import { useState, useMemo } from "react";
-import { isMockDataEnabled } from "@wafrivet/api";
 import { ApiQueryFeedback } from "@wafrivet/ui";
 import { useSupplierOrders } from "@/hooks/useShopApi";
 
+const STATUS_TABS = [
+  "All",
+  "PENDING",
+  "CONFIRMED",
+  "PICKED_UP",
+  "DELIVERED",
+  "CANCELLED",
+] as const;
+
 export default function OrdersPage() {
-  const [activeTab, setActiveTab] = useState("All");
+  const [activeTab, setActiveTab] = useState<(typeof STATUS_TABS)[number]>("All");
   const { data: orders, isLoading, isError, error, refetch } = useSupplierOrders({ limit: 50 });
 
   const filtered = useMemo(() => {
     const list = orders ?? [];
     if (activeTab === "All") return list;
-    return list.filter((o) => o.status.toUpperCase().includes(activeTab.toUpperCase()));
+    return list.filter((o) => o.status.toUpperCase() === activeTab);
   }, [orders, activeTab]);
 
   return (
     <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-700">
       <div>
-        <h1 className="text-[28px] font-black text-gray-900 tracking-tight leading-none mb-2">Order History</h1>
+        <h1 className="text-[28px] font-black text-gray-900 tracking-tight leading-none mb-2">
+          Order History
+        </h1>
         <p className="text-[11px] text-gray-600 font-bold uppercase tracking-[0.2em]">
           Incoming sub-orders for your supplier account
         </p>
@@ -27,7 +37,7 @@ export default function OrdersPage() {
 
       <ApiQueryFeedback
         isLoading={isLoading}
-        isError={isError && !isMockDataEnabled()}
+        isError={isError}
         errorMessage={(error as Error)?.message}
         isEmpty={!isLoading && !isError && filtered.length === 0}
         onRetry={() => refetch()}
@@ -35,12 +45,12 @@ export default function OrdersPage() {
 
       <div className="bg-white rounded-[40px] border border-gray-100 shadow-sm overflow-hidden">
         <div className="px-8 border-b border-gray-50 flex items-center gap-8 overflow-x-auto no-scrollbar">
-          {["All", "PENDING", "PROCESSING", "DELIVERED"].map((tab) => (
+          {STATUS_TABS.map((tab) => (
             <button
               key={tab}
               type="button"
               onClick={() => setActiveTab(tab)}
-              className={`py-6 text-[11px] font-black uppercase tracking-widest transition-all relative ${
+              className={`py-6 text-[11px] font-black uppercase tracking-widest transition-all relative whitespace-nowrap ${
                 activeTab === tab ? "text-[#2D4D31]" : "text-gray-400 hover:text-gray-900"
               }`}
             >
@@ -54,7 +64,10 @@ export default function OrdersPage() {
 
         <div className="divide-y divide-gray-50">
           {filtered.map((order) => (
-            <div key={order.id} className="p-8 flex items-center justify-between hover:bg-gray-50/30 transition-all">
+            <div
+              key={order.id}
+              className="p-8 flex items-center justify-between hover:bg-gray-50/30 transition-all"
+            >
               <div className="flex items-center gap-5">
                 <div className="w-12 h-12 bg-[#2D4D31]/5 rounded-2xl flex items-center justify-center text-[#2D4D31]">
                   <ShoppingCart size={22} weight="duotone" />
@@ -69,7 +82,9 @@ export default function OrdersPage() {
                 </div>
               </div>
               <div className="text-right">
-                <p className="font-black text-gray-900">₦{Number(order.subtotalAmount).toLocaleString()}</p>
+                <p className="font-black text-gray-900">
+                  ₦{Number(order.subtotalAmount).toLocaleString()}
+                </p>
                 <p className="text-[11px] font-bold text-gray-400 uppercase tracking-widest flex items-center gap-1 justify-end">
                   <Clock size={12} /> {order.status}
                 </p>

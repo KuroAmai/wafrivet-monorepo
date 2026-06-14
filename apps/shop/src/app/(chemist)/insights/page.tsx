@@ -1,129 +1,227 @@
 "use client";
 
-import { TrendUp, ChartPieSlice, SealWarning, ArrowRight, Package, Users, MapPin } from "@phosphor-icons/react";
-import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip } from 'recharts';
-
-const CATEGORY_DATA = [
-   { name: 'Antibiotics', value: 400, color: '#2D4D31' },
-   { name: 'Supplements', value: 300, color: '#10B981' },
-   { name: 'Equipment', value: 200, color: '#F59E0B' },
-   { name: 'Other', value: 100, color: '#9CA3AF' },
-];
-
-const TOP_PRODUCTS = [
-   { name: "Oxytetracycline 20%", sales: 124, growth: "+12%" },
-   { name: "Multivitamin Injection", sales: 89, growth: "+8%" },
-   { name: "Ivermectin 1%", sales: 65, growth: "+22%" },
-];
+import { TrendUp, Package, ShoppingCart } from "@phosphor-icons/react";
+import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip } from "recharts";
+import { useMemo } from "react";
+import { ApiQueryFeedback } from "@wafrivet/ui";
+import {
+  countLowStockOffers,
+  formatMoneyDisplay,
+  useSupplierOffers,
+  useSupplierOrders,
+  useSupplierWallet,
+} from "@/hooks/useShopApi";
 
 export default function InsightsPage() {
-   return (
-      <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-700">
-         <div>
-            <h1 className="text-[28px] font-black text-gray-900 tracking-tight leading-none mb-2">Operational Insights</h1>
-            <p className="text-[11px] text-gray-600 font-bold uppercase tracking-[0.2em]">Deep analytics and demand forecasting for your branch</p>
-         </div>
+  const { data: offers, isLoading: offersLoading, isError: offersError, error: offersErr, refetch: refetchOffers } =
+    useSupplierOffers({ limit: 100 });
+  const { data: orders, isLoading: ordersLoading, isError: ordersError, error: ordersErr, refetch: refetchOrders } =
+    useSupplierOrders({ limit: 100 });
+  const { data: wallet, isLoading: walletLoading, isError: walletError, error: walletErr, refetch: refetchWallet } =
+    useSupplierWallet();
 
-         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
-            {/* Sales by Category */}
-            <div className="lg:col-span-4 bg-white rounded-[40px] border border-gray-100 shadow-sm p-8 flex flex-col items-center">
-               <h3 className="text-[18px] font-black text-gray-900 tracking-tight mb-8 w-full text-left">Sales by Category</h3>
-               <div className="h-[250px] w-full">
-                  <ResponsiveContainer width="100%" height="100%">
-                     <PieChart>
-                        <Pie
-                           data={CATEGORY_DATA}
-                           cx="50%"
-                           cy="50%"
-                           innerRadius={65}
-                           outerRadius={90}
-                           paddingAngle={-15}
-                           strokeWidth={0}
-                           cornerRadius={12}
-                           dataKey="value"
-                        >
-                           {CATEGORY_DATA.map((entry, index) => (
-                              <Cell key={`cell-${index}`} fill={entry.color} />
-                           ))}
-                        </Pie>
-                        <Tooltip />
-                     </PieChart>
-                  </ResponsiveContainer>
-               </div>
-               <div className="grid grid-cols-2 gap-4 w-full mt-8">
-                  {CATEGORY_DATA.map((entry) => (
-                     <div key={entry.name} className="flex items-center gap-2">
-                        <div className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: entry.color }} />
-                        <span className="text-[11px] font-bold text-gray-500 uppercase tracking-widest">{entry.name}</span>
-                     </div>
-                  ))}
-               </div>
-            </div>
+  const isLoading = offersLoading || ordersLoading || walletLoading;
+  const isError = offersError || ordersError || walletError;
+  const error = offersErr ?? ordersErr ?? walletErr;
 
-            {/* Demand Forecasting */}
-            <div className="lg:col-span-8 bg-white rounded-[40px] border border-gray-100 shadow-sm p-8 flex flex-col">
-               <div className="flex items-center justify-between mb-8">
-                  <h3 className="text-[18px] font-black text-gray-900 tracking-tight">Regional Demand Forecast</h3>
-                  <div className="flex items-center gap-2 text-emerald-500 bg-emerald-50 px-4 py-2 rounded-xl text-[12px] font-bold">
-                     <TrendUp size={16} weight="bold" /> High Accuracy
-                  </div>
-               </div>
+  const lowStock = countLowStockOffers(offers ?? []);
+  const activeSkus = (offers ?? []).filter((o) => o.isActive !== false).length;
 
-               <div className="space-y-6 flex-1">
-                  <div className="p-6 bg-gray-50 rounded-[32px] border border-gray-100 group hover:border-[#2D4D31]/20 transition-all cursor-pointer">
-                     <div className="flex items-center justify-between mb-4">
-                        <div className="flex items-center gap-3">
-                           <div className="w-10 h-10 bg-white rounded-xl flex items-center justify-center text-[#2D4D31] shadow-sm">
-                              <MapPin size={22} weight="duotone" />
-                           </div>
-                           <h4 className="font-bold text-gray-900 text-[15px]">Lekki North Cattle Clusters</h4>
-                        </div>
-                        <span className="text-[11px] font-black text-emerald-500 uppercase tracking-widest">+42% Demand Spike</span>
-                     </div>
-                     <p className="text-[13px] text-gray-500 leading-relaxed mb-4">Increased rainfall predicted next week. High risk of respiratory infections. Stock up on Penicillin and broad-spectrum antibiotics.</p>
-                     <button className="flex items-center gap-2 text-[12px] font-black text-[#2D4D31] uppercase tracking-widest group-hover:translate-x-1 transition-transform">
-                        Restock Suggested Items <ArrowRight size={14} weight="bold" />
-                     </button>
-                  </div>
+  const categoryData = useMemo(() => {
+    const healthy = Math.max(activeSkus - lowStock.length, 0);
+    return [
+      { name: "Healthy Stock", value: healthy || 1, color: "#2D4D31" },
+      { name: "Low Stock", value: lowStock.length || 0, color: "#F59E0B" },
+    ].filter((d) => d.value > 0);
+  }, [activeSkus, lowStock.length]);
 
-                  <div className="p-6 border border-gray-100 rounded-[32px]">
-                     <div className="flex items-center justify-between mb-4">
-                        <div className="flex items-center gap-3">
-                           <div className="w-10 h-10 bg-gray-50 rounded-xl flex items-center justify-center text-gray-400">
-                              <Users size={22} weight="duotone" />
-                           </div>
-                           <h4 className="font-bold text-gray-900 text-[15px]">New Farmer Registrations</h4>
-                        </div>
-                        <span className="text-[11px] font-black text-gray-400 uppercase tracking-widest">+18% this month</span>
-                     </div>
-                     <p className="text-[13px] text-gray-500 leading-relaxed">Local poultry association added 12 new farms in your delivery zone. Vaccine demand expected to increase.</p>
-                  </div>
-               </div>
-            </div>
-         </div>
+  const ordersByStatus = useMemo(() => {
+    const counts: Record<string, number> = {};
+    for (const order of orders ?? []) {
+      const key = order.status.toUpperCase();
+      counts[key] = (counts[key] ?? 0) + 1;
+    }
+    return Object.entries(counts).sort((a, b) => b[1] - a[1]);
+  }, [orders]);
 
-         
+  const topOffers = useMemo(() => {
+    return [...(offers ?? [])]
+      .sort((a, b) => Number(b.stockQuantity ?? 0) - Number(a.stockQuantity ?? 0))
+      .slice(0, 3)
+      .map((offer) => ({
+        name: offer.skuName ?? offer.productName ?? "Product",
+        stock: Number(offer.stockQuantity ?? 0),
+        active: offer.isActive !== false,
+      }));
+  }, [offers]);
 
-         {/* Top Products */}
-         <div className="bg-white rounded-[40px] border border-gray-100 shadow-sm p-8">
-            <h3 className="text-[18px] font-black text-gray-900 tracking-tight mb-8">Best Selling Products</h3>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-               {TOP_PRODUCTS.map((product) => (
-                  <div key={product.name} className="p-6 bg-gray-50 rounded-[32px] border border-gray-50 flex flex-col gap-4">
-                     <div className="flex items-center justify-between">
-                        <div className="w-10 h-10 bg-white rounded-xl flex items-center justify-center text-[#2D4D31] shadow-sm">
-                           <Package size={22} weight="duotone" />
-                        </div>
-                        <span className="text-[11px] font-black text-emerald-500 uppercase tracking-widest">{product.growth}</span>
-                     </div>
-                     <div>
-                        <h4 className="font-bold text-gray-900 text-[15px] mb-0.5">{product.name}</h4>
-                        <p className="text-[11px] text-gray-600 font-bold uppercase tracking-widest">{product.sales} Sales this month</p>
-                     </div>
-                  </div>
-               ))}
-            </div>
-         </div>
+  const weeklyOrders = useMemo(() => {
+    const now = new Date();
+    let count = 0;
+    for (const order of orders ?? []) {
+      const created = new Date(order.createdAt);
+      const diff = (now.getTime() - created.getTime()) / (1000 * 60 * 60 * 24);
+      if (diff <= 7) count++;
+    }
+    return count;
+  }, [orders]);
+
+  return (
+    <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-700">
+      <div>
+        <h1 className="text-[28px] font-black text-gray-900 tracking-tight leading-none mb-2">
+          Operational Insights
+        </h1>
+        <p className="text-[11px] text-gray-600 font-bold uppercase tracking-[0.2em]">
+          Analytics from your live orders, inventory, and settlements
+        </p>
       </div>
-   );
+
+      <ApiQueryFeedback
+        isLoading={isLoading}
+        isError={isError}
+        errorMessage={(error as Error)?.message}
+        onRetry={() => {
+          void refetchOffers();
+          void refetchOrders();
+          void refetchWallet();
+        }}
+      />
+
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
+        <div className="bg-white p-6 rounded-[32px] border border-gray-100">
+          <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1">
+            Orders (7d)
+          </p>
+          <p className="text-[24px] font-black text-gray-900">{weeklyOrders}</p>
+        </div>
+        <div className="bg-white p-6 rounded-[32px] border border-gray-100">
+          <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1">
+            Active SKUs
+          </p>
+          <p className="text-[24px] font-black text-gray-900">{activeSkus}</p>
+        </div>
+        <div className="bg-white p-6 rounded-[32px] border border-gray-100">
+          <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1">
+            Total Earned
+          </p>
+          <p className="text-[24px] font-black text-gray-900">
+            {formatMoneyDisplay(wallet?.totalEarned)}
+          </p>
+        </div>
+      </div>
+
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
+        <div className="lg:col-span-4 bg-white rounded-[40px] border border-gray-100 shadow-sm p-8 flex flex-col items-center">
+          <h3 className="text-[18px] font-black text-gray-900 tracking-tight mb-8 w-full text-left">
+            Inventory Health
+          </h3>
+          {categoryData.length > 0 ? (
+            <>
+              <div className="h-[250px] w-full">
+                <ResponsiveContainer width="100%" height="100%">
+                  <PieChart>
+                    <Pie
+                      data={categoryData}
+                      cx="50%"
+                      cy="50%"
+                      innerRadius={65}
+                      outerRadius={90}
+                      paddingAngle={-15}
+                      strokeWidth={0}
+                      cornerRadius={12}
+                      dataKey="value"
+                    >
+                      {categoryData.map((entry, index) => (
+                        <Cell key={`cell-${index}`} fill={entry.color} />
+                      ))}
+                    </Pie>
+                    <Tooltip />
+                  </PieChart>
+                </ResponsiveContainer>
+              </div>
+              <div className="grid grid-cols-2 gap-4 w-full mt-8">
+                {categoryData.map((entry) => (
+                  <div key={entry.name} className="flex items-center gap-2">
+                    <div
+                      className="w-2.5 h-2.5 rounded-full"
+                      style={{ backgroundColor: entry.color }}
+                    />
+                    <span className="text-[11px] font-bold text-gray-500 uppercase tracking-widest">
+                      {entry.name} ({entry.value})
+                    </span>
+                  </div>
+                ))}
+              </div>
+            </>
+          ) : (
+            <p className="text-gray-400 text-sm py-12">No inventory data yet</p>
+          )}
+        </div>
+
+        <div className="lg:col-span-8 bg-white rounded-[40px] border border-gray-100 shadow-sm p-8 flex flex-col">
+          <div className="flex items-center justify-between mb-8">
+            <h3 className="text-[18px] font-black text-gray-900 tracking-tight">
+              Orders by Status
+            </h3>
+            <div className="flex items-center gap-2 text-emerald-500 bg-emerald-50 px-4 py-2 rounded-xl text-[12px] font-bold">
+              <TrendUp size={16} weight="bold" /> {orders?.length ?? 0} total
+            </div>
+          </div>
+
+          {ordersByStatus.length > 0 ? (
+            <div className="space-y-4">
+              {ordersByStatus.map(([status, count]) => (
+                <div
+                  key={status}
+                  className="flex items-center justify-between p-4 bg-gray-50 rounded-2xl"
+                >
+                  <div className="flex items-center gap-3">
+                    <ShoppingCart size={20} className="text-[#2D4D31]" />
+                    <span className="font-bold text-gray-900 text-[14px]">{status}</span>
+                  </div>
+                  <span className="text-[14px] font-black text-gray-900">{count}</span>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <p className="text-gray-400 text-sm py-8">No orders to analyze yet</p>
+          )}
+        </div>
+      </div>
+
+      <div className="bg-white rounded-[40px] border border-gray-100 shadow-sm p-8">
+        <h3 className="text-[18px] font-black text-gray-900 tracking-tight mb-8">
+          Top Inventory by Stock Level
+        </h3>
+        {topOffers.length > 0 ? (
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            {topOffers.map((product) => (
+              <div
+                key={product.name}
+                className="p-6 bg-gray-50 rounded-[32px] border border-gray-50 flex flex-col gap-4"
+              >
+                <div className="flex items-center justify-between">
+                  <div className="w-10 h-10 bg-white rounded-xl flex items-center justify-center text-[#2D4D31] shadow-sm">
+                    <Package size={22} weight="duotone" />
+                  </div>
+                  <span className="text-[11px] font-black text-emerald-500 uppercase tracking-widest">
+                    {product.active ? "Active" : "Inactive"}
+                  </span>
+                </div>
+                <div>
+                  <h4 className="font-bold text-gray-900 text-[15px] mb-0.5">{product.name}</h4>
+                  <p className="text-[11px] text-gray-600 font-bold uppercase tracking-widest">
+                    {product.stock} units in stock
+                  </p>
+                </div>
+              </div>
+            ))}
+          </div>
+        ) : (
+          <p className="text-gray-400 text-sm">Add inventory to see product insights</p>
+        )}
+      </div>
+    </div>
+  );
 }

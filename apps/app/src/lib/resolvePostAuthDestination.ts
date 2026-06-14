@@ -1,11 +1,17 @@
 import type { AuthMeDto } from "@wafrivet/types";
-import { isAllowedReturnTo, redirectByRole, extractRolesFromMe, hasAdminAccess } from "@wafrivet/auth";
+import {
+  extractRolesFromMe,
+  hasAdminAccess,
+  isAllowedReturnTo,
+  redirectByRole,
+  resolveProductRoleFromRoles,
+  returnToMatchesRole,
+} from "@wafrivet/auth";
 import {
   clearStoredReturnTo,
   persistReturnTo,
   readStoredReturnTo,
 } from "@/lib/authReturnTo";
-import { pickPrimaryProductRole } from "@/lib/platformRoles";
 import { needsOnboarding } from "@/lib/resolveAuthDestination";
 
 function pickReturnTo(returnToFromQuery?: string | null): string | null {
@@ -19,7 +25,7 @@ function pickReturnTo(returnToFromQuery?: string | null): string | null {
 export async function resolvePostAuthDestination(
   returnToFromQuery?: string | null,
 ): Promise<string> {
-  const returnTo = pickReturnTo(returnToFromQuery);
+  const returnToRaw = pickReturnTo(returnToFromQuery);
 
   const res = await fetch("/api/auth/me", { credentials: "same-origin" });
   if (!res.ok) {
@@ -29,25 +35,25 @@ export async function resolvePostAuthDestination(
 
   if (hasAdminAccess(extractRolesFromMe(me))) {
     clearStoredReturnTo();
-    return returnTo && returnTo.startsWith("/admin") ? returnTo : "/admin";
+    return returnToRaw && returnToRaw.startsWith("/admin") ? returnToRaw : "/admin";
   }
 
   if (needsOnboarding(me)) {
-    if (returnTo) persistReturnTo(returnTo);
+    if (returnToRaw) persistReturnTo(returnToRaw);
     return "/onboarding";
   }
 
-  if (returnTo) {
+  const productRole = resolveProductRoleFromRoles(extractRolesFromMe(me));
+  if (!productRole) {
     clearStoredReturnTo();
-    return returnTo;
+    return "/onboarding";
+  }
+
+  if (returnToRaw && returnToMatchesRole(returnToRaw, productRole)) {
+    clearStoredReturnTo();
+    return returnToRaw;
   }
 
   clearStoredReturnTo();
-
-  const productRole = pickPrimaryProductRole(extractRolesFromMe(me));
-  if (!productRole) {
-    return "/onboarding";
-  }
-
   return redirectByRole(productRole);
 }

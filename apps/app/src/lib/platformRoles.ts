@@ -35,10 +35,10 @@ export function platformRoleToKycRole(
 }
 
 const ROLE_PRIORITY: PlatformSelectableRole[] = [
-  "FARMER",
-  "VET",
   "SUPPLIER",
   "MANUFACTURER",
+  "VET",
+  "FARMER",
   "REGULAR_CUSTOMER",
 ];
 
