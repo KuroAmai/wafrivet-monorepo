@@ -29,46 +29,59 @@ function normalizeImageMime(mimeType: string, fileName: string): string {
 }
 
 export async function POST(request: Request) {
-  const token = await getGatewayToken();
-  if (!token) {
-    return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
-  }
+  try {
+    const token = await getGatewayToken();
+    if (!token) {
+      return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
+    }
 
-  const formData = await request.formData();
-  const kind = String(formData.get("kind") ?? "").trim().toLowerCase();
-  if (kind !== "logo" && kind !== "banner") {
-    return NextResponse.json({ message: "kind must be logo or banner" }, { status: 400 });
-  }
+    const formData = await request.formData();
+    const kind = String(formData.get("kind") ?? "").trim().toLowerCase();
+    if (kind !== "logo" && kind !== "banner") {
+      return NextResponse.json({ message: "kind must be logo or banner" }, { status: 400 });
+    }
 
-  const rawFile = formData.get("file");
-  if (!(rawFile instanceof Blob)) {
-    return NextResponse.json({ message: "file is required" }, { status: 400 });
-  }
+    const rawFile = formData.get("file");
+    if (!(rawFile instanceof Blob)) {
+      return NextResponse.json({ message: "file is required" }, { status: 400 });
+    }
 
-  const fileName = rawFile instanceof File && rawFile.name ? rawFile.name : `${kind}.jpg`;
-  const buffer = Buffer.from(await rawFile.arrayBuffer());
-  if (buffer.length < 1) {
-    return NextResponse.json({ message: "Uploaded file is empty" }, { status: 400 });
-  }
+    const fileName = rawFile instanceof File && rawFile.name ? rawFile.name : `${kind}.jpg`;
+    const buffer = Buffer.from(await rawFile.arrayBuffer());
+    if (buffer.length < 1) {
+      return NextResponse.json({ message: "Uploaded file is empty" }, { status: 400 });
+    }
 
-  const mimeType = normalizeImageMime(rawFile.type, fileName);
-  const res = await fetch(`${GATEWAY_URL}/supplier/profile/branding`, {
-    method: "POST",
-    headers: {
-      Authorization: `Bearer ${token}`,
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({
-      kind,
-      file: {
-        fileName,
-        mimeType,
-        size: buffer.length,
-        base64: buffer.toString("base64"),
+    const maxSize = kind === "logo" ? 2 * 1024 * 1024 : 3 * 1024 * 1024;
+    if (buffer.length > maxSize) {
+      return NextResponse.json(
+        { message: kind === "logo" ? "Logo must be 2MB or smaller" : "Banner must be 3MB or smaller" },
+        { status: 400 },
+      );
+    }
+
+    const mimeType = normalizeImageMime(rawFile.type, fileName);
+    const res = await fetch(`${GATEWAY_URL}/supplier/profile/branding`, {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "application/json",
       },
-    }),
-  });
+      body: JSON.stringify({
+        kind,
+        file: {
+          fileName,
+          mimeType,
+          size: buffer.length,
+          base64: buffer.toString("base64"),
+        },
+      }),
+    });
 
-  const data = await res.json().catch(() => ({}));
-  return NextResponse.json(data, { status: res.status });
+    const data = await res.json().catch(() => ({}));
+    return NextResponse.json(data, { status: res.status });
+  } catch (error) {
+    const message = error instanceof Error ? error.message : "Branding upload failed";
+    return NextResponse.json({ message }, { status: 500 });
+  }
 }
