@@ -15,7 +15,6 @@ import { clearRolesConfirmed, markRolesConfirmed } from "@/lib/onboardingSession
 import { FALLBACK_ROLE_OPTIONS } from "@/lib/roleOptionsFallback";
 import {
   platformRoleToKycRole,
-  resolveKycRoleForSelection,
 } from "@/lib/platformRoles";
 import { readStoredReturnTo } from "@/lib/authReturnTo";
 import { resolvePostAuthDestination } from "@/lib/resolvePostAuthDestination";
@@ -98,7 +97,7 @@ export function OnboardingWizard() {
     if (!res.ok) {
       throw new Error(body.message ?? "Could not start onboarding.");
     }
-    const id = body.id ?? body.sessionId;
+    const id = body.id ?? body.sessionId ?? body.onboardingId;
     if (!id) {
       throw new Error("Onboarding session id missing from server response.");
     }
@@ -130,8 +129,9 @@ export function OnboardingWizard() {
     await refreshAuthSession();
 
     const kycRequired: GatewayOnboardingRole[] = selectBody.user?.kyc_required_for ?? [];
+    const kycForSelection = platformRoleToKycRole(role);
 
-    if (kycRequired.length === 0) {
+    if (!kycForSelection || !kycRequired.includes(kycForSelection)) {
       if (typeof sessionStorage !== "undefined") {
         sessionStorage.removeItem(SESSION_STORAGE_KEY);
       }
@@ -139,8 +139,7 @@ export function OnboardingWizard() {
       return;
     }
 
-    const kycRole = resolveKycRoleForSelection(role, kycRequired);
-    await startKycSession(kycRole);
+    await startKycSession(kycForSelection);
   };
 
   useEffect(() => {
@@ -195,7 +194,14 @@ export function OnboardingWizard() {
             if (resumeId) setSessionId(resumeId);
             goTo(4);
             if (!resumeId) {
-              await startKycSession(resumeRole);
+              try {
+                await startKycSession(resumeRole);
+              } catch (e) {
+                if (!cancelled) {
+                  setApiError(e instanceof Error ? e.message : "Could not resume onboarding.");
+                  goTo(3);
+                }
+              }
             }
           }
         }

@@ -28,5 +28,8 @@ export async function POST(request: Request) {
       { status: res.status },
     );
   }
-  return NextResponse.json(data);
+  return NextResponse.json({
+    ...data,
+    id: data.id ?? data.onboardingId ?? data.sessionId,
+  });
 }

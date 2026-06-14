@@ -24,5 +24,6 @@ export function mapAuthMeToProfile(me: AuthMeDto): AuthUserProfileDto {
     displayName: me.displayName ?? undefined,
     avatarUrl: me.avatarUrl ?? undefined,
     phone: me.phone ?? undefined,
+    kyc_required_for: me.kyc_required_for ?? me.user?.kyc_required_for,
   };
 }

@@ -49,6 +49,7 @@ export type AuthUserProfileDto = {
   displayName?: string;
   avatarUrl?: string | null;
   phone?: string;
+  kyc_required_for?: GatewayOnboardingRole[];
 };
 
 export type AuthMeDto = {

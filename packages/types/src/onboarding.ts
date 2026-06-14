@@ -8,6 +8,7 @@ export type StartOnboardingDto = {
 
 export type OnboardingSessionDto = {
   id: string;
+  onboardingId?: string;
   role?: GatewayOnboardingRole;
   status?: string;
   sessionId?: string;
