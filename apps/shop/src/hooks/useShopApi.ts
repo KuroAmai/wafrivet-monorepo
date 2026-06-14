@@ -1,7 +1,7 @@
 "use client";
 
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { catalogApi, pickCheapestOffer, queryKeys, supplierApi, vetApi } from "@wafrivet/api";
+import { catalogApi, pickCheapestOffer, queryKeys, vetApi } from "@wafrivet/api";
 import type {
   CreateShopperAddressDto,
   DraftCartDto,
@@ -18,6 +18,7 @@ import type {
   ShopperWishlistItemDto,
   ShopperWishlistResponseDto,
   SupplierOfferDto,
+  SupplierProfileDto,
   SupplierSubOrderDto,
   SupplierWalletDto,
   UpdateShopperAddressDto,
@@ -456,11 +457,22 @@ export function useVetOrders() {
 function normalizeSupplierOffersList(
   data: { data?: SupplierOfferDto[] } | SupplierOfferDto[] | unknown,
 ): SupplierOfferDto[] {
-  if (Array.isArray(data)) return data;
-  if (data && typeof data === "object" && Array.isArray((data as { data?: SupplierOfferDto[] }).data)) {
-    return (data as { data: SupplierOfferDto[] }).data;
-  }
-  return [];
+  const raw = (() => {
+    if (Array.isArray(data)) return data;
+    if (data && typeof data === "object" && Array.isArray((data as { data?: SupplierOfferDto[] }).data)) {
+      return (data as { data: SupplierOfferDto[] }).data;
+    }
+    return [];
+  })();
+
+  return raw.map((offer) => ({
+    ...offer,
+    skuName: offer.skuName ?? (offer as { masterSkuName?: string }).masterSkuName,
+    productName: offer.productName ?? (offer as { masterSkuName?: string }).masterSkuName,
+    price: offer.price ?? (offer as { unitPrice?: number }).unitPrice,
+    pricePerUnit: offer.pricePerUnit ?? (offer as { unitPrice?: number }).unitPrice,
+    minOrderQty: offer.minOrderQty ?? (offer as { minOrderQuantity?: number }).minOrderQuantity,
+  }));
 }
 
 function normalizeSupplierOrdersList(
@@ -473,12 +485,15 @@ function normalizeSupplierOrdersList(
   return [];
 }
 
-/** Gateway via @wafrivet/api (works before shop BFF routes are deployed). */
+/** Supplier APIs via shop BFF (same-origin; avoids cross-origin gateway POST failures). */
 export function useSupplierOffers(params?: { limit?: number }) {
   return useQuery({
     queryKey: queryKeys.supplier.offers(params),
     queryFn: async () => {
-      const data = await supplierApi.listSupplierOffers({ limit: params?.limit ?? 50 });
+      const limit = params?.limit ?? 50;
+      const data = await shopBff<{ data?: SupplierOfferDto[] } | SupplierOfferDto[]>(
+        `/api/supplier/offers?limit=${limit}`,
+      );
       return normalizeSupplierOffersList(data);
     },
   });
@@ -487,7 +502,8 @@ export function useSupplierOffers(params?: { limit?: number }) {
 export function useCreateSupplierOffer() {
   const qc = useQueryClient();
   return useMutation({
-    mutationFn: (body: OfferCreateDto) => supplierApi.createSupplierOffer(body),
+    mutationFn: (body: OfferCreateDto) =>
+      shopBff<SupplierOfferDto>("/api/supplier/offers", { method: "POST", json: body }),
     onSuccess: () => void qc.invalidateQueries({ queryKey: ["supplier", "offers"] }),
   });
 }
@@ -496,7 +512,7 @@ export function useUpdateSupplierOffer() {
   const qc = useQueryClient();
   return useMutation({
     mutationFn: ({ offerId, ...body }: OfferUpdateDto & { offerId: string }) =>
-      supplierApi.updateSupplierOffer(offerId, body),
+      shopBff<SupplierOfferDto>(`/api/supplier/offers/${offerId}`, { method: "PATCH", json: body }),
     onSuccess: () => void qc.invalidateQueries({ queryKey: ["supplier", "offers"] }),
   });
 }
@@ -504,7 +520,8 @@ export function useUpdateSupplierOffer() {
 export function useDeleteSupplierOffer() {
   const qc = useQueryClient();
   return useMutation({
-    mutationFn: (offerId: string) => supplierApi.deleteSupplierOffer(offerId),
+    mutationFn: (offerId: string) =>
+      shopBff<void>(`/api/supplier/offers/${offerId}`, { method: "DELETE" }),
     onSuccess: () => void qc.invalidateQueries({ queryKey: ["supplier", "offers"] }),
   });
 }
@@ -513,7 +530,10 @@ export function useSupplierOrders(params?: { limit?: number }) {
   return useQuery({
     queryKey: queryKeys.supplier.orders(params),
     queryFn: async () => {
-      const data = await supplierApi.listSupplierOrders({ limit: params?.limit ?? 30 });
+      const limit = params?.limit ?? 30;
+      const data = await shopBff<{ data?: SupplierSubOrderDto[] } | SupplierSubOrderDto[]>(
+        `/api/supplier/orders?limit=${limit}`,
+      );
       return normalizeSupplierOrdersList(data);
     },
   });
@@ -522,14 +542,18 @@ export function useSupplierOrders(params?: { limit?: number }) {
 export function useSupplierProfile() {
   return useQuery({
     queryKey: queryKeys.supplier.profile,
-    queryFn: () => supplierApi.getSupplierProfile(),
+    queryFn: () => shopBff<SupplierProfileDto>("/api/supplier/profile"),
   });
 }
 
 export function useUpdateSupplierProfile() {
   const qc = useQueryClient();
   return useMutation({
-    mutationFn: (body: UpdateSupplierProfileDto) => supplierApi.updateSupplierProfile(body),
+    mutationFn: (body: UpdateSupplierProfileDto) =>
+      shopBff<SupplierProfileDto>("/api/supplier/profile", {
+        method: "PATCH",
+        json: body,
+      }),
     onSuccess: () => void qc.invalidateQueries({ queryKey: queryKeys.supplier.profile }),
   });
 }
@@ -538,8 +562,8 @@ export function useSupplierWallet(params?: { limit?: number }) {
   return useQuery({
     queryKey: queryKeys.supplier.wallet,
     queryFn: async () => {
-      const data = await supplierApi.getSupplierWallet({ limit: params?.limit ?? 50 });
-      return data as SupplierWalletDto;
+      const limit = params?.limit ?? 50;
+      return shopBff<SupplierWalletDto>(`/api/supplier/wallet?limit=${limit}`);
     },
   });
 }

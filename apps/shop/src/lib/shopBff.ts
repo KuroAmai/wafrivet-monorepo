@@ -11,7 +11,8 @@ export async function shopBff<T>(path: string, init?: RequestInit & { json?: unk
   });
   const data = await res.json().catch(() => ({}));
   if (!res.ok) {
-    const message = (data as { message?: string }).message ?? `Request failed (${res.status})`;
+    const raw = (data as { message?: string | string[] }).message;
+    const message = Array.isArray(raw) ? raw.join(", ") : raw ?? `Request failed (${res.status})`;
     throw new Error(message);
   }
   return data as T;
