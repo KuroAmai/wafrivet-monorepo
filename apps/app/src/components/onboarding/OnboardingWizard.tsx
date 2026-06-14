@@ -18,6 +18,7 @@ import {
 } from "@/lib/platformRoles";
 import { readStoredReturnTo } from "@/lib/authReturnTo";
 import { resolvePostAuthDestination } from "@/lib/resolvePostAuthDestination";
+import { needsOnboarding } from "@/lib/resolveAuthDestination";
 import { AvatarPicker } from "./AvatarPicker";
 import { OnboardingProgress } from "./OnboardingProgress";
 import {
@@ -50,6 +51,7 @@ async function navigateAfterOnboarding() {
 export function OnboardingWizard() {
   const searchParams = useSearchParams();
   const changeRole = searchParams.get("changeRole") === "1";
+  const resumeKyc = searchParams.get("resumeKyc") === "1";
   const preselectedRole = searchParams.get("role")?.toUpperCase() as
     | PlatformSelectableRole
     | undefined;
@@ -86,7 +88,7 @@ export function OnboardingWizard() {
     }
   }, []);
 
-  const startKycSession = async (role: GatewayOnboardingRole) => {
+  const createKycSession = async (role: GatewayOnboardingRole): Promise<string> => {
     const res = await fetch("/api/onboarding/start", {
       method: "POST",
       credentials: "same-origin",
@@ -110,6 +112,11 @@ export function OnboardingWizard() {
         JSON.stringify({ sessionId: sid, gatewayRole: role }),
       );
     }
+    return sid;
+  };
+
+  const enterBusinessDetailsStep = async (role: GatewayOnboardingRole) => {
+    await createKycSession(role);
     goTo(4);
   };
 
@@ -139,7 +146,21 @@ export function OnboardingWizard() {
       return;
     }
 
-    await startKycSession(kycForSelection);
+    await createKycSession(kycForSelection);
+
+    if (changeRole || resumeKyc) {
+      goTo(4);
+      return;
+    }
+
+    await navigateAfterOnboarding();
+  };
+
+  const finishLater = async () => {
+    if (typeof sessionStorage !== "undefined") {
+      sessionStorage.removeItem(SESSION_STORAGE_KEY);
+    }
+    await navigateAfterOnboarding();
   };
 
   useEffect(() => {
@@ -167,10 +188,18 @@ export function OnboardingWizard() {
         const meRes = await fetch("/api/auth/me", { credentials: "same-origin" });
         if (!meRes.ok) return;
         const me = await meRes.json();
+
+        if (!resumeKyc && !needsOnboarding(me)) {
+          if (!cancelled) {
+            await navigateAfterOnboarding();
+          }
+          return;
+        }
+
         const kyc: GatewayOnboardingRole[] =
           me.kyc_required_for ?? me.user?.kyc_required_for ?? [];
 
-        if (kyc.length > 0) {
+        if (resumeKyc && kyc.length > 0) {
           const stored =
             typeof sessionStorage !== "undefined"
               ? sessionStorage.getItem(SESSION_STORAGE_KEY)
@@ -191,16 +220,14 @@ export function OnboardingWizard() {
           }
           if (!cancelled) {
             setGatewayRole(resumeRole);
-            if (resumeId) setSessionId(resumeId);
-            goTo(4);
-            if (!resumeId) {
+            if (resumeId) {
+              setSessionId(resumeId);
+              goTo(4);
+            } else {
               try {
-                await startKycSession(resumeRole);
+                await enterBusinessDetailsStep(resumeRole);
               } catch (e) {
-                if (!cancelled) {
-                  setApiError(e instanceof Error ? e.message : "Could not resume onboarding.");
-                  goTo(3);
-                }
+                setApiError(e instanceof Error ? e.message : "Could not resume onboarding.");
               }
             }
           }
@@ -213,7 +240,7 @@ export function OnboardingWizard() {
       cancelled = true;
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [resumeKyc]);
 
   const handleSkipShopper = async () => {
     setApiError(null);
@@ -427,7 +454,7 @@ export function OnboardingWizard() {
               Business details
             </h1>
             <p className="text-[15px] text-gray-600 mt-1.5 mb-6">
-              Required to complete your professional profile
+              Add your business information now, or finish later from Settings.
             </p>
             <BusinessOnboardingForm
               gatewayRole={gatewayRole}
@@ -437,6 +464,14 @@ export function OnboardingWizard() {
                 setBusiness((prev) => ({ ...prev, [field]: value }))
               }
             />
+            <button
+              type="button"
+              onClick={finishLater}
+              disabled={loading}
+              className="w-full mt-5 py-3 text-[14px] font-semibold text-[#2D4D31] hover:underline disabled:opacity-50"
+            >
+              Finish later — complete in Settings
+            </button>
           </div>
         ) : null}
       </StepTransition>

@@ -10,14 +10,13 @@ function extractKycRequired(me: AuthMeDto): string[] {
   return me.kyc_required_for ?? me.user?.kyc_required_for ?? [];
 }
 
-/** True when user must complete /onboarding (role pick and/or KYC). */
+export { extractKycRequired };
+
+/** True when user must complete /onboarding (role pick only — KYC business profile is optional). */
 export function needsOnboarding(me: AuthMeDto): boolean {
   if (hasAdminAccess(extractRolesFromMe(me))) {
     return false;
   }
-
-  const kyc = extractKycRequired(me);
-  if (kyc.length > 0) return true;
 
   const roles = normalizePlatformRoles(extractRolesFromMe(me));
   if (roles.length === 0) return true;

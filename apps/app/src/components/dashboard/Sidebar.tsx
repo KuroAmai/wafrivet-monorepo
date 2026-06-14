@@ -106,7 +106,7 @@ export function Sidebar({
 
         <div className="bg-white rounded-[40px] border border-gray-100 shadow-sm overflow-hidden">
           <Link
-            href="/profile"
+            href="/settings"
             className="w-full flex items-center justify-between p-5 hover:bg-gray-50 transition-all border-b border-gray-50 group"
           >
             <div className="flex items-center gap-4">

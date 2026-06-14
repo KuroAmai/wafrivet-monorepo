@@ -430,7 +430,7 @@ export default async function DashboardPage() {
         </h2>
         <div className="rounded-[28px] overflow-hidden">
           <Link
-            href="#"
+            href="/settings"
             className="group flex items-center justify-between gap-4 px-4 py-4 hover:bg-gray-50 transition-all"
           >
             <div className="flex items-center gap-4 min-w-0">
