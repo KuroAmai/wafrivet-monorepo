@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
-import { GATEWAY_URL } from "@/lib/gateway";
-import { getGatewayToken } from "@/lib/gatewayAuth";
+import { gatewayFetch, getGatewayToken } from "@/lib/gatewayAuth";
+import { uploadSupplierBrandAsset, isSupplierBrandStorageConfigured } from "@/lib/supplierBrandStorage";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -35,6 +35,13 @@ export async function POST(request: Request) {
       return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
     }
 
+    if (!isSupplierBrandStorageConfigured()) {
+      return NextResponse.json(
+        { message: "Brand image storage is not configured. Add SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY to the shop deployment." },
+        { status: 503 },
+      );
+    }
+
     const formData = await request.formData();
     const kind = String(formData.get("kind") ?? "").trim().toLowerCase();
     if (kind !== "logo" && kind !== "banner") {
@@ -61,25 +68,41 @@ export async function POST(request: Request) {
     }
 
     const mimeType = normalizeImageMime(rawFile.type, fileName);
-    const res = await fetch(`${GATEWAY_URL}/supplier/profile/branding`, {
-      method: "POST",
-      headers: {
-        Authorization: `Bearer ${token}`,
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        kind,
-        file: {
-          fileName,
-          mimeType,
-          size: buffer.length,
-          base64: buffer.toString("base64"),
-        },
-      }),
-    });
+    if (!["image/jpeg", "image/png", "image/webp"].includes(mimeType)) {
+      return NextResponse.json({ message: "Only JPEG, PNG, and WebP images are allowed" }, { status: 400 });
+    }
 
-    const data = await res.json().catch(() => ({}));
-    return NextResponse.json(data, { status: res.status });
+    const profileRes = await gatewayFetch("/supplier/profile");
+    const profile = (await profileRes.json().catch(() => ({}))) as { id?: string; message?: string };
+    if (!profileRes.ok || !profile.id) {
+      return NextResponse.json(
+        { message: profile.message ?? "Could not load supplier profile" },
+        { status: profileRes.status || 500 },
+      );
+    }
+
+    const url = await uploadSupplierBrandAsset(buffer, mimeType, fileName, profile.id, kind);
+    const patch = kind === "logo" ? { logoUrl: url } : { bannerUrl: url };
+    const updateRes = await gatewayFetch("/supplier/profile", { method: "PATCH", json: patch });
+    const updated = (await updateRes.json().catch(() => ({}))) as {
+      logoUrl?: string | null;
+      bannerUrl?: string | null;
+      message?: string;
+    };
+
+    if (!updateRes.ok) {
+      return NextResponse.json(
+        { message: updated.message ?? "Failed to save brand image URL" },
+        { status: updateRes.status },
+      );
+    }
+
+    return NextResponse.json({
+      kind,
+      url,
+      logoUrl: updated.logoUrl ?? null,
+      bannerUrl: updated.bannerUrl ?? null,
+    });
   } catch (error) {
     const message = error instanceof Error ? error.message : "Branding upload failed";
     return NextResponse.json({ message }, { status: 500 });

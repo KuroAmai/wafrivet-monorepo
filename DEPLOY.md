@@ -5,7 +5,7 @@ Marketing (`apps/web`, root Vite) does **not** use the product API. Deploy these
 | App | Directory | Dev port | Required env |
 |-----|-----------|----------|--------------|
 | App (admin/farmer) | `apps/app` | 3001 | `NEXT_PUBLIC_API_URL`, `NEXT_PUBLIC_APP_URL` |
-| Shop | `apps/shop` | 3003 | `NEXT_PUBLIC_API_URL`, `NEXT_PUBLIC_SHOP_URL` |
+| Shop | `apps/shop` | 3003 | `NEXT_PUBLIC_API_URL`, `NEXT_PUBLIC_SHOP_URL`, `SUPABASE_URL`, `SUPABASE_SERVICE_ROLE_KEY` (branding uploads) |
 | Herd | `apps/herd` | 3002 | `VITE_API_URL`, `VITE_CORE_URL`, `VITE_HERD_URL` |
 
 Copy [.env.example](.env.example) into each app's `.env.local` (dev) or hosting dashboard (prod).
