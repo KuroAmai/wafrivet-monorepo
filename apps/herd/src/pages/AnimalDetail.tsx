@@ -130,7 +130,7 @@ export default function AnimalDetail() {
                 ))}
               </div>
             ) : (
-              <p className="text-center text-sm text-gray-400">No health events returned from API yet.</p>
+              <p className="text-center text-sm text-gray-600">No health events recorded yet.</p>
             )}
           </>
         ) : null}

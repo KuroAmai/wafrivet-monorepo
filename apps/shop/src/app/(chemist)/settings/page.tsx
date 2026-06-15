@@ -109,7 +109,7 @@ export default function SettingsPage() {
                   type="text"
                   value={form.name}
                   onChange={(e) => setForm((f) => ({ ...f, name: e.target.value }))}
-                  className="w-full px-6 py-4 bg-gray-50 border-none rounded-2xl text-[14px] font-bold"
+                  className="w-full px-6 py-4 bg-gray-50 border-none rounded-2xl text-[14px] font-bold text-gray-900"
                 />
               </div>
               <div className="space-y-2">
@@ -131,7 +131,7 @@ export default function SettingsPage() {
                   type="text"
                   value={form.phone}
                   onChange={(e) => setForm((f) => ({ ...f, phone: e.target.value }))}
-                  className="w-full px-6 py-4 bg-gray-50 border-none rounded-2xl text-[14px] font-bold"
+                  className="w-full px-6 py-4 bg-gray-50 border-none rounded-2xl text-[14px] font-bold text-gray-900"
                 />
               </div>
               <div className="space-y-2">
@@ -143,7 +143,7 @@ export default function SettingsPage() {
                   value={form.workingHours}
                   onChange={(e) => setForm((f) => ({ ...f, workingHours: e.target.value }))}
                   placeholder="Mon–Sat 8am–6pm"
-                  className="w-full px-6 py-4 bg-gray-50 border-none rounded-2xl text-[14px] font-bold"
+                  className="w-full px-6 py-4 bg-gray-50 border-none rounded-2xl text-[14px] font-bold text-gray-900"
                 />
               </div>
               <div className="space-y-2 md:col-span-2">
@@ -153,7 +153,7 @@ export default function SettingsPage() {
                 <textarea
                   value={form.address}
                   onChange={(e) => setForm((f) => ({ ...f, address: e.target.value }))}
-                  className="w-full px-6 py-4 bg-gray-50 border-none rounded-2xl text-[14px] font-bold h-24"
+                  className="w-full px-6 py-4 bg-gray-50 border-none rounded-2xl text-[14px] font-bold text-gray-900 h-24"
                 />
               </div>
             </div>

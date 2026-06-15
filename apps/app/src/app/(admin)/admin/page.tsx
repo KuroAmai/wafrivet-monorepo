@@ -142,7 +142,7 @@ export default function AdminDashboard() {
       {
         label: "Recent Users",
         value: userCount,
-        sub: "Latest page from API",
+        sub: "Registered accounts",
         icon: Users,
         color: "text-blue-500",
         bg: "bg-blue-50",

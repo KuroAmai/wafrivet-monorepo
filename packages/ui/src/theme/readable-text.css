@@ -1,14 +1,13 @@
 /**
- * Darker muted grays for light backgrounds (~WCAG AA for small body text).
+ * Readable text on light backgrounds (~WCAG AA for body text and form fields).
  * Import after `tailwindcss` in each app globals.css.
- *
- * Shifts the gray-400/500/600 scale one step darker so existing
- * `text-gray-400` / `text-gray-500` classes stay readable on white.
  */
 @theme inline {
+  --color-gray-300: #9ca3af;
   --color-gray-400: #6b7280;
   --color-gray-500: #4b5563;
   --color-gray-600: #374151;
+  --color-slate-300: #9ca3af;
   --color-slate-400: #6b7280;
   --color-slate-500: #4b5563;
   --color-slate-600: #374151;
@@ -16,9 +15,26 @@
 }
 
 @layer base {
+  input:not([type="checkbox"]):not([type="radio"]):not([type="range"]):not([type="file"]):not([type="hidden"]),
+  textarea,
+  select {
+    color: #111827;
+    -webkit-text-fill-color: #111827;
+  }
+
   input::placeholder,
   textarea::placeholder {
     color: #6b7280;
     opacity: 1;
+  }
+
+  input:-webkit-autofill,
+  input:-webkit-autofill:hover,
+  input:-webkit-autofill:focus,
+  textarea:-webkit-autofill,
+  textarea:-webkit-autofill:hover,
+  textarea:-webkit-autofill:focus {
+    -webkit-text-fill-color: #111827;
+    transition: background-color 9999s ease-out 0s;
   }
 }

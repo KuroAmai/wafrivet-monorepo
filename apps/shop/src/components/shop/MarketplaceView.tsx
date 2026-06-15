@@ -70,7 +70,7 @@ export function MarketplaceView() {
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               placeholder={dogMode ? "Search dog supplies..." : "Search..."}
-              className="w-full h-14 md:h-20 text-center bg-white rounded-xl md:rounded-[32px] text-[15px] md:text-[20px] font-medium outline-none focus:ring-4 focus:ring-[#2D4D31]/5 transition-all border border-gray-100 text-gray-900 placeholder:text-gray-300"
+              className="w-full h-14 md:h-20 text-center bg-white rounded-xl md:rounded-[32px] text-[15px] md:text-[20px] font-medium outline-none focus:ring-4 focus:ring-[#2D4D31]/5 transition-all border border-gray-100 text-gray-900 placeholder:text-gray-500"
             />
           </div>
         </section>
