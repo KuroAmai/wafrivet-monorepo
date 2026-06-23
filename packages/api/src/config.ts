@@ -47,6 +47,19 @@ export const API_CONFIG = {
     readEnv("VITE_FIELD_VET_URL") ??
     DEFAULT_FIELD_VET
   ).replace(/\/$/, ""),
+  fieldVetWsUrl: (() => {
+    const explicit =
+      readEnv("NEXT_PUBLIC_FIELD_VET_WS_URL") ?? readEnv("VITE_FIELD_VET_WS_URL");
+    if (explicit) return explicit.replace(/\/$/, "");
+    const base = (
+      readEnv("NEXT_PUBLIC_FIELD_VET_URL") ??
+      readEnv("VITE_FIELD_VET_URL") ??
+      DEFAULT_FIELD_VET
+    ).replace(/\/$/, "");
+    if (base.startsWith("https://")) return `wss://${base.slice("https://".length)}`;
+    if (base.startsWith("http://")) return `ws://${base.slice("http://".length)}`;
+    return base;
+  })(),
   /** Gateway herd prefix until backend confirms otherwise */
   herdBasePath: "/herd",
 };

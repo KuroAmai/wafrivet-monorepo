@@ -12,6 +12,8 @@ import { Link, useParams } from "react-router-dom";
 import { isMockDataEnabled } from "@wafrivet/api";
 import { ApiQueryFeedback } from "@wafrivet/ui";
 import { useAnimal } from "@/hooks/useHerdApi";
+import { useHerdAssistant } from "@/context/HerdAssistantContext";
+import { Robot } from "@phosphor-icons/react";
 
 const DEMO_ANIMAL = {
   id: "WAF-882",
@@ -33,6 +35,7 @@ const DEMO_ANIMAL = {
 export default function AnimalDetail() {
   const { id } = useParams();
   const animalUid = id ?? "";
+  const assistant = useHerdAssistant();
   const { data, isLoading, isError, error, refetch } = useAnimal(animalUid);
 
   const animal = data
@@ -135,6 +138,25 @@ export default function AnimalDetail() {
           </>
         ) : null}
       </div>
+
+      {animalUid && (
+        <button
+          type="button"
+          onClick={() =>
+            assistant.openAssistant({
+              animalUid,
+              animalName: animal?.name,
+              autoStartLive: true,
+            })
+          }
+          className="fixed bottom-32 right-6 bg-white border border-emerald-100 p-4 rounded-[32px] shadow-[0_20px_40px_rgba(45,77,49,0.2)] flex items-center gap-3 active:scale-95 z-40"
+        >
+          <div className="w-11 h-11 bg-[#2D4D31] text-white rounded-2xl flex items-center justify-center">
+            <Robot size={22} weight="bold" />
+          </div>
+          <span className="text-[12px] font-black text-gray-900 pr-2">Live AI</span>
+        </button>
+      )}
     </div>
   );
 }

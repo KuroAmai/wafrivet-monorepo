@@ -67,3 +67,14 @@ export async function updateAnimal(
   const { data } = await apiClient.patch<unknown>(`${herdBase}/animals/${animalUid}`, body);
   return unwrapData<AnimalResponseDto>(data);
 }
+
+export type TagResolutionResponse = {
+  animal: AnimalResponseDto;
+  tag: { chipUid: string; animalUid: string; status: string };
+};
+
+export async function resolveTag(chipUid: string): Promise<TagResolutionResponse> {
+  const encoded = encodeURIComponent(chipUid);
+  const { data } = await apiClient.get<unknown>(`${herdBase}/tags/${encoded}`);
+  return unwrapData<TagResolutionResponse>(data);
+}

@@ -28,6 +28,9 @@ import KennelBilling from "./pages/KennelBilling";
 import DogProfile from "./pages/DogProfile";
 import PublicDogProfile from "./pages/PublicDogProfile";
 import { RequireAuth } from "@/components/RequireAuth";
+import { HerdAssistantProvider } from "@/context/HerdAssistantContext";
+import { HerdAIFloatingBubble } from "@/components/herd/HerdAIFloatingBubble";
+import { HerdLiveAssistantPanel } from "@/components/herd/HerdLiveAssistantPanel";
 
 function AppContent() {
   const location = useLocation();
@@ -56,9 +59,10 @@ function AppContent() {
 
   return (
     <RequireAuth>
-      <TopBar />
-      <main className="flex-1 px-6 pb-32">
-        <Routes>
+      <HerdAssistantProvider>
+        <TopBar />
+        <main className="flex-1 px-6 pb-32">
+          <Routes>
           <Route path="/" element={<Dashboard />} />
           <Route path="/farms" element={<Farms />} />
           <Route path="/ai" element={<AIList />} />
@@ -86,7 +90,10 @@ function AppContent() {
         </Routes>
       </main>
       <BottomNav />
+      <HerdAIFloatingBubble />
+      <HerdLiveAssistantPanel />
       <PWAInstallPrompt />
+      </HerdAssistantProvider>
     </RequireAuth>
   );
 }

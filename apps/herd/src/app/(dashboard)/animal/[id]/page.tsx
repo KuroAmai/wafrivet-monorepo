@@ -1,29 +1,24 @@
 "use client";
 
-import { use } from "react";
-import { 
-  CaretLeft, 
-  Tag, 
-  User, 
-  MapPin, 
-  Calendar, 
-  ShieldCheck,
+import { use, useState } from "react";
+import {
+  CaretLeft,
+  Tag,
+  User,
+  MapPin,
+  Calendar,
   FirstAid,
   HandCoins,
-  ChartLineUp,
-  Files,
-  ArrowRight,
-  PencilSimple,
   WarningCircle,
   Copy,
   GenderIntersex,
   ClockCounterClockwise,
-  Plus
+  Plus,
+  Robot,
 } from "@phosphor-icons/react";
 import Link from "next/link";
-import { useState } from "react";
 import { cn } from "@/lib/utils";
-import { AIContextSheet } from "@/components/herd/AIContextSheet";
+import { useHerdAssistant } from "@/context/HerdAssistantContext";
 
 const TABS = [
   { id: "overview", label: "Overview" },
@@ -35,6 +30,7 @@ const TABS = [
 export default function AnimalRecordPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = use(params);
   const [activeTab, setActiveTab] = useState("overview");
+  const assistant = useHerdAssistant();
 
   return (
     <div className="space-y-8 py-6 animate-in fade-in slide-in-from-right-4 duration-700 pb-32">
@@ -200,18 +196,25 @@ export default function AnimalRecordPage({ params }: { params: Promise<{ id: str
         )}
       </div>
 
-      {/* AI Intelligence Trigger */}
-      <AIContextSheet>
-        <button className="fixed bottom-32 right-6 bg-white border border-emerald-100 p-4 rounded-[32px] shadow-[0_20px_40px_rgba(45,77,49,0.2)] flex items-center gap-4 active:scale-95 group transition-all">
-          <div className="w-12 h-12 bg-[#2D4D31] text-white rounded-2xl flex items-center justify-center shadow-lg shadow-[#2D4D31]/20 group-hover:rotate-12 transition-transform">
-             <ShieldCheck size={24} weight="bold" />
-          </div>
-          <div className="text-left pr-4">
-             <p className="text-[13px] font-black text-gray-900 leading-none">Tag Intelligence</p>
-             <p className="text-[10px] font-bold text-emerald-600 uppercase tracking-widest mt-1">Audit Mode</p>
-          </div>
-        </button>
-      </AIContextSheet>
+      <button
+        type="button"
+        onClick={() =>
+          assistant.openAssistant({
+            animalUid: id,
+            animalName: "Bella",
+            autoStartLive: true,
+          })
+        }
+        className="fixed bottom-32 right-6 bg-white border border-emerald-100 p-4 rounded-[32px] shadow-[0_20px_40px_rgba(45,77,49,0.2)] flex items-center gap-4 active:scale-95 group transition-all z-40"
+      >
+        <div className="w-12 h-12 bg-[#2D4D31] text-white rounded-2xl flex items-center justify-center shadow-lg shadow-[#2D4D31]/20 group-hover:rotate-12 transition-transform">
+          <Robot size={24} weight="bold" />
+        </div>
+        <div className="text-left pr-4">
+          <p className="text-[13px] font-black text-gray-900 leading-none">Live AI</p>
+          <p className="text-[10px] font-bold text-emerald-600 uppercase tracking-widest mt-1">Voice assistant</p>
+        </div>
+      </button>
     </div>
   );
 }
