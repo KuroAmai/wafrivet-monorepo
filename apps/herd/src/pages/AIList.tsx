@@ -1,4 +1,4 @@
-import { MagnifyingGlass, CaretRight, Heartbeat, ChartLineUp, Brain } from "@phosphor-icons/react";
+import { MagnifyingGlass, CaretRight, Heartbeat, ChartLineUp, Sparkle } from "@phosphor-icons/react";
 import { Link } from "react-router-dom";
 import { useDocumentTitle } from "@/lib/useDocumentTitle";
 
@@ -74,7 +74,7 @@ export default function AIList() {
             className="flex items-center gap-5 p-5 hover:bg-gray-50 transition-all group active:scale-[0.98] relative"
           >
              <div className="w-16 h-16 rounded-[24px] flex items-center justify-center shrink-0 transition-transform group-hover:scale-105 bg-blue-50 text-blue-500">
-                <Brain size={32} weight="bold" />
+                <Sparkle size={32} weight="fill" />
              </div>
              <div className="flex-1 min-w-0 border-b border-gray-50 pb-5 group-last:border-0">
                 <div className="flex justify-between items-start mb-1">

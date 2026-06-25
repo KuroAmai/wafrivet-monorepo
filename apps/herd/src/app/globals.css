@@ -61,3 +61,14 @@
 @utility animate-pulse-ring {
   animation: pulse-ring 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
 }
+
+@keyframes waveform-pulse {
+  0%, 100% { transform: scaleY(0.2); }
+  50% { transform: scaleY(1.2); }
+}
+
+@utility animate-waveform-pulse {
+  animation: waveform-pulse 0.8s ease-in-out infinite;
+  transform-origin: bottom;
+}
+

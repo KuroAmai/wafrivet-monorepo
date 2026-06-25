@@ -59,13 +59,14 @@ export function HerdAssistantProvider({ children }: { children: ReactNode }) {
   const [animalName, setAnimalName] = useState<string | null>(null);
 
   const userId = useMemo(() => {
-    if (user?.id) return String(user.id).replace(/[^a-zA-Z0-9_-]/g, "").slice(0, 128);
+    const authUser = user as any;
+    if (authUser?.id) return String(authUser.id).replace(/[^a-zA-Z0-9_-]/g, "").slice(0, 128);
     const stored = sessionStorage.getItem("herd_ai_user_id");
     if (stored) return stored;
     const next = `herd${generateId().slice(0, 24)}`;
     sessionStorage.setItem("herd_ai_user_id", next);
     return next;
-  }, [user?.id]);
+  }, [user]);
 
   const sessionIdRef = useRef<string>(
     sessionStorage.getItem("herd_ai_session_id") ?? `herd-${generateId()}`,

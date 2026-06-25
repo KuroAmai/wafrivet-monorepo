@@ -1,6 +1,6 @@
 "use client";
 
-import { Robot } from "@phosphor-icons/react";
+import { Sparkle } from "@phosphor-icons/react";
 import { useHerdAssistant } from "@/context/HerdAssistantContext";
 
 export function HerdAIFloatingBubble() {
@@ -11,9 +11,10 @@ export function HerdAIFloatingBubble() {
       type="button"
       aria-label="Open Herd live AI assistant"
       onClick={() => assistant.openAssistant()}
-      className="fixed bottom-28 right-5 z-50 w-14 h-14 bg-[#2D4D31] text-white rounded-full flex items-center justify-center shadow-[0_16px_40px_rgba(45,77,49,0.35)] active:scale-95 transition-transform border-4 border-white"
+      className="fixed bottom-28 right-5 z-50 w-14 h-14 bg-[#2D4D31] text-white rounded-full flex items-center justify-center shadow-[0_8px_30px_rgba(45,77,49,0.4)] active:scale-90 hover:scale-105 hover:bg-[#395f3d] transition-all duration-300 border-2 border-white"
     >
-      <Robot size={28} weight="bold" />
+      <Sparkle size={26} weight="fill" className="animate-pulse" />
     </button>
   );
 }
+

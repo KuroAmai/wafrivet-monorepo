@@ -4,7 +4,7 @@ import {
   ArrowsClockwise,
   Info,
   CheckCircle,
-  Robot,
+  Sparkle,
 } from "@phosphor-icons/react";
 import { useState } from "react";
 import { Link } from "react-router-dom";
@@ -150,7 +150,7 @@ export default function Scan() {
                 }
                 className="inline-flex items-center gap-2 px-4 py-2 bg-[#2D4D31] text-white rounded-xl text-[11px] font-black uppercase tracking-widest"
               >
-                <Robot size={16} weight="bold" />
+                <Sparkle size={16} weight="fill" />
                 Ask AI about this tag
               </button>
               {lastScan.animalUid && (
