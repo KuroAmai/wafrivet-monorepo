@@ -39,6 +39,9 @@ export type AdminOrderListItemDto = {
 export type CursorMeta = {
   nextCursor: string | null;
   hasNextPage: boolean;
+  total?: number;
+  verifiedCount?: number;
+  inactiveCount?: number;
 };
 
 export type AdminOrderListResponseDto = {

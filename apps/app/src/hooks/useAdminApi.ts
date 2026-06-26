@@ -1,7 +1,7 @@
 "use client";
 
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { adminApi, adminLivestockApi, meApi, queryKeys } from "@wafrivet/api";
+import { adminApi, adminLivestockApi, meApi, catalogApi, queryKeys } from "@wafrivet/api";
 
 export function useWarRoomSnapshot() {
   return useQuery({
@@ -69,10 +69,28 @@ export function useAdminCatalog(params?: {
   cursor?: string;
   isActive?: boolean;
   categoryId?: string;
+  q?: string;
 }) {
   return useQuery({
     queryKey: ["admin", "catalog", params] as const,
     queryFn: () => adminApi.listAdminCatalog(params),
+  });
+}
+
+export function useUpdateAdminSku() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({ id, formData }: { id: string; formData: FormData }) => adminApi.updateSku(id, formData),
+    onSuccess: () => {
+      void queryClient.invalidateQueries({ queryKey: ["admin", "catalog"] });
+    },
+  });
+}
+
+export function useCategories() {
+  return useQuery({
+    queryKey: ["catalog", "categories"] as const,
+    queryFn: () => catalogApi.listCategories(),
   });
 }
 

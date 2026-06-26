@@ -68,8 +68,21 @@ export async function listAdminCatalog(params?: {
   cursor?: string;
   isActive?: boolean;
   categoryId?: string;
+  q?: string;
 }): Promise<AdminCatalogListResponseDto> {
   const { data } = await apiClient.get<AdminCatalogListResponseDto>("/admin/catalog", { params });
+  return data;
+}
+
+export async function updateSku(
+  id: string,
+  formData: FormData,
+): Promise<any> {
+  const { data } = await apiClient.patch(`/admin/catalog/${id}`, formData, {
+    headers: {
+      "Content-Type": "multipart/form-data",
+    },
+  });
   return data;
 }
 
