@@ -15,6 +15,7 @@
  */
 (function (global) {
   "use strict";
+  if (typeof window === "undefined") return;
 
   const SVG_NS = "http://www.w3.org/2000/svg";
   let uid = 0;
@@ -230,4 +231,4 @@
   }
 
   global.liquidGlass = liquidGlass;
-})(window);
+})(typeof window !== "undefined" ? window : {});
