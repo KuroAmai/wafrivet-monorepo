@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from "react";
-import { applyLiquidGlass } from "@/lib/liquidGlass";
+import "@/lib/liquid-glass.js";
 
 const TRACK_DURATION = 35; // 35 seconds for a full loop
 const ICONS = [
@@ -73,7 +73,7 @@ const TrackIcon = ({
 
   useEffect(() => {
     if (isActive || isHovered || !bubbleRef.current) return;
-    const instance = applyLiquidGlass(bubbleRef.current, {
+    const instance = (window as any).liquidGlass(bubbleRef.current, {
       scale: -60,
       border: 0.08,
       mapBlur: 8,
@@ -153,7 +153,7 @@ export const SolutionSection = () => {
 
   useEffect(() => {
     if (!activeItem || !cardRef.current) return;
-    const instance = applyLiquidGlass(cardRef.current, {
+    const instance = (window as any).liquidGlass(cardRef.current, {
       scale: -100,
       border: 0.08,
       mapBlur: 10,
