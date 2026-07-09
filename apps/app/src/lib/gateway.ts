@@ -1,5 +1,5 @@
 const DEFAULT_GATEWAY =
-  "https://wafrivet-api-gateway-wdvfp4toqa-ew.a.run.app/api/v1";
+  "http://localhost:3000/api/v1";
 
 function readEnvUrl(...keys: string[]): string | undefined {
   for (const key of keys) {

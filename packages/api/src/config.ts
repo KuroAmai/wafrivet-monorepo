@@ -1,10 +1,10 @@
 const DEFAULT_GATEWAY =
-  "https://wafrivet-api-gateway-wdvfp4toqa-ew.a.run.app/api/v1";
+  "http://localhost:3000/api/v1";
 
-const DEFAULT_CORE = "https://wafrivet-core-wdvfp4toqa-ew.a.run.app";
+const DEFAULT_CORE = "http://localhost:3001";
 
 const DEFAULT_FIELD_VET =
-  "https://wafrivet-field-vet-wdvfp4toqa-ew.a.run.app";
+  "http://localhost:3000";
 
 function readEnv(key: string): string | undefined {
   try {

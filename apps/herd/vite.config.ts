@@ -16,7 +16,7 @@ export default defineConfig({
       "/api/gateway": {
         target:
           process.env.VITE_API_URL ??
-          "https://wafrivet-api-gateway-wdvfp4toqa-ew.a.run.app",
+          "http://localhost:3000",
         changeOrigin: true,
         rewrite: (path) => path.replace(/^\/api\/gateway/, ""),
       },

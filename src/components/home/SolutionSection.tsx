@@ -1,4 +1,5 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
+import { applyLiquidGlass } from "@/lib/liquidGlass";
 
 const TRACK_DURATION = 35; // 35 seconds for a full loop
 const ICONS = [
@@ -68,6 +69,19 @@ const TrackIcon = ({
   const delay = -(TRACK_DURATION / ICONS.length) * index;
   const flatGlass = isGeckoLike();
 
+  const bubbleRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (isActive || isHovered || !bubbleRef.current) return;
+    const instance = applyLiquidGlass(bubbleRef.current, {
+      scale: -60,
+      border: 0.08,
+      mapBlur: 8,
+      blur: 12,
+    });
+    return () => instance.destroy();
+  }, [isActive, isHovered]);
+
   return (
     <foreignObject
       width="140"
@@ -89,6 +103,7 @@ const TrackIcon = ({
         <div className="group relative flex items-center justify-center pointer-events-auto">
           {/* The glass bubble: Interactive trigger specifically on the icon shell */}
           <div
+            ref={bubbleRef}
             className={`relative w-[84px] h-[84px] rounded-full p-2.5 
               transition-all duration-500 ease-[cubic-bezier(0.34,1.56,0.64,1)] flex items-center justify-center cursor-pointer
               ${(isActive || isHovered)
@@ -120,6 +135,8 @@ export const SolutionSection = () => {
   const [hoveredIndex, setHoveredIndex] = useState<number | null>(null);
   const flatGlass = isGeckoLike();
 
+  const cardRef = useRef<HTMLDivElement>(null);
+
   useEffect(() => {
     const style = document.createElement('style');
     style.innerHTML = `
@@ -133,6 +150,17 @@ export const SolutionSection = () => {
   }, []);
 
   const activeItem = activeIndex !== null ? ICONS[activeIndex] : hoveredIndex !== null ? ICONS[hoveredIndex] : null;
+
+  useEffect(() => {
+    if (!activeItem || !cardRef.current) return;
+    const instance = applyLiquidGlass(cardRef.current, {
+      scale: -100,
+      border: 0.08,
+      mapBlur: 10,
+      blur: 24,
+    });
+    return () => instance.destroy();
+  }, [activeItem]);
 
   return (
     <section
@@ -209,7 +237,10 @@ export const SolutionSection = () => {
             transition-all duration-700 ease-[cubic-bezier(0.23,1,0.32,1)]
             ${activeItem ? 'translate-y-0 opacity-100 scale-100' : 'translate-y-8 opacity-0 scale-95 pointer-events-none'}
           `}>
-            <div className="relative group overflow-hidden rounded-[32px] p-8 backdrop-blur-[24px] bg-white/25 border-[0.5px] border-white/45 shadow-[0_25px_50px_-18px_rgba(0,0,0,0.28),inset_0_1px_0_rgba(255,255,255,0.35),inset_0_-1px_0_rgba(0,0,0,0.12)]">
+            <div
+              ref={cardRef}
+              className="relative group overflow-hidden rounded-[32px] p-8 backdrop-blur-[24px] bg-white/25 border-[0.5px] border-white/45 shadow-[0_25px_50px_-18px_rgba(0,0,0,0.28),inset_0_1px_0_rgba(255,255,255,0.35),inset_0_-1px_0_rgba(0,0,0,0.12)]"
+            >
               {/* Specular Surface Reflection (Sharp Highlight) */}
               <div className="absolute -top-1/2 -left-1/2 w-[200%] h-[200%] bg-gradient-to-tr from-transparent via-white/20 to-white/40 mix-blend-overlay rotate-[35deg] pointer-events-none transition-transform duration-1000 group-hover:translate-x-4 group-hover:-translate-y-4" />
 
