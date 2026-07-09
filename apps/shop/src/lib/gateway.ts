@@ -1,5 +1,5 @@
 const DEFAULT_GATEWAY =
-  "http://localhost:3000/api/v1";
+  "https://wafrivet-api-gateway-wdvfp4toqa-ew.a.run.app/api/v1";
 
 export const GATEWAY_URL = (
   process.env.API_URL ??
